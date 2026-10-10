@@ -38,7 +38,7 @@ IndustryActivity activity(String code, String product, String target) =>
 void main() {
   for (final width in [320.0, 1280.0]) {
     testWidgets(
-      'company labels use at most two lines without vertical clipping at 2x text size at $width',
+      'company labels use one line without vertical clipping at 2x text size at $width',
       (tester) async {
         await tester.binding.setSurfaceSize(Size(width, 900));
         addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -101,7 +101,8 @@ void main() {
         final nameParagraph = tester.renderObject<RenderParagraph>(
           find.text(name),
         );
-        expect(nameParagraph.maxLines, 2);
+        expect(nameParagraph.maxLines, 1);
+        expect(nameParagraph.overflow, TextOverflow.ellipsis);
         expect(
           nameParagraph.size.height + 0.5,
           greaterThanOrEqualTo(

@@ -811,7 +811,7 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                   child: Text(
                     name,
                     textAlign: TextAlign.left,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: context.typo.body(15, weight: FontWeight.w600),
                   ),
@@ -819,7 +819,7 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
               ),
               const SizedBox(height: AppSpace.xs),
               Text.rich(
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 TextSpan(
                   children: [
@@ -844,6 +844,8 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
               ))
                 Text(
                   '등록 업종 근거 · 세부 사업 확인 전',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: context.typo.body(12, color: context.colors.textMuted),
                 ),
               if (items.every(
@@ -851,6 +853,8 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
               ))
                 Text(
                   '공시로 사업군 확인 · 세부 제품 확인 전',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: context.typo.body(12, color: context.colors.textMuted),
                 ),
             ],
