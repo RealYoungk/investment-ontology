@@ -34,8 +34,23 @@ abstract final class FinancialBasis {
     Set<int> blockedAnnualFlowReportIds = const {},
   }) {
     final ids = FinancialAccounts.accountIds.map((id) => "'$id'").join(',');
+    final companyScope = companyId != null
+        ? 'r."companyId" = $companyId'
+        : companyIds == null
+        ? null
+        : companyIds.isEmpty
+        ? 'false'
+        : 'r."companyId" IN (${companyIds.join(',')})';
+    // eligible_reports is referenced more than once and may be materialized.
+    // Scope its input before provenance checks for a company detail request.
+    final eligible = companyScope == null
+        ? eligibleReportsCte
+        : eligibleReportsCte.replaceFirst(
+            'WHERE CASE WHEN',
+            'WHERE $companyScope AND CASE WHEN',
+          );
     return '''
-      $eligibleReportsCte, rank_code AS (
+      $eligible, rank_code AS (
         SELECT * FROM (VALUES ('q1',1),('halfYear',2),('q3',3),('annual',4)) AS t(code,rk)
       ), active_reports AS (
         SELECT DISTINCT ON (r."companyId",r."fsDiv",r."bsnsYear",r."reportCode") r.*

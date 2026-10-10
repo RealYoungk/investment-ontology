@@ -28,11 +28,11 @@ class CompanyOverviewTab extends StatelessWidget {
       BusinessGuidePanel(
         corpCode: detail.company.corpCode,
         latestReport: latestReport,
-      ),
-      BusinessOperatingSection(
-        corpCode: detail.company.corpCode,
-        dataVersion: dataVersion,
-        latestReport: latestReport,
+        afterRevenue: BusinessOperatingSection(
+          corpCode: detail.company.corpCode,
+          dataVersion: dataVersion,
+          latestReport: latestReport,
+        ),
       ),
     ];
     return Column(

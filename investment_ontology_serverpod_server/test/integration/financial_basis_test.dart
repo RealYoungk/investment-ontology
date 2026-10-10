@@ -5,10 +5,10 @@ import 'package:serverpod/serverpod.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_basis.dart';
 import 'package:test/test.dart';
 
-import 'test_tools/serverpod_test_tools.dart';
+import '../support/storage_test_server.dart';
 
 void main() {
-  withServerpod('Financial basis edge cases', (builder, endpoints) {
+  withStorageServerpod('Financial basis edge cases', (builder, endpoints) {
     late Session session;
     late Company company;
     late Source source;

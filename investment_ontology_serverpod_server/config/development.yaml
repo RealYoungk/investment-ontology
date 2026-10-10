@@ -32,7 +32,7 @@ database:
   host: localhost
   port: 8090
   # Writable development copy; investment_ontology_serverpod remains frozen.
-  name: investment_ontology_dev
+  name: investment_ontology_cloud_20261006
   user: postgres
   #requireSsl: true # defaults to false
   #isUnixSocket: true # defaults to false
@@ -75,5 +75,10 @@ allowedOrigins:
   - http://127.0.0.1:8100
   - http://localhost:8082
   - http://127.0.0.1:8082
+  # Same-network phone preview on this development machine.
+  - http://192.168.45.146:8082
+  - http://192.168.45.146:8100
+  - http://192.168.45.48:8082
+  - http://192.168.45.48:8100
   - http://localhost:8110
   - http://127.0.0.1:8110

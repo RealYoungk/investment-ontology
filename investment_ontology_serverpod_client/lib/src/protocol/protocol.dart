@@ -1668,6 +1668,20 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == _isc.getType<List<_ith4ion6.DividendEntry>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_ith4ion6.DividendEntry>(e))
+                    .toList()
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<List<int>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<int>(e)).toList()
+              : null)
+          as T;
+    }
     if (t == List<_irah5hi6.ThemeMemberView>) {
       return (data as List)
               .map((e) => deserialize<_irah5hi6.ThemeMemberView>(e))

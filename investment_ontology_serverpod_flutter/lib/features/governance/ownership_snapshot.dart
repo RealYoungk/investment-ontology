@@ -37,14 +37,20 @@ class OwnershipSnapshotCard extends StatelessWidget {
     final primary = holders.where((h) => h.weight != 0).toList();
     final total = GovernanceView(data).holderTotal();
     final date = data.shareholderPeriodEnd ?? data.settlementDate;
-    final valid = total != null && total >= 0 && total <= 100;
+    final kinds = data.shareholders
+        .where((s) => GovernanceView.isCommon(s.stockKind))
+        .map((s) => s.stockKind?.trim() ?? '주식 종류 미표기')
+        .toSet();
+    final basis = kinds.length == 1 ? kinds.single : '공시 주식 종류 혼재';
+    final valid =
+        total != null && total >= 0 && total <= 100 && kinds.length == 1;
     return CompanyDataCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ?header,
           Text(
-            '${date == null ? '기준일 미확인' : '${formatDate(date)} 기준'} · 보통주',
+            '${date == null ? '기준일 미확인' : '${formatDate(date)} 기준'} · $basis',
             style: t.body(12, color: c.textSecondary),
           ),
           const SizedBox(height: AppSpace.sm),
@@ -59,22 +65,18 @@ class OwnershipSnapshotCard extends StatelessWidget {
           ),
           if (valid) ...[
             const SizedBox(height: AppSpace.sm),
-            Semantics(
-              label: '전체 보통주 100% 중 최대주주와 관계인 ${formatRatio(total)}',
-              child: ShadProgress(
-                value: total / 100,
-                minHeight: 5,
-                color: c.chartSeries1,
-                backgroundColor: c.chartGrid,
-              ),
-            ),
+            _OwnershipComposition(holders: holders, total: total, basis: basis),
           ] else
             Text(
               '보통주 지분율을 확인할 자료가 부족해요.',
               style: t.body(12, color: c.textSecondary),
             ),
           const SizedBox(height: AppSpace.md),
-          for (final holder in primary) _SnapshotHolderRow(holder: holder),
+          for (final holder in primary)
+            _SnapshotHolderRow(
+              holder: holder,
+              shares: snapshotQuantities(data, holder).end,
+            ),
           if (minor.isNotEmpty)
             Material(
               color: c.surface,
@@ -157,8 +159,10 @@ class _SnapshotHolderRow extends StatelessWidget {
   const _SnapshotHolderRow({
     required this.holder,
     this.quantities,
+    this.shares,
     this.comparisonDate,
   });
+  final BigInt? shares;
   final DateTime? comparisonDate;
   final GovernanceNode holder;
   final ({BigInt? end, BigInt? change})? quantities;
@@ -203,6 +207,11 @@ class _SnapshotHolderRow extends StatelessWidget {
                   textAlign: TextAlign.right,
                   style: t.numeric(13, color: c.textSecondary),
                 ),
+                if (q == null && shares != null)
+                  Text(
+                    '${formatCount(shares!.toInt())}주',
+                    style: t.numeric(11, color: c.textMuted),
+                  ),
                 if (q != null && q.change != null && comparisonDate != null)
                   Text(
                     q.change == BigInt.zero
@@ -216,6 +225,98 @@ class _SnapshotHolderRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _OwnershipComposition extends StatelessWidget {
+  const _OwnershipComposition({
+    required this.holders,
+    required this.total,
+    required this.basis,
+  });
+  final List<GovernanceNode> holders;
+  final double total;
+  final String basis;
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final palette = categoricalChartColors(context);
+    final known = holders
+        .where((h) => h.weight != null && h.weight! > 0)
+        .toList();
+    final sum = known.fold<double>(0, (v, h) => v + h.weight!);
+    if (sum > 100 || (sum - total).abs() > 0.2) {
+      return Text(
+        '주주별 지분 합계와 공시 합계가 달라 구성 차트를 표시하지 않습니다.',
+        style: context.typo.body(12, color: c.textMuted),
+      );
+    }
+    final small = known
+        .where((h) => h.weight! < 1)
+        .fold<double>(0, (v, h) => v + h.weight!);
+    final segments = [
+      for (final h in known.where((h) => h.weight! >= 1)) (h.name, h.weight!),
+      if (small > 0) ('소량 보유 관계인', small),
+      if (total > sum) ('그 외 관계인', total - sum),
+      if (total < 100) ('그 외 주주', 100 - total),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 24,
+          child: LayoutBuilder(
+            builder: (context, box) => Row(
+              children: [
+                for (final (i, s) in segments.indexed)
+                  ShadTooltip(
+                    builder: (_) => Text('${s.$1} · ${formatRatio(s.$2)}'),
+                    child: Semantics(
+                      label: '${s.$1} ${formatRatio(s.$2)}',
+                      child: Container(
+                        width: box.maxWidth * s.$2 / 100,
+                        color: s.$1 == '그 외 주주'
+                            ? c.chartGrid
+                            : palette[i % palette.length],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpace.sm),
+        Wrap(
+          spacing: AppSpace.md,
+          runSpacing: AppSpace.xs,
+          children: [
+            for (final (i, s) in segments.indexed)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    color: s.$1 == '그 외 주주'
+                        ? c.chartGrid
+                        : palette[i % palette.length],
+                  ),
+                  const SizedBox(width: AppSpace.xs),
+                  Text(
+                    '${s.$1} ${formatRatio(s.$2)}',
+                    style: context.typo.body(11),
+                  ),
+                ],
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          '그 외 주주 = 전체 $basis에서 최대주주·관계인 공시 지분을 뺀 비중',
+          style: context.typo.body(11, color: c.textMuted),
+        ),
+      ],
     );
   }
 }

@@ -891,11 +891,15 @@ class EndpointDisclosure extends _isc.EndpointRef {
 
   /// 연간 배당(사업보고서마다 당기·전기·전전기) · 가장 최근 자기주식 · 주식 총수.
   _ida.Future<_ir6fk3mk.ShareholderReturn?> shareholderReturn(
-    String corpCode,
-  ) => caller.callServerEndpoint<_ir6fk3mk.ShareholderReturn?>(
+    String corpCode, {
+    int? bsnsYear,
+  }) => caller.callServerEndpoint<_ir6fk3mk.ShareholderReturn?>(
     'disclosure',
     'shareholderReturn',
-    {'corpCode': corpCode},
+    {
+      'corpCode': corpCode,
+      'bsnsYear': bsnsYear,
+    },
   );
 
   /// 기업의 '본문에서 뽑은 값' 가운데 승인된 것 (수주잔고·가동률·점유율 등).
@@ -1132,11 +1136,11 @@ class EndpointIndustry extends _isc.EndpointRef {
   String get name => 'industry';
 
   /// All listed companies with explicitly separated classification evidence.
-  _ida.Future<_i0di9pdr.IndustryDiscovery> browse() =>
+  _ida.Future<_i0di9pdr.IndustryDiscovery> browse({String? industry}) =>
       caller.callServerEndpoint<_i0di9pdr.IndustryDiscovery>(
         'industry',
         'browse',
-        {},
+        {'industry': industry},
       );
 
   /// Evidence-backed semiconductor pilot. Shared company information is public.
@@ -1144,6 +1148,14 @@ class EndpointIndustry extends _isc.EndpointRef {
       caller.callServerEndpoint<_i0di9pdr.IndustryDiscovery>(
         'industry',
         'discover',
+        {},
+      );
+
+  /// Explicit server classification maintenance remains protected even in local development.
+  _ida.Future<_i0di9pdr.IndustryDiscovery> rebuild() =>
+      caller.callServerEndpoint<_i0di9pdr.IndustryDiscovery>(
+        'industry',
+        'rebuild',
         {},
       );
 }

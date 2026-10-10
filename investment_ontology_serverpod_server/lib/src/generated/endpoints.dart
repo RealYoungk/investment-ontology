@@ -1358,6 +1358,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<String>(),
               nullable: false,
             ),
+            'bsnsYear': _is.ParameterDescription(
+              name: 'bsnsYear',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1368,6 +1373,7 @@ class Endpoints extends _is.EndpointDispatch {
                       .shareholderReturn(
                         session,
                         params['corpCode'],
+                        bsnsYear: params['bsnsYear'],
                       ),
         ),
         'facts': _is.MethodConnector(
@@ -1767,13 +1773,22 @@ class Endpoints extends _is.EndpointDispatch {
       methodConnectors: {
         'browse': _is.MethodConnector(
           name: 'browse',
-          params: {},
+          params: {
+            'industry': _is.ParameterDescription(
+              name: 'industry',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
           call:
               (
                 _is.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['industry'] as _ihimn963.IndustryEndpoint)
-                  .browse(session),
+              ) async =>
+                  (endpoints['industry'] as _ihimn963.IndustryEndpoint).browse(
+                    session,
+                    industry: params['industry'],
+                  ),
         ),
         'discover': _is.MethodConnector(
           name: 'discover',
@@ -1784,6 +1799,16 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['industry'] as _ihimn963.IndustryEndpoint)
                   .discover(session),
+        ),
+        'rebuild': _is.MethodConnector(
+          name: 'rebuild',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['industry'] as _ihimn963.IndustryEndpoint)
+                  .rebuild(session),
         ),
       },
     );

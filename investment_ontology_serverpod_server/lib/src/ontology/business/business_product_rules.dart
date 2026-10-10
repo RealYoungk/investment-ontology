@@ -7,7 +7,7 @@ import 'current_product_rows.dart';
 /// No company identifiers, customer lists, forecasts or automatic AI summaries.
 abstract final class BusinessProductRules {
   // Product vocabulary updates invalidate the stored explanations as well.
-  static const version = 40001 + PeerRules.version;
+  static const version = 40003 + PeerRules.version;
   static final _excluded = RegExp(
     r'경쟁|타사|개발\s*중|개발\s*예정|출시\s*예정|계획|목표|종속회사|자회사|파이프라인|임상',
   );

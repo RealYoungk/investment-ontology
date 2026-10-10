@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'src/ontology/peers/all_industry_catalog.dart';
+
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_cloud_storage/serverpod_cloud_storage.dart';
 
@@ -105,6 +107,7 @@ void run(List<String> args) async {
 
   // Start the server.
   await pod.start();
+  AllIndustryCatalog.start(pod);
 
   // 조회 전용 배포는 작업을 복구하거나 예약하지 않는다. 같은 DB를 쓰는
   // 수집 worker의 실행 중 작업을 끊긴 작업으로 오인하지 않도록 한다.

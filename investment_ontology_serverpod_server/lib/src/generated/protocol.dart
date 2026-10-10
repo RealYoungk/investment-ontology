@@ -160,6 +160,7 @@ import 'ontology/models/index_history.dart' as _iocwvagy;
 import 'ontology/models/index_point.dart' as _it75qdkc;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
 import 'ontology/models/industry_activity.dart' as _if5qperq;
+import 'ontology/models/industry_catalog_snapshot.dart' as _itl62zkj;
 import 'ontology/models/industry_discovery.dart' as _ixuxxo68;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_coverage.dart' as _il0sbv1h;
@@ -312,6 +313,7 @@ export 'ontology/models/index_history.dart';
 export 'ontology/models/index_point.dart';
 export 'ontology/models/industry.dart';
 export 'ontology/models/industry_activity.dart';
+export 'ontology/models/industry_catalog_snapshot.dart';
 export 'ontology/models/industry_discovery.dart';
 export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_coverage.dart';
@@ -3393,6 +3395,74 @@ class Protocol extends _is.DatabaseSerializationManager {
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'code',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'industry_catalog_snapshot',
+      dartName: 'IndustryCatalogSnapshot',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'snapshotKey',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceFingerprint',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'builderVersion',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'catalog',
+          columnType: _isp.ColumnType.json,
+          isNullable: false,
+          dartType: 'protocol:IndustryDiscovery',
+        ),
+        _isp.ColumnDefinition(
+          name: 'pilot',
+          columnType: _isp.ColumnType.json,
+          isNullable: false,
+          dartType: 'protocol:IndustryDiscovery',
+        ),
+        _isp.ColumnDefinition(
+          name: 'computedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'industry_catalog_snapshot_key_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'snapshotKey',
             ),
           ],
           type: 'btree',
@@ -6501,6 +6571,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _if5qperq.IndustryActivity) {
       return _if5qperq.IndustryActivity.fromJson(data) as T;
     }
+    if (t == _itl62zkj.IndustryCatalogSnapshot) {
+      return _itl62zkj.IndustryCatalogSnapshot.fromJson(data) as T;
+    }
     if (t == _ixuxxo68.IndustryDiscovery) {
       return _ixuxxo68.IndustryDiscovery.fromJson(data) as T;
     }
@@ -7090,6 +7163,12 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _if5qperq.IndustryActivity.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_itl62zkj.IndustryCatalogSnapshot?>()) {
+      return (data != null
+              ? _itl62zkj.IndustryCatalogSnapshot.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _is.getType<_ixuxxo68.IndustryDiscovery?>()) {
       return (data != null ? _ixuxxo68.IndustryDiscovery.fromJson(data) : null)
           as T;
@@ -7666,6 +7745,20 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == _is.getType<List<_ith4ion6.DividendEntry>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_ith4ion6.DividendEntry>(e))
+                    .toList()
+              : null)
+          as T;
+    }
+    if (t == _is.getType<List<int>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<int>(e)).toList()
+              : null)
+          as T;
+    }
     if (t == List<_irah5hi6.ThemeMemberView>) {
       return (data as List)
               .map((e) => deserialize<_irah5hi6.ThemeMemberView>(e))
@@ -7944,6 +8037,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _it75qdkc.IndexPoint => 'IndexPoint',
       _i3hzx3f1.Industry => 'Industry',
       _if5qperq.IndustryActivity => 'IndustryActivity',
+      _itl62zkj.IndustryCatalogSnapshot => 'IndustryCatalogSnapshot',
       _ixuxxo68.IndustryDiscovery => 'IndustryDiscovery',
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _il0sbv1h.IngestCoverage => 'IngestCoverage',
@@ -8210,6 +8304,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'Industry';
       case _if5qperq.IndustryActivity():
         return 'IndustryActivity';
+      case _itl62zkj.IndustryCatalogSnapshot():
+        return 'IndustryCatalogSnapshot';
       case _ixuxxo68.IndustryDiscovery():
         return 'IndustryDiscovery';
       case _i25uuckt.IndustryRevisionCheck():
@@ -8659,6 +8755,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'IndustryActivity') {
       return deserialize<_if5qperq.IndustryActivity>(data['data']);
     }
+    if (dataClassName == 'IndustryCatalogSnapshot') {
+      return deserialize<_itl62zkj.IndustryCatalogSnapshot>(data['data']);
+    }
     if (dataClassName == 'IndustryDiscovery') {
       return deserialize<_ixuxxo68.IndustryDiscovery>(data['data']);
     }
@@ -8967,6 +9066,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _i1qwjg2x.FinancialReport.t;
       case _i3hzx3f1.Industry:
         return _i3hzx3f1.Industry.t;
+      case _itl62zkj.IndustryCatalogSnapshot:
+        return _itl62zkj.IndustryCatalogSnapshot.t;
       case _iay1heal.IngestJob:
         return _iay1heal.IngestJob.t;
       case _i9p8kpm7.InvestmentEntry:

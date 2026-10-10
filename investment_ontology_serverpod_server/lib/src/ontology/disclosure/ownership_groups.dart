@@ -1,3 +1,5 @@
+import '../presentation/company_presentation.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -84,7 +86,7 @@ class OwnershipGroups {
               company: CompanyRef(
                 id: id,
                 corpCode: c.corpCode,
-                name: c.name,
+                name: c.displayName,
                 market: c.market,
               ),
               marketCap: caps.caps[id],

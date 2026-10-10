@@ -63,9 +63,10 @@ class DisclosureEndpoint extends Endpoint {
     if (company == null) return null;
     final reports = await _reports(session, company.id!, section: section);
     if (reports.isEmpty) return null;
-    final report =
-        reports.where((r) => r.bsnsYear == bsnsYear).firstOrNull ??
-        reports.first;
+    final report = bsnsYear == null
+        ? reports.first
+        : reports.where((r) => r.bsnsYear == bsnsYear).firstOrNull;
+    if (report == null) return null;
     final rows = await DisclosureRow.db.find(
       session,
       where: (t) => t.reportId.equals(report.id!),
@@ -130,7 +131,7 @@ class DisclosureEndpoint extends Endpoint {
             ') p WHERE p."bsnsYear"=@year ORDER BY',
           );
     final rows = await session.db.unsafeQuery(
-      'SELECT latest."documentId", latest."reportName" FROM ($selector) latest WHERE latest."companyId"=@id',
+      'SELECT latest."documentId", latest."reportName", latest."rceptNo" FROM ($selector) latest WHERE latest."companyId"=@id',
       parameters: QueryParameters.named({
         'id': company.id!,
         'year': ?bsnsYear,
@@ -174,6 +175,8 @@ class DisclosureEndpoint extends Endpoint {
       rceptNo: doc.rceptNo,
       title: isFallback
           ? '이전 저장 보고서 · 최신 ${latestReportName ?? '정기보고서'} 본문 수집 대기'
+          : rows.firstOrNull?[2] != doc.rceptNo
+          ? '첨부정정의 동일 보고기간 원본문 · ${doc.rceptNo}'
           : doc.title,
       sections: [
         for (final s in BusinessText.sections(doc.text))
@@ -198,18 +201,65 @@ class DisclosureEndpoint extends Endpoint {
   /// 연간 배당(사업보고서마다 당기·전기·전전기) · 가장 최근 자기주식 · 주식 총수.
   Future<ShareholderReturn?> shareholderReturn(
     Session session,
-    String corpCode,
-  ) async {
+    String corpCode, {
+    int? bsnsYear,
+  }) async {
     final company = await _company(session, corpCode);
     if (company == null) return null;
     final companyId = company.id!;
-    final reports = await _reports(session, companyId);
-    DisclosureReport? latest(DartSection s) =>
-        reports.where((r) => r.section == s).firstOrNull;
+    final reports = await _reports(session, companyId, includeInterim: true);
+    int reportRank(FinancialReportCode code) => switch (code) {
+      FinancialReportCode.annual => 4,
+      FinancialReportCode.q3 => 3,
+      FinancialReportCode.halfYear => 2,
+      FinancialReportCode.q1 => 1,
+    };
+    reports.sort((a, b) {
+      final year = b.bsnsYear.compareTo(a.bsnsYear);
+      if (year != 0) return year;
+      final period = reportRank(b.reportCode)
+          .compareTo(reportRank(a.reportCode));
+      return period != 0 ? period : b.rceptNo.compareTo(a.rceptNo);
+    });
+    final filings = await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.companyId.equals(companyId) &
+          t.bsnsYear.notEquals(null) &
+          t.reportCode.notEquals(null),
+      orderByList: (t) => [t.bsnsYear.desc(), t.rceptNo.desc()],
+    );
+    int rank(FinancialReportCode code) => switch (code) {
+      FinancialReportCode.annual => 4,
+      FinancialReportCode.q3 => 3,
+      FinancialReportCode.halfYear => 2,
+      FinancialReportCode.q1 => 1,
+    };
+    filings.sort((a, b) {
+      final year = b.bsnsYear!.compareTo(a.bsnsYear!);
+      if (year != 0) return year;
+      final period = rank(b.reportCode!).compareTo(rank(a.reportCode!));
+      return period != 0 ? period : b.rceptNo.compareTo(a.rceptNo);
+    });
+    final expected = filings.firstOrNull;
+    String periodName(DisclosureReport r) =>
+        '${r.bsnsYear}년 ${switch (r.reportCode) {
+          FinancialReportCode.annual => '연간',
+          FinancialReportCode.q1 => '1분기',
+          FinancialReportCode.halfYear => '상반기',
+          FinancialReportCode.q3 => '3분기 누적',
+        }}';
+    DisclosureReport? latest(DartSection s) => reports
+        .where(
+          (r) => r.section == s && (bsnsYear == null || r.bsnsYear == bsnsYear),
+        )
+        .firstOrNull;
 
     final dividendReports = {
       for (final r in reports)
-        if (r.section == DartSection.dividend) r.id!,
+        if (r.section == DartSection.dividend &&
+            r.reportCode == FinancialReportCode.annual)
+          r.id!,
     };
     final dividends = dividendReports.isEmpty
         ? <DividendEntry>[]
@@ -218,20 +268,46 @@ class DisclosureEndpoint extends Endpoint {
             where: (t) => t.reportId.inSet(dividendReports),
             orderByList: (t) => [t.bsnsYear.desc(), t.ord.asc()],
           );
-    final seenDividends = <String>{};
-    dividends.removeWhere(
-      (e) => !seenDividends.add(
-        jsonEncode([
-          e.reportId,
-          e.item,
-          e.unit,
-          e.stockKind,
-          e.current,
-          e.prior,
-          e.beforePrior,
-        ]),
-      ),
-    );
+    final interimReport = reports
+        .where(
+          (r) =>
+              r.section == DartSection.dividend &&
+              r.reportCode != FinancialReportCode.annual,
+        )
+        .firstOrNull;
+    // Keep a stale interim out of the latest report slot.
+    final currentInterim =
+        interimReport != null &&
+            (expected == null ||
+                (interimReport.bsnsYear == expected.bsnsYear &&
+                    interimReport.reportCode == expected.reportCode))
+        ? interimReport
+        : null;
+    final interimDividends = currentInterim == null
+        ? <DividendEntry>[]
+        : await DividendEntry.db.find(
+            session,
+            where: (t) => t.reportId.equals(currentInterim.id!),
+            orderBy: (t) => t.ord,
+          );
+    // Ord is source order, not business identity. Preserve different periods,
+    // stock classes and numbers; collapse only exact repeated observations.
+    for (final entries in [dividends, interimDividends]) {
+      final seen = <String>{};
+      entries.removeWhere(
+        (e) => !seen.add(
+          jsonEncode([
+            e.reportId,
+            e.item,
+            e.unit,
+            e.stockKind,
+            e.current,
+            e.prior,
+            e.beforePrior,
+          ]),
+        ),
+      );
+    }
     final treasuryReport = latest(DartSection.treasuryStock);
     final treasury = treasuryReport == null
         ? <TreasuryStockEntry>[]
@@ -260,9 +336,30 @@ class DisclosureEndpoint extends Endpoint {
                 );
               }(),
           ];
+    final ledger = expected == null
+        ? <DartFilingSection>[]
+        : await DartFilingSection.db.find(
+            session,
+            where: (t) => t.filingId.equals(expected.id!),
+          );
+    String statusFor(DartSection section, DisclosureReport? actual) {
+      if (expected == null) return actual == null ? 'pending' : 'stored';
+      if (actual != null &&
+          actual.bsnsYear == expected.bsnsYear &&
+          actual.reportCode == expected.reportCode)
+        return 'stored';
+      return ledger
+              .where((l) => l.section == section)
+              .firstOrNull
+              ?.status
+              .name ??
+          'pending';
+    }
+
     final sourceIds = {
       for (final r in reports)
-        if (r.section == DartSection.dividend ||
+        if (dividendReports.contains(r.id) ||
+            r.id == currentInterim?.id ||
             r.id == treasuryReport?.id ||
             r.id == totalReport?.id)
           r.sourceId,
@@ -270,6 +367,32 @@ class DisclosureEndpoint extends Endpoint {
     return ShareholderReturn(
       corpCode: corpCode,
       dividends: dividends,
+      interimDividends: interimDividends,
+      latestDividendStatus: statusFor(DartSection.dividend, currentInterim),
+      latestTreasuryStatus: statusFor(
+        DartSection.treasuryStock,
+        treasuryReport,
+      ),
+      latestStockTotalStatus: statusFor(DartSection.stockTotal, totalReport),
+      interimReportName: currentInterim == null
+          ? null
+          : periodName(currentInterim),
+      treasuryReportName: treasuryReport == null
+          ? null
+          : periodName(treasuryReport),
+      stockTotalReportName: totalReport == null
+          ? null
+          : periodName(totalReport),
+      latestReportName: expected?.reportName,
+      latestYear: expected?.bsnsYear,
+      annualEndYear: expected == null
+          ? null
+          : expected.bsnsYear! -
+                (expected.reportCode == FinancialReportCode.annual ? 0 : 1),
+      availableYears: {
+        for (final r in reports) r.bsnsYear,
+        if (expected?.bsnsYear != null) expected!.bsnsYear!,
+      }.toList()..sort(),
       treasuryYear: treasuryReport?.bsnsYear,
       treasury: treasury,
       stockTotalYear: totalReport?.bsnsYear,
@@ -298,17 +421,22 @@ class DisclosureEndpoint extends Endpoint {
     Session session,
     int companyId, {
     DartSection? section,
+    bool includeInterim = false,
   }) => DisclosureReport.db.find(
     session,
     where: (t) {
       Expression e =
-          t.companyId.equals(companyId) &
-          t.supersededById.equals(null) &
-          t.reportCode.equals(FinancialReportCode.annual);
+          t.companyId.equals(companyId) & t.supersededById.equals(null);
+      if (!includeInterim)
+        e = e & t.reportCode.equals(FinancialReportCode.annual);
       if (section != null) e = e & t.section.equals(section);
       return e;
     },
-    orderByList: (t) => [t.bsnsYear.desc()],
+    orderByList: (t) => [
+      t.bsnsYear.desc(),
+      t.settlementDate.desc(),
+      t.rceptNo.desc(),
+    ],
   );
 
   /// 기업의 '본문에서 뽑은 값' 가운데 승인된 것 (수주잔고·가동률·점유율 등).

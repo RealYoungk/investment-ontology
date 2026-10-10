@@ -4,7 +4,8 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../financials/financial_metrics.dart';
-import 'business_operating_section.dart' show businessFactDate;
+import 'business_operating_section.dart'
+    show businessFactDate, operatingLatestPeriod;
 import 'revenue_composition.dart' show revenuePresentation;
 
 /// Keep statement periods, units and the original classification distinct.
@@ -41,9 +42,52 @@ double? revenueTrendValue(
   return values.length == 1 ? values.single : null;
 }
 
+List<DateTime> revenueTrendDates(
+  List<DocumentFact> facts,
+  List<BusinessFactPeriod> periods, {
+  FinancialPeriod? latestReport,
+}) {
+  final actual = facts.map(businessFactDate).toSet();
+  final latest = operatingLatestPeriod(periods, latestReport);
+  final lastDate = actual.toList()..sort();
+  if (latest == null && lastDate.isEmpty) return [];
+  final last = latest?.periodEnd ?? lastDate.last;
+  final end = latest != null
+      ? latest.bsnsYear -
+            ((latest.reportCode == FinancialReportCode.annual) ? 0 : 1)
+      : last.year - (last.month == 12 ? 0 : 1);
+  final dates = <DateTime>{
+    for (var y = end - 4; y <= end; y++)
+      periods
+              .where(
+                (p) =>
+                    (p.reportCode == FinancialReportCode.annual) &&
+                    p.bsnsYear == y,
+              )
+              .firstOrNull
+              ?.periodEnd ??
+          DateTime.utc(y, 12, 31),
+    ...actual.where(
+      (d) =>
+          d == last &&
+          (latest == null || latest.reportCode != FinancialReportCode.annual),
+    ),
+    if (latest != null && !(latest.reportCode == FinancialReportCode.annual))
+      latest.periodEnd,
+  }.toList()..sort();
+  return dates;
+}
+
 class RevenueTrends extends StatefulWidget {
-  const RevenueTrends({super.key, required this.facts});
+  const RevenueTrends({
+    super.key,
+    required this.facts,
+    this.periods = const [],
+    this.latestReport,
+  });
   final List<DocumentFact> facts;
+  final List<BusinessFactPeriod> periods;
+  final FinancialPeriod? latestReport;
   @override
   State<RevenueTrends> createState() => _RevenueTrendsState();
 }
@@ -62,7 +106,11 @@ class _RevenueTrendsState extends State<RevenueTrends> {
     final groups = revenueTrendPeriods(widget.facts);
     if (groups.isEmpty) return const SizedBox.shrink();
     final facts = groups.values.expand((items) => items).toList();
-    final dates = facts.map(businessFactDate).toSet().toList()..sort();
+    final dates = revenueTrendDates(
+      facts,
+      widget.periods,
+      latestReport: widget.latestReport,
+    );
     String dateLabel(DateTime date) =>
         '${date.year}년 ${periodName('${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}')}';
     final units = facts.map((f) => f.unit).toSet().toList();

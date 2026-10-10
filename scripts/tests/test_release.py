@@ -13,6 +13,24 @@ import release_bundle
 
 
 class ReleaseGuardTests(unittest.TestCase):
+    def test_sealed_release_records_executed_and_reused_checks(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            output = root / 'output/public-deploy'
+            static = output / '.vercel/output/static'
+            static.mkdir(parents=True)
+            (static / 'main.dart.js').write_text('compiled app')
+            (root / 'output/validation-results.json').write_text(json.dumps([
+                {'origin': 'executed'}, {'origin': 'reused'}, {'origin': 'reused'},
+            ]))
+            def git(*args):
+                return '' if args[0] == 'status' else ('b' * 40 if args[-1] == 'HEAD^{tree}' else 'a' * 40)
+            with patch.object(release_bundle, 'ROOT', root), patch.object(release_bundle, 'git', side_effect=git), patch.dict(release_bundle.os.environ, {'ALFINDER_BUILD_COMMIT': 'a' * 40}, clear=True):
+                release_bundle.seal(output)
+            public = json.loads((static / 'release.json').read_text())
+            self.assertEqual(public['validationCache'], {'executed': 1, 'reused': 2})
+            release_bundle.verify_bundle(output, 'a' * 40)
+
     def candidate(self, **changes):
         return dict({'conclusion': 'success', 'status': 'completed', 'event': 'push',
                      'head_branch': 'main', 'head_repository': {'full_name': release.REPO},

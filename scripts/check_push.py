@@ -7,6 +7,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from check_cache import CheckCache
+
 SERVER = 'investment_ontology_serverpod_server/'
 FLUTTER = 'investment_ontology_serverpod_flutter/'
 CLIENT = 'investment_ontology_serverpod_client/'
@@ -49,7 +51,7 @@ def checks(changed, checkout, full=False):
         commands.append(('python3', '-m', 'unittest', 'discover', '-s', 'scripts/tests', '-v'))
     if full or any(p.startswith((FLUTTER + 'web/', FLUTTER + 'test/web/')) for p in changed):
         commands.append(('node', '--test', *[str(p.relative_to(checkout)) for p in
-                         (checkout / FLUTTER / 'test/web').glob('*_test.cjs')]))
+                         sorted((checkout / FLUTTER / 'test/web').glob('*_test.cjs'))]))
     if full or any(p.startswith('deploy/cloudflare/') for p in changed):
         commands.append(('node', '--test', 'deploy/cloudflare/worker.test.mjs'))
     return commands
@@ -94,6 +96,8 @@ def main():
             subprocess.run(['git', 'checkout', '--quiet', '--detach', tip], cwd=checkout,
                            check=True, env=clean_env)
             plan = checks(changed, checkout, full)
+            cache = CheckCache(checkout, clean_env)
+            results = []
             try:
                 for command in plan:
                     directory = checkout
@@ -101,11 +105,12 @@ def main():
                         command = ('flutter', 'test')
                         directory = checkout / FLUTTER
                     print('Pre-push:', ' '.join(command), flush=True)
-                    subprocess.run(command, cwd=directory, check=True, env=clean_env)
+                    results.append(cache.run(command, directory))
             except (subprocess.CalledProcessError, FileNotFoundError):
                 record.write_text(json.dumps({'commit': tip, 'status': 'failed', 'commands': plan}) + '\n')
                 raise
-            record.write_text(json.dumps({'commit': tip, 'status': 'passed', 'commands': plan}, indent=2) + '\n')
+            record.write_text(json.dumps({'commit': tip, 'status': 'passed', 'commands': plan,
+                                          'results': results}, indent=2) + '\n')
         print('Pre-push checks passed for ' + tip, flush=True)
 
 

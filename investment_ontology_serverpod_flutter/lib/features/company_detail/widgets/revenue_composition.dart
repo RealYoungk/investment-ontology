@@ -12,15 +12,29 @@ import 'business_operating_section.dart'
     show businessFactDate, businessPeriodLabel;
 
 /// Preserve filing labels before the amount, including merged category cells.
-/// A percentage is shown only when the first printed amount matches the fact.
+/// Dated facts use an unambiguous amount/ratio pair from the printed row.
 ({String label, double? share}) revenuePresentation(DocumentFact fact) {
-  final cells = fact.evidence.split('|').map((s) => s.trim()).toList();
+  final cells = fact.evidence
+      .split('\n')
+      .first
+      .split('|')
+      .map((s) => s.trim())
+      .toList();
   final combined = RegExp(r'^([\d,]+(?:\.\d+)?)\s*\(\s*([\d.]+)\s*%\s*\)$');
-  for (var i = 1; i < cells.length; i++) {
-    final match = combined.firstMatch(cells[i]);
-    if (match == null) continue;
-    // The first combined column is the current period; never borrow a prior ratio.
-    if (double.tryParse(match.group(1)!.replaceAll(',', '')) != fact.value) {
+  final combinedCells = cells.map(combined.firstMatch).nonNulls.toList();
+  if (combinedCells.isNotEmpty) {
+    final matching = combinedCells
+        .where(
+          (m) => double.tryParse(m.group(1)!.replaceAll(',', '')) == fact.value,
+        )
+        .toList();
+    final match = fact.asOf == null
+        ? combinedCells.first
+        : matching.length == 1
+        ? matching.single
+        : null;
+    if (match == null ||
+        double.tryParse(match.group(1)!.replaceAll(',', '')) != fact.value) {
       return (label: fact.label, share: null);
     }
     final share = double.tryParse(match.group(2)!);
@@ -29,14 +43,28 @@ import 'business_operating_section.dart'
       share: share != null && share <= 100 ? share : null,
     );
   }
-  final index = cells.indexWhere(
+  final firstAmount = cells.indexWhere(
     (s) => RegExp(r'^-?[\d,]+(?:\.\d+)?$').hasMatch(s),
   );
+  final matches = [
+    for (var i = 0; i + 1 < cells.length; i++)
+      if (double.tryParse(cells[i].replaceAll(',', '')) == fact.value &&
+          RegExp(r'^\d+(?:\.\d+)?%$').hasMatch(cells[i + 1]))
+        i,
+  ];
+  if (fact.asOf != null && matches.length > 1) {
+    return (label: fact.label, share: null);
+  }
+  // Period-dated rule facts can come from ascending year headers. The stored
+  // amount must identify exactly one amount/ratio pair; never guess on ties.
+  final index = fact.asOf != null && matches.length == 1
+      ? matches.single
+      : firstAmount;
   if (index <= 0 ||
       double.tryParse(cells[index].replaceAll(',', '')) != fact.value) {
     return (label: fact.label, share: null);
   }
-  final labels = cells.take(index).where((s) => s.isNotEmpty).toList();
+  final labels = cells.take(firstAmount).where((s) => s.isNotEmpty).toList();
   final share =
       index + 1 < cells.length &&
           RegExp(r'^\d+(?:\.\d+)?%$').hasMatch(cells[index + 1])
@@ -46,6 +74,16 @@ import 'business_operating_section.dart'
     label: labels.join(' · '),
     share: share != null && share <= 100 ? share : null,
   );
+}
+
+String revenueBasisNote(DocumentFact fact) {
+  final basis = RegExp(r'\(\s*(별도|연결)\s*\)')
+      .allMatches(fact.evidence)
+      .map((m) => m.group(1)!)
+      .toSet();
+  return basis.length == 1
+      ? '${basis.single} 기준 · 재무 탭과 보고 기준을 확인해 비교하세요.'
+      : '연결·별도 기준은 공시 원문에서 확인하세요.';
 }
 
 /// A validated row does not prove that the whole company's mix was extracted.
@@ -95,8 +133,10 @@ class RevenueComposition extends StatefulWidget {
     this.printedMix,
     this.showTrends = true,
     this.compact = false,
+    this.latestReport,
   });
   final bool compact;
+  final FinancialPeriod? latestReport;
   final bool showTrends;
   final String corpCode;
   final List<BusinessProduct> products;
@@ -108,6 +148,7 @@ class RevenueComposition extends StatefulWidget {
 class _RevenueCompositionState extends State<RevenueComposition> {
   List<DocumentFact>? _rows;
   List<DocumentFact> _history = [];
+  List<BusinessFactPeriod> _historyPeriods = [];
   bool _failed = false;
   int _seq = 0;
   @override
@@ -130,11 +171,15 @@ class _RevenueCompositionState extends State<RevenueComposition> {
       _failed = false;
     });
     try {
-      final facts = await client.disclosure.factTrends(widget.corpCode);
+      final (facts, periods) = await (
+        client.disclosure.factTrends(widget.corpCode),
+        client.disclosure.factPeriods(widget.corpCode),
+      ).wait;
       if (mounted && seq == _seq) {
         setState(() {
           _rows = latestRevenueFacts(facts);
           _history = facts;
+          _historyPeriods = periods;
         });
       }
     } catch (_) {
@@ -183,6 +228,10 @@ class _RevenueCompositionState extends State<RevenueComposition> {
                 Text(
                   businessPeriodLabel(rows.first),
                   style: t.body(13, color: c.textSecondary),
+                ),
+                Text(
+                  revenueBasisNote(rows.first),
+                  style: t.body(12, color: c.textMuted),
                 ),
                 const SizedBox(height: AppSpace.sm),
                 for (final fact in rows)
@@ -251,7 +300,12 @@ class _RevenueCompositionState extends State<RevenueComposition> {
         ),
         if (_history.isNotEmpty) ...[
           const SizedBox(height: AppSpace.md),
-          if (widget.showTrends) RevenueTrends(facts: _history),
+          if (widget.showTrends)
+            RevenueTrends(
+              facts: _history,
+              periods: _historyPeriods,
+              latestReport: widget.latestReport,
+            ),
         ],
       ],
     );

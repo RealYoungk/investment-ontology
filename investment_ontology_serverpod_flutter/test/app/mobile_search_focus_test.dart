@@ -1,4 +1,5 @@
 import 'package:shad/shad.dart';
+import 'package:flutter/services.dart';
 
 import '../support/shad_test_host.dart';
 
@@ -75,6 +76,23 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      // A modal's traversal stays on its editor or close control.
+      final inputFocus = tester
+          .widget<EditableText>(find.byType(EditableText))
+          .focusNode;
+      for (var step = 0; step < 8; step++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        final current = FocusManager.instance.primaryFocus!;
+        expect(
+          current == inputFocus ||
+              current.context
+                      ?.findAncestorWidgetOfExactType<ShadIconButton>() !=
+                  null,
+          isTrue,
+          reason: 'Unexpected focus stop: $current',
+        );
+      }
       // Switching to the desktop header disposes the mounted mobile editor.
       await tester.binding.setSurfaceSize(const Size(1280, 900));
       await tester.pumpAndSettle();

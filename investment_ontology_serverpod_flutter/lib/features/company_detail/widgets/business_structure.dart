@@ -21,6 +21,7 @@ List<BusinessStructureItem> businessStructureItems(BusinessContent content) {
   String key(String text) =>
       text.replaceAll(RegExp(r'\([^)]*\)'), '').replaceAll(RegExp(r'\s+'), '');
   for (final section in content.sections) {
+    // Material purchases also print 품목/용도; they are inputs, not offerings.
     if (!RegExp(r'사업의\s*개요|주요\s*(제품|상품|서비스)').hasMatch(section.title)) {
       continue;
     }
@@ -58,6 +59,7 @@ List<BusinessStructureItem> businessStructureItems(BusinessContent content) {
             segment != null) {
           cells = [segment, ...cells];
         }
+        // Product tables omit repeated leading segment cells on continuation rows.
         if (segment != null &&
             productIndex >= 0 &&
             useIndex >= 0 &&

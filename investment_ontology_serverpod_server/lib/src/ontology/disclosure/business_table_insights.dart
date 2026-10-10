@@ -1,4 +1,8 @@
+import 'material_names_prose.dart';
+import 'customer_share_prose.dart';
+import 'investment_execution_prose.dart';
 import '../../generated/protocol.dart';
+import 'business_source_tables.dart';
 
 /// Additional explicit filing tables. Read only stored source: no API or AI call.
 /// A chartable observation requires a named metric and an explicit unit.
@@ -7,7 +11,7 @@ abstract final class BusinessTableInsights {
   static final _year = RegExp(r'20\d{2}|제\d+기');
   static final _unit = RegExp(r'단위\s*[:：]\s*([^\)\]）]+)');
   static final _numeric = RegExp(r'^[+-]?\d[\d,]*(?:\.\d+)?%?$');
-  static final _total = RegExp(r'^(합계|총계|계|.*소계)(?:\([^)]*\))?$');
+  static final _total = RegExp(r'^(합계|총합계|총계|계|.*소계)(?:\([^)]*\))?$');
 
   static bool _validUnit(String value) =>
       RegExp(
@@ -107,6 +111,14 @@ abstract final class BusinessTableInsights {
         RegExp(r'명목금액|계약금액|공정가치|만기|평가|손익|자산|부채|매입통화').hasMatch(h)) {
       return 'derivatives';
     }
+    if (header.length == 2 &&
+        _key(header.first) == '매출처' &&
+        {'비중', '매출비중'}.contains(_key(header[1]))) {
+      return 'customerConcentration';
+    }
+    if (h.contains('특허의명칭') && h.contains('특허취득일') && h.contains('특허출원국가')) {
+      return 'intellectualProperty';
+    }
     if (RegExp(r'기투자액|당기투자액|투자집행액').hasMatch(h) && !h.contains('향후투자액')) {
       return 'investmentExecution';
     }
@@ -188,6 +200,8 @@ abstract final class BusinessTableInsights {
     'investmentPlan' => '투자계획',
     'researchProjects' => '연구개발 과제',
     'majorContracts' => '주요 계약',
+    'customerConcentration' => '주요 매출처 비중',
+    'intellectualProperty' => '특허 보유 현황',
     'derivatives' => '파생상품·위험관리',
     'riskSensitivity' => '금융위험 민감도',
     _ => topic,
@@ -205,7 +219,47 @@ abstract final class BusinessTableInsights {
       String? topic;
       var j = i + 1;
       List<String> columns = h;
-      if (keys.join('|') == '계약상대방|항목|내용') {
+      if (keys.join('|') == '구분|매입/매도|통화|미결제약정계약금액|평가손익(I/S)|공정가치' &&
+          j < lines.length &&
+          lines[j].split('|').map(_key).join('|') == '이익|손실|자산|부채') {
+        final context = lines.sublist(i > 3 ? i - 3 : 0, i).join('\n');
+        final unit = _unit.firstMatch(context)?.group(1)?.replaceAll(' ', '');
+        if (unit != '천외화/천원' && unit != '천원') continue;
+        topic = 'derivatives';
+        columns = [
+          ...h.take(4),
+          '평가손익 · 이익',
+          '평가손익 · 손실',
+          '공정가치 · 자산',
+          '공정가치 · 부채',
+        ];
+        j++;
+        for (; j < lines.length && lines[j].contains('|'); j++) {
+          final c = lines[j].split('|').map((v) => v.trim()).toList();
+          if (c.length != columns.length ||
+              !RegExp(r'^[A-Z]{3}$').hasMatch(c[2]) ||
+              !c.skip(3).every((v) => v == '-' || number(v) != null)) {
+            break;
+          }
+          rows.add(BusinessTableRecord(label: '${c[0]} · ${c[2]}', cells: c));
+          for (var k = 3; k < c.length; k++) {
+            final value = number(c[k]);
+            if (value == null) continue;
+            measures.add(
+              BusinessTableMeasure(
+                label: '${c[0]} · ${c[2]}',
+                metric: columns[k],
+                period: period,
+                value: value,
+                // Foreign nominal principal and won-valued P/L are separate.
+                unit: k == 3 && unit == '천외화/천원' && c[2] != 'KRW'
+                    ? '천${c[2]}'
+                    : '천원',
+              ),
+            );
+          }
+        }
+      } else if (keys.join('|') == '계약상대방|항목|내용') {
         topic = 'majorContracts';
         columns = ['계약 상대방', '계약 유형', '체결 시기', '계약 금액', '목적 및 내용'];
         String? counterparty;
@@ -345,7 +399,13 @@ abstract final class BusinessTableInsights {
     required String reportPeriod,
   }) {
     final lines = text.split('\n');
-    final out = _special(text, reportPeriod);
+    final out = [
+      ..._special(text, reportPeriod),
+      ...InvestmentExecutionProse.parse(text, reportPeriod),
+      ...CustomerShareProse.parse(text, reportPeriod),
+      ...MaterialNamesProse.parse(text),
+      ...BusinessSourceTables.parse(text, reportPeriod: reportPeriod),
+    ];
     final seen = <String>{};
     String? scope;
     var subsection = '';
@@ -470,6 +530,15 @@ abstract final class BusinessTableInsights {
         '${header.any((h) => RegExp(r'계약금액|계약잔액|만기일').hasMatch(h)) ? scope ?? '' : ''}\n$subsection\n${context.split('\n').where((l) => l.length < 160).join('\n')}',
       );
       if (topic == null) continue;
+      // Flattened merged route cells may carry one amount for several paths.
+      // Preserve the complete source projection instead of charting its first path.
+      if (topic == 'salesChannel' &&
+          lines
+              .skip(i + 1)
+              .take(6)
+              .any((s) => !s.contains('|') && s.contains('→'))) {
+        continue;
+      }
       if (header.first.isEmpty) header[0] = '구분';
       var dataStart = i + 1;
       if (dataStart < lines.length &&
@@ -557,12 +626,23 @@ abstract final class BusinessTableInsights {
       for (; j < lines.length; j++) {
         final line = lines[j].trim();
         if (line.isEmpty) continue;
-        if (!line.contains('|') ||
+        final projectContinuation =
+            topic == 'researchProjects' &&
+            header.map(_key).join('|') == '연도|주요연구과제명|기대효과' &&
+            RegExp(r'^20\d{2}년?$').hasMatch(inherited.first) &&
+            !line.contains('|') &&
+            line.length <= 180 &&
+            !RegExp(r'(?:입니다|합니다|있습니다|없습니다|다음과 같습니다)[.]?$').hasMatch(line) &&
+            !RegExp(r'^[#※]|^\d+[.)]|^[가-힣]\.|^\(주|^주\)|^당사(?:는|의|가)\s')
+                .hasMatch(line);
+        if ((!line.contains('|') && !projectContinuation) ||
             line.startsWith('## ') ||
             (_unit.hasMatch(line) && line.split('|').length <= 2)) {
           break;
         }
-        var cells = line.split('|').map((s) => s.trim()).toList();
+        var cells = projectContinuation
+            ? [inherited.first, line, '-']
+            : line.split('|').map((s) => s.trim()).toList();
         if (cells.length == header.length + 1 && cells.first.isEmpty) {
           cells = cells.sublist(1);
         }
@@ -702,6 +782,7 @@ abstract final class BusinessTableInsights {
         );
         final textual = {
           'researchProjects',
+          'intellectualProperty',
           'majorContracts',
           'derivatives',
         }.contains(topic);
@@ -745,7 +826,11 @@ abstract final class BusinessTableInsights {
                 ? rawUnit!.replaceFirst('외화-', '')
                 : null;
             final rowCurrencyUnit = rowUnit == null
-                ? null
+                ? (topic == 'materialPurchase' &&
+                          padded.any((c) => _key(c) == '국내') &&
+                          units.where((u) => u.endsWith('원')).length == 1
+                      ? units.singleWhere((u) => u.endsWith('원'))
+                      : null)
                 : units
                       .where(
                         (u) => _validUnit(u) && u.contains(rowUnit),
@@ -865,7 +950,9 @@ abstract final class BusinessTableInsights {
                     ),
           ],
           evidence: evidence,
-          validation: '명시된 열·원문 값 구조화 · 합계/비율 검산 미수행',
+          validation: topic == 'customerConcentration'
+              ? '공시한 주요 매출처의 일부 비중입니다. 전체 매출 구성으로 합계 100%를 추정하지 않습니다. 익명 매출처를 실제 회사와 연결하지 않습니다.'
+              : '명시된 열·원문 값 구조화 · 합계/비율 검산 미수행',
           scope: [
             ?scope,
             ?entity,

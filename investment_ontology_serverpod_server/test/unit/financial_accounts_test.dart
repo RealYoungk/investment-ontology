@@ -24,6 +24,41 @@ FinancialFact fact(
 );
 
 void main() {
+  test('지배주주 자본 ID에 자본금이 붙어 있어도 합계 검증으로 차단한다', () {
+    FinancialFact balance(String name, String id, String amount) => fact(
+      name,
+      accountId: id,
+      statement: FinancialStatementKind.balanceSheet,
+    ).copyWith(amount: BigInt.parse(amount), currency: 'KRW');
+    final total = balance('자본총계', 'ifrs-full_Equity', '90171716494');
+    final minority = balance(
+      '비지배지분',
+      'ifrs-full_NoncontrollingInterests',
+      '20321227847',
+    );
+    final wrong = balance(
+      '자본금',
+      'ifrs-full_EquityAttributableToOwnersOfParent',
+      '1429906000',
+    );
+    final lines = FinancialAccounts.pick([total, minority, wrong]);
+    expect(
+      lines.firstWhere((l) => l.key == 'equityOwners').unavailableReason,
+      contains('자본 합계 불일치'),
+    );
+    expect(
+      lines.firstWhere((l) => l.key == 'equity').unavailableReason,
+      isNull,
+    );
+    final correct = wrong.copyWith(amount: total.amount! - minority.amount!);
+    expect(
+      FinancialAccounts.pick([total, minority, correct])
+          .firstWhere((l) => l.key == 'equityOwners')
+          .unavailableReason,
+      isNull,
+    );
+  });
+
   test('printed (8) capex label uses finite CF fallback and SQL mirror', () {
     const label = '(8)유형자산의취득';
     final row = fact(

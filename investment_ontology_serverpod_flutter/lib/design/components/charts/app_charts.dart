@@ -38,9 +38,10 @@ List<Color> categoricalChartColors(BuildContext context) => [
 
 /// 계열 범례. 계열이 둘 이상일 때 쓴다 (글자는 본문색, 색은 옆 견본이 나타낸다).
 class ChartLegend extends StatelessWidget {
-  const ChartLegend({super.key, required this.series});
+  const ChartLegend({super.key, required this.series, this.labelBuilder});
 
   final List<ChartSeries> series;
+  final Widget Function(BuildContext, String)? labelBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +94,19 @@ class ChartLegend extends StatelessWidget {
                   ),
                 ),
               const SizedBox(width: 6),
-              Text(s.label, style: t.body(12.5, color: c.textSecondary)),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width < 600 ? 140 : 260,
+                ),
+                child:
+                    labelBuilder?.call(context, s.label) ??
+                    Text(
+                      s.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: t.body(12.5, color: c.textSecondary),
+                    ),
+              ),
             ],
           ),
       ],
@@ -153,6 +166,8 @@ abstract class _CategoryChart extends StatefulWidget {
 class _CategoryChartState extends State<_CategoryChart> {
   static const _labelHeight = 22.0;
 
+  final _surfaceKey = GlobalKey();
+  int? _tapIndex;
   int? _hovered;
   Offset? _pointer;
   bool _keyboardFocused = false;
@@ -268,7 +283,7 @@ class _CategoryChartState extends State<_CategoryChart> {
             child: Semantics(
               container: true,
               label: '${widget.series.map((s) => s.label).join(' · ')} 차트',
-              hint: '눌러 상세 보기, 다시 누르거나 바깥을 눌러 닫기, 가로 드래그 또는 좌우 방향키로 기간 이동, Home 첫 기간, End 마지막 기간',
+              hint: '눌러 선택한 기간 상세 보기, 바깥을 눌러 닫기, 가로 드래그 또는 좌우 방향키로 기간 이동, Home 첫 기간, End 마지막 기간',
               value: hovered == null
                   ? '$n개 ${widget.categoryNoun}'
                   : _description(hovered),
@@ -305,12 +320,22 @@ class _CategoryChartState extends State<_CategoryChart> {
                       if (!_keyboardFocused) setState(() => _hovered = null);
                     },
                     child: GestureDetector(
+                      key: _surfaceKey,
                       behavior: HitTestBehavior.opaque,
+                      onTapDown: (d) {
+                        final box =
+                            _surfaceKey.currentContext?.findRenderObject()
+                                as RenderBox?;
+                        _tapIndex = indexAt(
+                          box?.globalToLocal(d.globalPosition) ??
+                              d.localPosition,
+                        );
+                      },
                       // Select only after a completed tap, so vertical scrolling
                       // does not open a detail. Horizontal drag owns scrubbing.
                       onTapUp: (d) => setState(() {
-                        final index = indexAt(d.localPosition);
-                        _hovered = index == _hovered ? null : index;
+                        final index = _tapIndex;
+                        _hovered = index;
                         _pointer = _hovered == null ? null : d.localPosition;
                       }),
                       onHorizontalDragStart: (d) => setState(() {
@@ -368,6 +393,9 @@ class _CategoryChartState extends State<_CategoryChart> {
   Widget _tooltip(BuildContext context, double width, Rect plot, int index) {
     final c = context.colors;
     final t = context.typo;
+    final allRows = widget.tooltipRows(index);
+    final rows = allRows.where((row) => row.value != '—').toList();
+    if (rows.isEmpty && allRows.isNotEmpty) rows.add(allRows.first);
     const tipWidth = 190.0;
     final band = plot.width / widget.categories.length;
     final center = plot.left + band * (index + 0.5);
@@ -399,7 +427,7 @@ class _CategoryChartState extends State<_CategoryChart> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                for (final row in widget.tooltipRows(index))
+                for (final row in rows)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Row(
@@ -416,12 +444,20 @@ class _CategoryChartState extends State<_CategoryChart> {
                         Expanded(
                           child: Text(
                             row.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: t.body(11.5, color: c.onInverse),
                           ),
                         ),
-                        Text(
-                          row.value,
-                          style: t.numeric(11.5, color: c.onInverse),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              row.value,
+                              style: t.numeric(11.5, color: c.onInverse),
+                            ),
+                          ),
                         ),
                       ],
                     ),

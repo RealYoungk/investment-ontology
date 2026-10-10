@@ -1,3 +1,5 @@
+import '../presentation/company_presentation.dart';
+
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 
@@ -154,7 +156,8 @@ abstract final class WatchlistService {
         for (var i = 0; i < entries.length; i++)
           WatchlistCompanyView(
             corpCode: entries[i].corpCode,
-            name: names[entries[i].corpCode]?.name ?? entries[i].corpCode,
+            name:
+                names[entries[i].corpCode]?.displayName ?? entries[i].corpCode,
             stockCode: names[entries[i].corpCode]?.stockCode,
             muted: entries[i].muted,
             monitoringReady: i < limit && entries[i].baselineAt != null,
@@ -174,7 +177,7 @@ abstract final class WatchlistService {
             WatchlistUpdateView(
               noticeId: n.id!,
               corpCode: n.corpCode,
-              companyName: names[n.corpCode]?.name ?? n.corpCode,
+              companyName: names[n.corpCode]?.displayName ?? n.corpCode,
               title: e.title,
               url: e.url,
               publishedAt: e.publishedAt,

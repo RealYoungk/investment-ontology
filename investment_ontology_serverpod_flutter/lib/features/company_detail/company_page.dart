@@ -19,6 +19,7 @@ import 'widgets/price_chart.dart';
 import '../financials/financial_section.dart';
 import '../governance/governance_tab.dart';
 import '../shareholder_return/shareholder_return_tab.dart';
+import '../disclosures/disclosure_tab.dart';
 import 'widgets/company_header.dart';
 import 'widgets/collapsing_company_frame.dart';
 import 'widgets/company_overview_tab.dart';
@@ -357,6 +358,35 @@ class _CompanyPageState extends State<CompanyPage> {
                       'majorHoldings',
                     ],
                   ),
+                  if (_sections.any(
+                    (s) => s.section != DartSection.businessContent,
+                  )) ...[
+                    const SizedBox(height: AppSpace.xl),
+                    const CompanySectionHeading('정기보고서 · 연도별 공시'),
+                    const SizedBox(height: AppSpace.sm),
+                    Text(
+                      '직원·보수·감사·출자·배당 등 수집된 항목을 보고서 연도별로 확인합니다.',
+                      style: context.typo.body(13),
+                    ),
+                    ShadAccordion<int>(
+                      children: [
+                        ShadAccordionItem<int>(
+                          value: 0,
+                          title: const Text('공시 항목과 연도별 원문 표 보기'),
+                          child: DisclosureTab(
+                            corpCode: widget.corpCode,
+                            sections: _sections
+                                .where(
+                                  (s) =>
+                                      s.section != DartSection.businessContent,
+                                )
+                                .toList(),
+                            dataVersion: _version,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
               CompanyTab.overview || CompanyTab.business => CompanyOverviewTab(

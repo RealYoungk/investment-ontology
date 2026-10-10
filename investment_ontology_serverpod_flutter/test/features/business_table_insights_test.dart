@@ -49,6 +49,100 @@ BusinessTableInsight insight() => BusinessTableInsight(
   scope: '3. 원재료 및 생산설비',
 );
 void main() {
+  test('one history card per topic avoids repeating all derivative charts', () {
+    final first = insight().copyWith(topic: 'derivatives');
+    final second = first.copyWith(title: '다른 파생상품 원문');
+    final raw = first.copyWith(topic: 'researchProjects', measures: []);
+    final current = first.copyWith(topic: 'facilitiesBookValueSource');
+    expect(
+      businessHistoryCardInsights([first, second, raw, current]),
+      [first, raw, current],
+    );
+  });
+  testWidgets('검산 미확정 수주 원문은 합계 숫자를 숨기지 않고 이유와 함께 제공한다', (tester) async {
+    final table = insight().copyWith(
+      topic: 'orderSource',
+      title: '수주 원문표',
+      columns: ['품목 | 수주총액 | 기납품액 | 수주잔고'],
+      rows: [
+        BusinessTableRecord(
+          label: '합계',
+          cells: ['합계 | 535,943 | 433,448 | 146,838'],
+        ),
+      ],
+      measures: [],
+      validation: '합계 차감식으로 확정하지 않음',
+    );
+    await tester.pumpWidget(
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: BusinessTableInsightsPanel(
+                insights: [table],
+                rceptNo: '20260813000643',
+                corpCode: '01526806',
+                latest: BusinessContent(
+                  bsnsYear: 2026,
+                  rceptNo: '20260813000643',
+                  title: '사업의 내용',
+                  sections: [],
+                  charCount: 0,
+                  years: [2026],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('합계 차감식으로 확정하지 않음'), findsOneWidget);
+    await tester.tap(find.text('항목별 정보 1개'));
+    await tester.pumpAndSettle();
+    expect(find.text('합계 | 535,943 | 433,448 | 146,838'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('숫자 차트가 없는 연구과제도 기업 본문 화면에서 표로 읽을 수 있다', (tester) async {
+    final table = insight().copyWith(
+      topic: 'researchProjects',
+      title: '연구개발 과제',
+      measures: [],
+    );
+    await tester.pumpWidget(
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: BusinessTableInsightsPanel(
+                insights: [table],
+                rceptNo: 'source',
+                corpCode: '01526806',
+                latest: BusinessContent(
+                  bsnsYear: 2026,
+                  rceptNo: 'source',
+                  title: '사업',
+                  sections: [],
+                  charCount: 0,
+                  years: [2026],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('항목별 정보 1개'), findsOneWidget);
+    await tester.tap(find.text('항목별 정보 1개'));
+    await tester.pumpAndSettle();
+    expect(find.text('Resin'), findsWidgets);
+    expect(find.text('3,085'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('all observations in a large chart remain reachable', (
     tester,
   ) async {

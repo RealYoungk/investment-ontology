@@ -303,6 +303,7 @@ class _CompareTable extends StatelessWidget {
     ];
     return CompareMetricsTable(
       companies: [for (final r in rows) r.company.name],
+      corpCodes: [for (final r in rows) r.company.corpCode],
       metrics: [
         for (final (label, value) in metrics)
           CompareMetricRow(

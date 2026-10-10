@@ -27,6 +27,22 @@ DocumentFact fact(
   createdAt: DateTime.utc(2026),
 );
 void main() {
+  test('only latest half-year still has five blank annual periods', () {
+    final dates = revenueTrendDates([fact(2026, 150, month: 6)], []);
+    expect(dates.map((d) => '${d.year}.${d.month}'), [
+      '2021.12',
+      '2022.12',
+      '2023.12',
+      '2024.12',
+      '2025.12',
+      '2026.6',
+    ]);
+    expect(
+      revenueTrendValue([fact(2026, 150, month: 6)], '반도체', 2025, share: false),
+      isNull,
+    );
+  });
+
   test('annual and interim periods stay separate and conflicting values remain missing', () {
     final a = fact(2024, 100),
         b = fact(2025, 200),

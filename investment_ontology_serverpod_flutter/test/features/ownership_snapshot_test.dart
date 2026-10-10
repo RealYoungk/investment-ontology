@@ -140,10 +140,8 @@ void main() {
       expect(find.text('최대주주회사'), findsOneWidget);
       expect(find.text('관계인'), findsOneWidget);
       expect(find.text('우선주보유자'), findsNothing);
-      final bar = tester.widget<ShadProgress>(
-        find.byType(ShadProgress),
-      );
-      expect(bar.value, closeTo(0.201, 0.0001));
+      expect(find.text('그 외 주주 79.9%'), findsOneWidget);
+      expect(find.text('최대주주회사 20.0%'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

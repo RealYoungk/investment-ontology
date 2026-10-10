@@ -40,7 +40,7 @@ class RelationshipDiagram<T> extends StatelessWidget {
     required this.onTap,
     this.leftTitle = '주주',
     this.rightTitle = '출자',
-    this.maxPerSide = 10,
+    this.maxPerSide,
   });
 
   final String center;
@@ -49,7 +49,7 @@ class RelationshipDiagram<T> extends StatelessWidget {
   final ValueChanged<RelationshipDiagramNode<T>> onTap;
   final String leftTitle;
   final String rightTitle;
-  final int maxPerSide;
+  final int? maxPerSide;
 
   static const _nodeHeight = 38.0;
   static const _gap = 8.0;
@@ -59,8 +59,12 @@ class RelationshipDiagram<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    final shownLeft = left.take(maxPerSide).toList();
-    final shownRight = right.take(maxPerSide).toList();
+    final shownLeft = maxPerSide == null
+        ? left
+        : left.take(maxPerSide!).toList();
+    final shownRight = maxPerSide == null
+        ? right
+        : right.take(maxPerSide!).toList();
     final rows = math.max(1, math.max(shownLeft.length, shownRight.length));
     final height = _headerHeight + rows * (_nodeHeight + _gap);
 

@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../design/components/components.dart';
 import 'business_table_history.dart';
+import 'disclosure_term_label.dart';
 import '../../../design/tokens.dart';
 import '../../financials/financial_metrics.dart' show formatUnitAmount;
 
@@ -21,6 +22,66 @@ Map<(String, String, String), List<BusinessTableMeasure>> tableMeasureGroups(
   return groups;
 }
 
+bool hasBusinessRecordHistory(BusinessTableInsight insight) =>
+    {
+      'intellectualProperty',
+      'materialContext',
+      'majorContracts',
+    }.contains(insight.topic) ||
+    (insight.topic == 'researchProjects' &&
+        insight.columns.isNotEmpty &&
+        insight.columns.first.replaceAll(' ', '') == '연도' &&
+        insight.rows.every(
+          (r) =>
+              r.cells.isNotEmpty &&
+              RegExp(r'^20\d{2}년?$').hasMatch(r.cells.first),
+        ));
+
+/// A history card already gathers every source table for its topic. Rendering
+/// one per latest table repeats all of those charts and their source evidence.
+List<BusinessTableInsight> businessHistoryCardInsights(
+  List<BusinessTableInsight> insights,
+) {
+  final topics = <String>{};
+  return insights.where((insight) {
+    final history =
+        (insight.measures.isNotEmpty || hasBusinessRecordHistory(insight));
+    return !history || topics.add(insight.topic);
+  }).toList();
+}
+
+const businessHistoryTopics = {
+  'materialPurchase': '원재료 매입 구성',
+  'materialPrice': '원재료 가격 변화',
+  'productPrice': '제품 판매가격 변화',
+  'investmentExecution': '투자 집행 현황',
+  'salesChannel': '판매경로별 매출',
+  'investmentPlan': '투자계획',
+  'researchProjects': '연구개발 과제',
+  'majorContracts': '주요 계약',
+  'customerConcentration': '주요 매출처 비중',
+  'intellectualProperty': '특허 보유 현황',
+  'derivatives': '파생상품·위험관리',
+  'materialContext': '주요 원재료',
+};
+
+List<BusinessTableInsight> withMissingBusinessTopics(
+  List<BusinessTableInsight> insights,
+) => [
+  ...insights,
+  for (final entry in businessHistoryTopics.entries)
+    if (!insights.any((t) => t.topic == entry.key))
+      BusinessTableInsight(
+        topic: entry.key,
+        title: entry.value,
+        columns: [],
+        rows: [],
+        measures: [],
+        evidence: '',
+        validation: '연도별 공시 확인',
+      ),
+];
+
 class BusinessTableInsightsPanel extends StatefulWidget {
   const BusinessTableInsightsPanel({
     super.key,
@@ -28,11 +89,13 @@ class BusinessTableInsightsPanel extends StatefulWidget {
     required this.rceptNo,
     this.corpCode,
     this.latest,
+    this.latestReport,
   });
   final List<BusinessTableInsight> insights;
   final String rceptNo;
   final String? corpCode;
   final BusinessContent? latest;
+  final FinancialPeriod? latestReport;
 
   @override
   State<BusinessTableInsightsPanel> createState() =>
@@ -42,16 +105,11 @@ class BusinessTableInsightsPanel extends StatefulWidget {
 class _BusinessTableInsightsPanelState
     extends State<BusinessTableInsightsPanel> {
   final Map<int, bool> _shares = {};
-  List<BusinessTableInsight> get insights {
-    if (corpCode == null || latest == null) return widget.insights;
-    // History loads every table matching this topic/title. Rendering one history
-    // per source table repeats the same merged chart and its source evidence.
-    final seen = <(String, String)>{};
-    return widget.insights
-        .where((table) => seen.add((table.topic, table.title)))
-        .toList();
-  }
-
+  bool _riskExpanded = false;
+  List<BusinessTableInsight> get insights =>
+      widget.corpCode != null && widget.latest != null
+      ? businessHistoryCardInsights(withMissingBusinessTopics(widget.insights))
+      : widget.insights;
   String get rceptNo => widget.rceptNo;
   String? get corpCode => widget.corpCode;
   BusinessContent? get latest => widget.latest;
@@ -61,155 +119,200 @@ class _BusinessTableInsightsPanelState
     children: [
       for (final (index, insight) in insights.indexed) ...[
         const SizedBox(height: AppSpace.lg),
-        CompanyDataCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CompanySectionHeading(
-                insight.title,
-                trailing:
-                    insight.topic == 'materialPurchase' &&
-                        corpCode != null &&
-                        latest != null
-                    ? IntrinsicWidth(
-                        child: ShadTabs<bool>(
-                          value: _shares[index] ?? false,
-                          onChanged: (value) =>
-                              setState(() => _shares[index] = value),
-                          expandTabs: false,
-                          tabs: const [
-                            ShadTab<bool>(value: false, child: Text('매입액')),
-                            ShadTab<bool>(value: true, child: Text('비중 (%)')),
-                          ],
-                        ),
-                      )
-                    : null,
-                help:
-                    '${insight.validation}\n${insight.scope ?? ''}\n기간·단위는 원문 표기를 따릅니다. 분류 변경은 구분하고 누락 값은 0으로 채우지 않습니다. 분기 표기만으로 누적 여부를 추정하지 않습니다.',
-              ),
-              const SizedBox(height: AppSpace.sm),
-              if (insight.measures.any(
-                (m) =>
-                    m.period.contains('분기') &&
-                    !RegExp(r'누적|상반기|1~|3개월|6개월').hasMatch(m.period),
-              ))
+        if (insight.topic == 'derivatives' && !_riskExpanded)
+          DataPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(insight.title, style: context.typo.sectionTitle),
+                const SizedBox(height: AppSpace.sm),
                 Text(
-                  '분기·누적 구분 미확인',
-                  style: context.typo.body(12, color: context.colors.textMuted),
+                  '통화·금리 위험에 대한 계약과 평가손익을 확인할 수 있습니다.',
+                  style: context.typo.body(
+                    12,
+                    color: context.colors.textSecondary,
+                  ),
                 ),
-              if (corpCode == null || latest == null) ...[
-                if (insight.topic == 'investmentPlan')
+                const SizedBox(height: AppSpace.md),
+                ShadButton.secondary(
+                  onPressed: () => setState(() => _riskExpanded = true),
+                  child: const Text('파생상품·위험관리 펼치기'),
+                ),
+              ],
+            ),
+          )
+        else
+          CompanyDataCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (insight.topic == 'derivatives')
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ShadButton.ghost(
+                      onPressed: () => setState(() => _riskExpanded = false),
+                      child: const Text('파생상품·위험관리 접기'),
+                    ),
+                  ),
+                CompanySectionHeading(
+                  insight.title,
+                  trailing:
+                      insight.topic == 'materialPurchase' &&
+                          corpCode != null &&
+                          latest != null
+                      ? IntrinsicWidth(
+                          child: ShadTabs<bool>(
+                            value: _shares[index] ?? false,
+                            onChanged: (value) =>
+                                setState(() => _shares[index] = value),
+                            expandTabs: false,
+                            tabs: const [
+                              ShadTab<bool>(value: false, child: Text('매입액')),
+                              ShadTab<bool>(value: true, child: Text('비중 (%)')),
+                            ],
+                          ),
+                        )
+                      : null,
+                  help:
+                      '${insight.validation}\n${insight.scope ?? ''}\n기간·단위는 원문 표기를 따릅니다. 분류 변경은 구분하고 누락 값은 0으로 채우지 않습니다. 분기 표기만으로 누적 여부를 추정하지 않습니다.',
+                ),
+                const SizedBox(height: AppSpace.sm),
+                if (insight.measures.any(
+                  (m) =>
+                      m.period.contains('분기') &&
+                      !RegExp(r'누적|상반기|1~|3개월|6개월').hasMatch(m.period),
+                ))
                   Text(
-                    '계획·진행 중인 투자입니다. 기투자액과 향후투자액을 구분해 보세요.',
-                    style: context.typo.body(13),
+                    '분기·누적 구분 미확인',
+                    style: context.typo.body(
+                      12,
+                      color: context.colors.textMuted,
+                    ),
                   ),
-                if (insight.topic == 'materialPurchase') ...[
-                  const SizedBox(height: AppSpace.md),
-                  Text(
-                    '원문 금액 단위: ${insight.measures.where((m) => m.unit != '%').map((m) => m.unit).toSet().join(', ')}. 금액·비율은 각 열에 적힌 기간의 값입니다.',
-                    style: context.typo.body(13),
-                  ),
-                  const SizedBox(height: AppSpace.sm),
-                  _MaterialPurchaseVisual(insight: insight),
-                  const SizedBox(height: AppSpace.md),
-                ],
-                for (final group
-                    in (insight.topic == 'materialPurchase'
-                        ? <
-                            MapEntry<
-                              (String, String, String),
-                              List<BusinessTableMeasure>
-                            >
-                          >[]
-                        : tableMeasureGroups(insight).entries)) ...[
-                  const SizedBox(height: AppSpace.md),
-                  Text(
-                    '${group.key.$1} · ${group.key.$3} · ${group.key.$2}',
-                    style: context.typo.body(13, weight: FontWeight.w600),
-                  ),
-                  _TableMeasureChart(
-                    measures: group.value,
-                    metric: group.key.$1,
-                    unit: group.key.$2,
-                  ),
-                ],
-                if (insight.measures.isEmpty)
-                  Text(
-                    '${insight.rows.length}개 공시 항목 · 금액·단위가 명확한 열이 없어 차트를 만들지 않았습니다.',
-                    style: context.typo.body(13),
-                  ),
-                if (insight.topic == 'researchProjects' ||
-                    insight.topic == 'majorContracts')
-                  for (final row in insight.rows.take(3)) ...[
+                if (corpCode == null ||
+                    latest == null ||
+                    (insight.measures.isEmpty &&
+                        !hasBusinessRecordHistory(insight) &&
+                        !(businessHistoryTopics.containsKey(insight.topic) &&
+                            insight.rows.isEmpty))) ...[
+                  if (insight.topic == 'investmentPlan')
+                    Text(
+                      '계획·진행 중인 투자입니다. 기투자액과 향후투자액을 구분해 보세요.',
+                      style: context.typo.body(13),
+                    ),
+                  if (insight.topic == 'materialPurchase') ...[
                     const SizedBox(height: AppSpace.md),
                     Text(
-                      row.cells.first,
-                      style: context.typo.body(14, weight: FontWeight.w600),
+                      '원문 금액 단위: ${insight.measures.where((m) => m.unit != '%').map((m) => m.unit).toSet().join(', ')}. 금액·비율은 각 열에 적힌 기간의 값입니다.',
+                      style: context.typo.body(13),
                     ),
-                    for (var i = 1; i < insight.columns.length; i++)
-                      if (row.cells[i].isNotEmpty && row.cells[i] != '-')
-                        Text(
-                          '${insight.columns[i]} · ${row.cells[i]}',
-                          style: context.typo.body(12),
-                        ),
+                    const SizedBox(height: AppSpace.sm),
+                    _MaterialPurchaseVisual(insight: insight),
+                    const SizedBox(height: AppSpace.md),
                   ],
-                ShadAccordion<int>(
-                  key: ValueKey('table-$rceptNo-$index'),
-                  children: [
-                    ShadAccordionItem<int>(
-                      value: 0,
-                      title: Text('항목별 정보 ${insight.rows.length}개'),
-                      child: AppDataTable(
-                        columns: [
-                          for (final column in insight.columns)
-                            AppColumn(column),
-                        ],
-                        rows: [
-                          for (final row in insight.rows)
-                            AppRow([
-                              for (final cell in row.cells)
-                                AppDataTable.text(context, cell),
-                            ]),
-                        ],
-                      ),
+                  for (final group
+                      in (insight.topic == 'materialPurchase'
+                          ? <
+                              MapEntry<
+                                (String, String, String),
+                                List<BusinessTableMeasure>
+                              >
+                            >[]
+                          : tableMeasureGroups(insight).entries)) ...[
+                    const SizedBox(height: AppSpace.md),
+                    DisclosureTermLabel(
+                      '${group.key.$1} · ${group.key.$3} · ${group.key.$2}',
+                      style: context.typo.body(13, weight: FontWeight.w600),
                     ),
-                    ShadAccordionItem<int>(
-                      value: 1,
-                      title: const Text('추출 근거'),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: SelectableText(
-                          insight.evidence,
-                          style: context.typo.body(12),
-                          textAlign: TextAlign.start,
-                        ),
-                      ),
+                    _TableMeasureChart(
+                      measures: group.value,
+                      metric: group.key.$1,
+                      unit: group.key.$2,
                     ),
                   ],
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: ShadButton.ghost(
-                    onPressed: () => launchUrl(
-                      Uri.parse(
-                        'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$rceptNo',
-                      ),
+                  if (insight.measures.isEmpty &&
+                      !hasBusinessRecordHistory(insight))
+                    Text(
+                      '${insight.rows.length}개 공시 항목 · ${insight.topic.endsWith('Source') ? insight.validation : '확정할 수 있는 숫자 차트 없이 원문 항목을 제공합니다.'}',
+                      style: context.typo.body(13),
                     ),
-                    child: const Text('DART 공시 원문'),
+                  if (insight.topic == 'researchProjects' ||
+                      insight.topic == 'majorContracts')
+                    for (final row in insight.rows.take(3)) ...[
+                      const SizedBox(height: AppSpace.md),
+                      Text(
+                        row.cells.first,
+                        style: context.typo.body(14, weight: FontWeight.w600),
+                      ),
+                      for (var i = 1; i < insight.columns.length; i++)
+                        if (row.cells[i].isNotEmpty && row.cells[i] != '-')
+                          Text(
+                            '${insight.columns[i]} · ${row.cells[i]}',
+                            style: context.typo.body(12),
+                          ),
+                    ],
+                  ShadAccordion<int>(
+                    key: ValueKey('table-$rceptNo-$index'),
+                    children: [
+                      ShadAccordionItem<int>(
+                        value: 0,
+                        title: Text('항목별 정보 ${insight.rows.length}개'),
+                        child: AppDataTable(
+                          columns: [
+                            for (final column in insight.columns)
+                              AppColumn(column),
+                          ],
+                          rows: [
+                            for (final row in insight.rows)
+                              AppRow([
+                                for (final cell in row.cells)
+                                  AppDataTable.text(context, cell),
+                              ]),
+                          ],
+                        ),
+                      ),
+                      ShadAccordionItem<int>(
+                        value: 1,
+                        title: const Text('추출 근거'),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: SelectableText(
+                            insight.evidence,
+                            style: context.typo.body(12),
+                            textAlign: TextAlign.start,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ] else
-                BusinessTableHistory(
-                  key: ValueKey('$corpCode-${insight.topic}-${insight.title}'),
-                  corpCode: corpCode!,
-                  latest: latest!,
-                  topic: insight.topic,
-                  title: insight.title,
-                  share: _shares[index] ?? false,
-                ),
-            ],
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ShadButton.ghost(
+                      onPressed: () => launchUrl(
+                        Uri.parse(
+                          'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$rceptNo',
+                        ),
+                      ),
+                      child: const Text('DART 공시 원문'),
+                    ),
+                  ),
+                ] else
+                  BusinessTableHistory(
+                    key: ValueKey(
+                      '$corpCode-${insight.topic}-${insight.title}',
+                    ),
+                    corpCode: corpCode!,
+                    latest: latest!.copyWith(
+                      tableInsights: latest!.tableInsights ?? insights,
+                    ),
+                    latestReport: widget.latestReport,
+                    topic: insight.topic,
+                    title: insight.title,
+                    share: _shares[index] ?? false,
+                  ),
+              ],
+            ),
           ),
-        ),
       ],
     ],
   );

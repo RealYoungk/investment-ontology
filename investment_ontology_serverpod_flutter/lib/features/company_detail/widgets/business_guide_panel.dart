@@ -22,8 +22,10 @@ class BusinessGuidePanel extends StatefulWidget {
     required this.corpCode,
     this.latestReport,
     this.summary = false,
+    this.afterRevenue,
   });
   final bool summary;
+  final Widget? afterRevenue;
   final String corpCode;
   final FinancialPeriod? latestReport;
   @override
@@ -39,7 +41,7 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   bool _lessonLoading = true;
   PowerProductLesson? _powerLesson;
   bool _failed = false;
-  int _seq = 0, _selected = 0;
+  int _seq = 0;
   @override
   void initState() {
     super.initState();
@@ -66,7 +68,6 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
       _lessonLoading = true;
       _powerLesson = null;
       _failed = false;
-      _selected = 0;
     });
     _loadLesson(seq);
     _loadContent(seq);
@@ -225,39 +226,26 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
                 )) ...[
                   const SubstrateGuide(),
                 ] else ...[
-                  Text(
-                    '공시에서 확인한 제품',
-                    style: t.body(20, weight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: AppSpace.sm),
-                  Wrap(
-                    spacing: AppSpace.sm,
-                    runSpacing: AppSpace.sm,
-                    children: [
-                      for (final (i, product) in data.products.indexed)
-                        IntrinsicWidth(
-                          child: ShadButton.ghost(
-                            onPressed: () => setState(() => _selected = i),
-                            child: Text(
-                              product.name,
-                              style: t.body(
-                                14,
-                                weight: i == _selected
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                                color: i == _selected
-                                    ? c.accent
-                                    : c.textSecondary,
+                  LayoutBuilder(
+                    builder: (context, box) {
+                      final columns = box.maxWidth >= 600 ? 2 : 1;
+                      return Wrap(
+                        spacing: AppSpace.md,
+                        runSpacing: AppSpace.md,
+                        children: [
+                          for (final product in data.products)
+                            SizedBox(
+                              width:
+                                  (box.maxWidth - AppSpace.md * (columns - 1)) /
+                                  columns,
+                              child: BusinessProductCard(
+                                product: product,
+                                rceptNo: data.rceptNo,
                               ),
                             ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpace.md),
-                  BusinessProductCard(
-                    product: data.products[_selected],
-                    rceptNo: data.rceptNo,
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: AppSpace.sm),
                   Text(
@@ -284,11 +272,16 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
         const SizedBox(height: AppSpace.xl),
         if (_lesson?.models.first.label != '기업인수목적회사')
           RevenueComposition(
+            latestReport: widget.latestReport,
             corpCode: widget.corpCode,
             products: data?.products ?? const [],
             printedMix: _powerLesson,
             showTrends: !widget.summary,
           ),
+        if (widget.afterRevenue != null) ...[
+          const SizedBox(height: AppSpace.xl),
+          widget.afterRevenue!,
+        ],
         const SizedBox(height: AppSpace.xl),
         if (_content?.title.startsWith('이전 저장 보고서 ·') == true) ...[
           Padding(
@@ -299,12 +292,13 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
             ),
           ),
         ],
-        if (!widget.summary && (_content?.tableInsights?.isNotEmpty ?? false))
+        if (!widget.summary && _content != null)
           BusinessTableInsightsPanel(
-            insights: _content!.tableInsights!,
+            insights: _content!.tableInsights ?? [],
             rceptNo: _content!.rceptNo,
             corpCode: widget.corpCode,
             latest: _content!,
+            latestReport: widget.latestReport,
           ),
       ],
     );
@@ -343,10 +337,11 @@ class BusinessProductCard extends StatelessWidget {
           ] else ...[
             Text(product.name, style: t.body(19, weight: FontWeight.w700)),
             const SizedBox(height: AppSpace.sm),
-            Text(
-              product.role.isNotEmpty ? product.role : '제품명은 공시 표에서 확인했습니다.',
-              style: t.body(14, color: c.textSecondary).copyWith(height: 1.7),
-            ),
+            if (product.role.isNotEmpty)
+              Text(
+                product.role,
+                style: t.body(14, color: c.textSecondary).copyWith(height: 1.7),
+              ),
           ],
           Material(
             color: c.surface,

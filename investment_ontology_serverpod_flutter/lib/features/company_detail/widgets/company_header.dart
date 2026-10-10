@@ -478,8 +478,11 @@ class _KeyStatsState extends State<_KeyStats> {
                 ),
                 builder: (context, hovered) => AnimatedContainer(
                   duration: AppMotion.fast,
-                  constraints: const BoxConstraints(minHeight: 120),
-                  padding: const EdgeInsets.all(AppSpace.lg),
+                  constraints: const BoxConstraints(minHeight: 112),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.md,
+                    vertical: AppSpace.sm,
+                  ),
                   decoration: BoxDecoration(
                     color: hovered ? c.surfaceHover : null,
                     borderRadius: context.shape.borderRadius,
@@ -558,11 +561,23 @@ class _KeyStatsState extends State<_KeyStats> {
                     start < metrics.length;
                     start += columns
                   ) ...[
+                    if (start > 0)
+                      Divider(
+                        height: AppSpace.lg,
+                        thickness: 1,
+                        color: c.border,
+                      ),
                     IntrinsicHeight(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           for (var column = 0; column < columns; column++) ...[
+                            if (column > 0)
+                              VerticalDivider(
+                                width: AppSpace.md,
+                                thickness: 1,
+                                color: c.border,
+                              ),
                             Expanded(
                               child: start + column < metrics.length
                                   ? metricCell(metrics[start + column])

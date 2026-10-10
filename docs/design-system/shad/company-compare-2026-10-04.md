@@ -41,3 +41,9 @@ Serverpod MCP DTD/hot_reload 응답이 지연되어 driver 검증은 완료하�
 운영 화면 피드백에 따라 선택 배지와 검색을 DataPanel로 묶고, 할당 폭 900px 이상에서는 추천 기업 패널을 오른쪽에 배치했다. 좁은 폭에서는 동일한 Wrap 자식 구조로 세로 배치하며 검색 State를 유지한다. 검색 결과 행과 머리글은 64px에서 48px로 줄였다. 입력 높이 48px와 체크박스 선택, 로딩/실패/빈 결과, URL 계약은 유지한다.
 
 검증: 관련 widget/design 경계 테스트 7개 통과, 수정 파일 analyzer 오류 없음. 실행 중 localhost 실제 검색 즉시 로딩, 삼성바이오로직스 체크 추가/해제 및 검색어 유지 확인. 320/390/1045px 화면에서 배치 확인, 브라우저 console error 0건, Serverpod MCP hot reload 성공. 증거: output/reviews/compare-compact-local.jpg. 이번 보정은 운영에 배포하지 않았다.
+
+## 2026-10-05 모바일 세부 수치 표
+
+모바일에서 표를 읽기 어렵다는 사용자 피드백을 반영해 세부 수치 표의 지표 열을 고정했다. 기업 머리글과 수치는 단일 가로 viewport로 함께 움직인다. 지표 폭은 좁은 화면 104px/넓은 화면 156px, 기업 열은 최소 156px로 유지하며 넓은 화면에서는 남는 폭을 동일하게 나눈다. 긴 항목명·기업명·재무 기준은 줄바꿈하고 TextScaler를 포함한 실제 텍스트 측정으로 양쪽 행 높이를 맞춘다. 결측 표시와 사유 tooltip/semantics를 유지한다. 세로 스크롤은 기존 페이지가 담당하며 표에 별도 세로 viewport를 추가하지 않는다. 가로 넘침이 있을 때만 안내와 scrollbar를 표시한다.
+
+검증: 320/390/768/1440px 고정 열 및 머리글·수치 스크롤 동기화, 2배 글자 확대, 기존 검색/디자인 경계 widget tests. 전체 analyzer는 기존 intro_film.dart의 info 1건만 존재한다. 실제 Chrome localhost:8100은 ERR_CONNECTION_REFUSED였고 Serverpod DTD 조회도 지연돼 실제 모바일 브라우저 검증은 미완료다. 서버 직접 기동·운영 배포 없음.

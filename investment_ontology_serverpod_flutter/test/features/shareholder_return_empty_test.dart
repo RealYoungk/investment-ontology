@@ -8,6 +8,60 @@ import 'package:investment_ontology_serverpod_flutter/design/brands/ledger_brand
 import '../support/shad_test_host.dart';
 
 void main() {
+  testWidgets(
+    'latest half year is explicit and never enters annual dividend chart',
+    (t) async {
+      await t.binding.setSurfaceSize(const Size(320, 1000));
+      addTearDown(() => t.binding.setSurfaceSize(null));
+      DividendEntry row(int y, double v) => DividendEntry(
+        reportId: y,
+        companyId: 1,
+        bsnsYear: y,
+        ord: 0,
+        item: '주당 현금배당금(원)',
+        unit: '원',
+        stockKind: '보통주',
+        current: v,
+      );
+      await t.pumpWidget(
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: ShareholderReturnTab(
+                  corpCode: 'fixture',
+                  loader: (_) async => ShareholderReturn(
+                    corpCode: 'fixture',
+                    dividends: [row(2025, 100)],
+                    interimDividends: [row(2026, 20)],
+                    interimReportName: '2026년 상반기',
+                    latestReportName: '반기보고서 (2026.06)',
+                    latestYear: 2026,
+                    annualEndYear: 2025,
+                    latestDividendStatus: 'stored',
+                    latestTreasuryStatus: 'noData',
+                    latestStockTotalStatus: 'pending',
+                    treasury: [],
+                    stockTotals: [],
+                    sources: [],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(find.text('최근 중간보고서 · 반기보고서 (2026.06)'), findsOneWidget);
+      expect(find.text('20원'), findsOneWidget);
+      expect(find.text('100원'), findsWidgets);
+      expect(find.text('FY2026'), findsNothing);
+      expect(find.text('자기주식: DART API 응답 자료 없음'), findsOneWidget);
+      expect(find.text('주식 총수: 자료 수집 대기'), findsOneWidget);
+      expect(t.takeException(), isNull);
+    },
+  );
   for (final width in [390.0, 1045.0]) {
     testWidgets(
       'null dividend values collapse and explicit zero remains at $width',

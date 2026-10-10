@@ -1,4 +1,5 @@
 import 'rule_document_store.dart';
+import 'printed_period_columns.dart';
 
 import 'package:serverpod/serverpod.dart';
 
@@ -24,7 +25,6 @@ abstract final class ProductionFacts {
   static const tolerance = 2.0;
 
   /// 한 문서에서 받아들이는 최대 줄 수. 표가 통째로 들어오는 것을 막는다.
-  static const maxRows = 40;
 
   /// 지주회사 (KSIC). 이 업종은 본문이 자회사 이야기라 규칙 추출을 하지 않는다.
   static const holdingCompanyCode = '64992';
@@ -68,6 +68,7 @@ abstract final class ProductionFacts {
     var otherCompany = false;
     var inTable = false;
     var onlyUtilization = false;
+    var itemHeader = false;
     var utilAsProduction = false;
     var overAt = -1, underAt = -1;
     // 생산능력·생산실적·가동률 칸의 자리와 머리글의 칸 수 (오른쪽 끝 기준으로 다시 센다).
@@ -82,19 +83,31 @@ abstract final class ProductionFacts {
     var vCapIsCapacity = false;
     var vAt = -1000;
     String vUnit = '';
+    int verticalPeriod = 0;
+    int verticalPeriods = 0;
+    var process = '';
     void resetTable() {
       lastUnit = null;
       lastUnitAt = -1000;
       unitFromHeader = '';
       inTable = false;
+      itemHeader = false;
       vCap = null;
       vProd = null;
       vUnit = '';
+      verticalPeriod = 0;
+      verticalPeriods = 0;
+      process = '';
     }
 
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i].trim();
       if (line.isEmpty) continue;
+      if (RegExp(r'^\(\d+\)\s*[^|]+$').hasMatch(line)) process = '';
+      final processTitle = RegExp(r'(고진공\s*주조공정|가공\s*공정)$').firstMatch(line);
+      if (processTitle != null && line.length < 200) {
+        process = processTitle.group(1)!.trim();
+      }
       // BusinessText가 절 제목을 ## 형태로 보존한다. 새 절에서는 단위뿐 아니라
       // 이전 가로형 머리글과 미완성 세로형 묶음도 이어 쓰면 안 된다.
       if (RegExp(r'^#{1,6}\s').hasMatch(line)) {
@@ -124,16 +137,30 @@ abstract final class ProductionFacts {
         lastUnitAt = i;
       }
       final cells = [for (final c in line.split('|')) c.trim()];
+      final printedPeriod = newestPrintedPeriod(cells);
+      if (printedPeriod != null &&
+          !cells.any((c) => _num(c) != null || c.endsWith('%'))) {
+        verticalPeriod = printedPeriod;
+        verticalPeriods = cells
+            .where((c) => RegExp(r'(?:19|20)\d{2}|제\s*\d+\s*기').hasMatch(c))
+            .length;
+      }
 
       // 머리글: 생산능력·생산실적·가동률이 한 줄에 같이 있다.
-      if (line.contains('생산능력') &&
-          line.contains('생산실적') &&
-          line.contains('가동률')) {
+      final headerCells = cells
+          .map((c) => c.replaceAll(RegExp(r'\s+'), ''))
+          .toList();
+      if (headerCells.any((c) => c.contains('생산능력')) &&
+          headerCells.any((c) => RegExp(r'생산실적|생산량|실제생산').hasMatch(c)) &&
+          headerCells.any((c) => RegExp(r'가동률|가동율').hasMatch(c))) {
         // 당기·전기를 나란히 적는 표가 있다. 머리글에서 칸을 집어 **맨 앞(당기)**만 읽는다.
-        capAt = cells.indexWhere((c) => c.contains('생산능력'));
-        prodAt = cells.indexWhere((c) => c.contains('생산실적'));
-        utilAt = cells.indexWhere((c) => c.contains('가동률'));
+        capAt = headerCells.indexWhere((c) => c.contains('생산능력'));
+        prodAt = headerCells.indexWhere(
+          (c) => RegExp(r'생산실적|생산량|실제생산').hasMatch(c),
+        );
+        utilAt = headerCells.indexWhere((c) => RegExp(r'가동률|가동율').hasMatch(c));
         columns = cells.length;
+        itemHeader = capAt == 1 && headerCells.first == '품목';
         inTable =
             capAt >= 0 &&
             prodAt >= 0 &&
@@ -158,7 +185,11 @@ abstract final class ProductionFacts {
         continue;
       }
       // 세로형: 구분 칸에 생산능력·생산실적·가동률이 줄마다 있고 숫자는 그 뒤 칸(당기가 맨 앞).
-      final vertical = _verticalRow(cells);
+      final vertical = _verticalRow(
+        cells,
+        period: verticalPeriod,
+        periods: verticalPeriods,
+      );
       if (vertical != null) {
         final (kind, labels, value, unitInCell) = vertical;
         if (kind == 'cap') {
@@ -186,7 +217,10 @@ abstract final class ProductionFacts {
             i - vAt <= 3 &&
             vCap! > 0 &&
             (value - 100 * vProd! / vCap!).abs() <= tolerance) {
-          final name = vCapLabels!.join(' · ');
+          final name = [
+            ...vCapLabels!.isEmpty ? ['전체'] : vCapLabels,
+            if (process.isNotEmpty) process,
+          ].join(' · ');
           if (name.isNotEmpty) {
             out.add((
               label: name.length > 60 ? name.substring(0, 60) : name,
@@ -210,8 +244,10 @@ abstract final class ProductionFacts {
       if (line.contains('가동률') && cells.length >= 3) {
         final over = cells.indexWhere((c) => c.contains('실제'));
         final under = cells.indexWhere((c) => c.contains('가능'));
-        inTable = over > 0 && under > 0;
+        inTable = over >= 0 && under >= 0 && over != under;
+        columns = cells.length;
         onlyUtilization = inTable;
+        itemHeader = false;
         overAt = over;
         underAt = under;
         // "생산가능수량 | 실제생산수량"은 생산능력·생산실적이다 (시간이면 가동률만).
@@ -247,14 +283,16 @@ abstract final class ProductionFacts {
         if (!last.endsWith('%')) continue;
         util = double.tryParse(last.replaceAll(RegExp(r'[%,]'), ''));
         if (util == null) continue;
-        if (overAt >= cells.length || underAt >= cells.length) continue;
-        final over = _num(cells[overAt]), under = _num(cells[underAt]);
+        final overIdx = cells.length - (columns - overAt);
+        final underIdx = cells.length - (columns - underAt);
+        if (overIdx < 0 || underIdx < 0) continue;
+        final over = _num(cells[overIdx]), under = _num(cells[underIdx]);
         if (over == null || under == null || under <= 0) continue;
         if ((util - 100 * over / under).abs() > tolerance) continue;
         if (utilAsProduction) {
           cap = under;
           prod = over;
-          labelEnd = underAt;
+          labelEnd = underIdx;
         }
       } else {
         // 머리글에서 집은 칸을 오른쪽 끝 기준으로 다시 찾는다 (이름 칸이 합쳐져 있어도
@@ -286,7 +324,14 @@ abstract final class ProductionFacts {
         }
       }
       final name = [
-        for (final l in labels)
+        // A merged division cell precedes the product beneath one 품목 header.
+        // Keep the actual item stable when that division suffix is misspelled.
+        for (final l
+            in itemHeader &&
+                    labels.length == 2 &&
+                    RegExp(r'(부문|부분)$').hasMatch(labels.first)
+                ? labels.skip(1)
+                : labels)
           if (l != unit) l,
       ].join(' · ');
       if (name.isEmpty) continue;
@@ -298,7 +343,6 @@ abstract final class ProductionFacts {
         utilization: util,
         evidence: line,
       ));
-      if (out.length >= maxRows) break;
     }
     return out;
   }
@@ -333,6 +377,12 @@ abstract final class ProductionFacts {
   /// 숫자가 섞인 것은 단위로 보지 않는다.
   static String _firstUnit(String? raw) {
     if (raw == null) return '';
+    // A printed scale belongs to the unit; its thousands comma is not a
+    // separator between different units. Preserve it without converting values.
+    final scaled = RegExp(
+      r'^\s*((?:1,000,000|1,000|1000|1000000)\s*(?:pcs|PCS|EA|ea|개))\s*(?:,\s*%)?\s*$',
+    ).firstMatch(raw);
+    if (scaled != null) return scaled.group(1)!.trim();
     for (final part in raw.split(',')) {
       final t = part.trim();
       if (t.isEmpty || t == '%') continue;
@@ -363,8 +413,10 @@ abstract final class ProductionFacts {
   /// 세로형 표의 한 줄: (종류, 이름 칸들, 첫 숫자). 구분 칸(생산능력·생산실적·가동률) 바로
   /// 뒤의 숫자가 당기다. 그런 칸이 없으면 null.
   static (String, List<String>, double, String)? _verticalRow(
-    List<String> cells,
-  ) {
+    List<String> cells, {
+    int period = 0,
+    int periods = 0,
+  }) {
     for (var k = 0; k < cells.length - 1; k++) {
       final c = cells[k];
       final kind = _vCap.hasMatch(c)
@@ -375,7 +427,9 @@ abstract final class ProductionFacts {
           ? 'util'
           : null;
       if (kind == null) continue;
-      final next = cells[k + 1];
+      final at = periods > 0 ? cells.length - periods + period : k + 1;
+      if (at <= k || at >= cells.length) return null;
+      final next = cells[at];
       final v = kind == 'util' ? _percent(next) : _num(next);
       if (v == null) return null;
       final labels = [
@@ -389,8 +443,8 @@ abstract final class ProductionFacts {
 
   /// "(단위 : 백만개, %)" 처럼 적힌 단위.
   static String _unitIn(String line) {
-    final m = RegExp(r'단위\s*[:：]\s*([^,)\]]+)').firstMatch(line);
-    return m == null ? '' : m.group(1)!.trim();
+    final m = RegExp(r'단위\s*[:：]\s*([^)\]]+)').firstMatch(line);
+    return m == null ? '' : _firstUnit(m.group(1));
   }
 
   /// 칸에 적힌 단위처럼 보이면 그것을, 아니면 머리글의 단위를 쓴다.
@@ -413,6 +467,11 @@ abstract final class ProductionFacts {
       '천톤',
     };
     if (known.contains(cell)) return cell;
+    if (_unitWord.hasMatch(fromHeader) ||
+        RegExp(r'^(?:1,000,000|1,000|1000|1000000)\s*(?:pcs|PCS|EA|ea|개)$')
+            .hasMatch(fromHeader)) {
+      return fromHeader;
+    }
     return known.contains(fromHeader) ? fromHeader : '';
   }
 

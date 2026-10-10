@@ -552,7 +552,9 @@ abstract final class CompanySearch {
     final english = normalize(company.nameEng ?? '');
     if (english == q) return 0;
     if (english.startsWith(q)) return 2;
-    if (name.contains(q) ||
+    if (display.contains(q) ||
+        stock.contains(q) ||
+        name.contains(q) ||
         canonicalName.contains(key) ||
         english.contains(q)) {
       return 3;

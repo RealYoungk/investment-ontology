@@ -95,7 +95,7 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('터치 상세는 다시 누르기·바깥 누르기로 닫고 가로 드래그로 이동한다', (tester) async {
+  testWidgets('터치 상세는 선택한 시점을 유지하고 다른 시점·가로 드래그로 이동한다', (tester) async {
     await tester.pumpWidget(
       _app(
         AppLineChart(
@@ -117,6 +117,10 @@ void main() {
     expect(find.text('101원'), findsOneWidget);
     await tester.tapAt(first);
     await tester.pump();
+    expect(find.text('101원'), findsOneWidget);
+    await tester.tapAt(origin + const Offset(290, 120));
+    await tester.pump();
+    expect(find.text('303원'), findsOneWidget);
     expect(find.text('101원'), findsNothing);
     final gesture = await tester.startGesture(first);
     await gesture.moveBy(const Offset(30, 0));
@@ -291,7 +295,7 @@ void main() {
     await tester.tapAt(origin + const Offset(160, 120));
     await tester.pump();
     expect(find.text('0원'), findsOneWidget);
-    expect(find.text('—'), findsNWidgets(2));
+    expect(find.text('—'), findsNothing);
     expect(find.text('-1230.0%'), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -317,7 +321,7 @@ void main() {
     await tester.tap(find.byType(AppComboChart));
     await tester.pump();
     expect(find.text('250원'), findsOneWidget);
-    expect(find.text('—'), findsOneWidget);
+    expect(find.text('—'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -352,7 +356,7 @@ void main() {
     await tester.tapAt(origin + const Offset(100, 120));
     await tester.pump();
     expect(find.text('-400.0%'), findsOneWidget);
-    expect(find.text('—'), findsOneWidget);
+    expect(find.text('—'), findsNothing);
     expect(find.text('100원'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -397,7 +401,7 @@ void main() {
     await gesture.moveTo(tester.getCenter(find.byType(AppColumnChart)));
     await tester.pump();
     expect(find.text('2024'), findsWidgets);
-    expect(find.text('—'), findsOneWidget, reason: '빈 값은 툴팁에 —');
+    expect(find.text('—'), findsNothing, reason: '다른 값이 있는 기간의 결측 행은 툴팁에서 생략');
   });
 
   testWidgets('트리맵: 세로 공간이 있으면 긴 이름을 여러 줄로 모두 표시한다', (tester) async {

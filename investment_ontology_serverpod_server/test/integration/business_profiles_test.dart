@@ -274,6 +274,59 @@ void main() {
         annual.rceptNo,
       );
     });
+    test('첨부정정은 같은 회사·실제기간 원본문을 보존하고 기재정정은 대체하지 않는다', () async {
+      final annual = await document(
+        '01999992',
+        product,
+        year: 2025,
+        reportName: '사업보고서 (2025.12)',
+      );
+      Future<void> filing(String receipt, String name) => DartFiling.db
+          .insertRow(
+            session,
+            DartFiling(
+              companyId: annual.companyId,
+              corpCode: '01999992',
+              rceptNo: receipt,
+              reportName: name,
+              bsnsYear: 2025,
+              reportCode: FinancialReportCode.annual,
+              consolidatedStatus: FilingFetchStatus.pending,
+              separateStatus: FilingFetchStatus.pending,
+              discoveredAt: DateTime.now().toUtc(),
+            ),
+          )
+          .then((_) {});
+      await filing('20260323001139', '[첨부정정]사업보고서 (2025.12)');
+      final endpoint = DisclosureEndpoint();
+      final result = await endpoint.businessContent(
+        session,
+        '01999992',
+        bsnsYear: 2025,
+      );
+      expect(result!.rceptNo, annual.rceptNo);
+      expect(result.title, contains('첨부정정의 동일 보고기간 원본문'));
+      await filing('20260324001139', '[첨부정정]사업보고서 (2025.09)');
+      // The December filing still wins by actual reporting period.
+      expect(
+        (await endpoint.businessContent(
+          session,
+          '01999992',
+          bsnsYear: 2025,
+        ))!.rceptNo,
+        annual.rceptNo,
+      );
+      await filing('20260325001139', '[기재정정]사업보고서 (2025.12)');
+      expect(
+        await endpoint.businessContent(session, '01999992', bsnsYear: 2025),
+        isNull,
+      );
+      await filing('20260326001139', '[첨부정정]사업보고서 (2025.12)');
+      expect(
+        await endpoint.businessContent(session, '01999992', bsnsYear: 2025),
+        isNull,
+      );
+    });
     test(
       'holding companies and stale documents cannot inherit subsidiary roles',
       () async {

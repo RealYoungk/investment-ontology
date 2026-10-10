@@ -4,10 +4,14 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/router.dart';
+import '../../app/ingest_monitor.dart';
+import '../../design/components/company_logo.dart';
+import 'industry_discovery_cache.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../screen/company_discovery_navigation.dart';
+import '../common/company_display_name.dart';
 import 'industry_directory.dart';
 import 'discovery_definitions.dart';
 
@@ -120,9 +124,11 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
     return query;
   }
 
+  final _businessFilters = ShadAccordionController<int>();
   IndustryDiscovery? _data;
+  final _companyNames = <String, String>{};
   bool _failed = false;
-  int _limit = 10;
+  int _limit = 20;
   int _unclassifiedLimit = 10;
   int _seq = 0;
   List<String> get _selected => (_query['codes'] ?? '')
@@ -135,17 +141,31 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
   @override
   void initState() {
     super.initState();
-    _load();
+    if (_query['industry'] != null) _load();
+    IngestMonitor.instance.dataVersion.addListener(_dataChanged);
+  }
+
+  void _dataChanged() {
+    if (_query['industry'] != null) _load();
+  }
+
+  @override
+  void dispose() {
+    IngestMonitor.instance.dataVersion.removeListener(_dataChanged);
+    _businessFilters.dispose();
+    super.dispose();
   }
 
   @override
   void didUpdateWidget(covariant IndustryDiscoveryPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.query.isEmpty && _query.isNotEmpty && _data == null) {
+    if (_query['industry'] != null &&
+        (_data == null || oldWidget.query['industry'] != _query['industry'])) {
+      _data = null;
       _load();
     }
     if (oldWidget.query.toString() != widget.query.toString()) {
-      _limit = 10;
+      _limit = 20;
       _unclassifiedLimit = 10;
     }
   }
@@ -154,8 +174,21 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
     final seq = ++_seq;
     setState(() => _failed = false);
     try {
-      final data = await (widget.fetch?.call() ?? client.industry.browse());
-      if (mounted && seq == _seq) setState(() => _data = data);
+      final data =
+          await (widget.fetch?.call() ??
+              industryDiscoveryCache.read(
+                _query['industry']!,
+                IngestMonitor.instance.dataVersion.value,
+                () => client.industry.browse(industry: _query['industry']),
+              ));
+      if (mounted && seq == _seq) {
+        setState(() {
+          _data = data;
+          for (final a in data.activities) {
+            _companyNames[a.corpCode] = a.companyName;
+          }
+        });
+      }
     } catch (_) {
       if (mounted && seq == _seq) setState(() => _failed = true);
     }
@@ -169,6 +202,7 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
       next[key] = value;
     }
     if (key == 'role') {
+      _businessFilters.value = [];
       for (final k in ['product', 'process', 'target', 'method']) {
         next.remove(k);
       }
@@ -230,20 +264,14 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
         children: [
           const CompanyDiscoveryNavigation(discovery: true),
           const SizedBox(height: AppSpace.lg),
-          Text('관심 있는 업종을 골라보세요', style: context.typo.sectionTitle),
+          Text('어떤 분야의 기업을 찾고 있나요?', style: context.typo.sectionTitle),
+          const SizedBox(height: AppSpace.sm),
+          Text(
+            '업종을 고른 뒤 제품과 사업으로 후보를 좁혀보세요.',
+            style: context.typo.body(14, color: context.colors.textSecondary),
+          ),
           const SizedBox(height: AppSpace.md),
-          if (_failed) ...[
-            const Text('업종을 불러오지 못했어요.'),
-            ShadButton.raw(
-              onPressed: _load,
-
-              variant: ShadButtonVariant.outline,
-              child: Flexible(child: Text('다시 불러오기')),
-            ),
-          ] else if (_data == null)
-            const ShadProgress()
-          else
-            IndustryDirectory(data: _data!),
+          const IndustryDirectory(),
         ],
       );
     }
@@ -295,7 +323,6 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
         if (get(a) != null) get(a)!: get(a)!,
     };
     return PageFrame(
-      maxWidth: 1120,
       children: [
         const CompanyDiscoveryNavigation(discovery: true),
         const SizedBox(height: AppSpace.lg),
@@ -327,7 +354,6 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
         ] else ...[
           LayoutBuilder(
             builder: (context, box) {
-              final wide = box.maxWidth >= 850;
               final navigation = Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -336,49 +362,47 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                     style: typo.body(13, color: colors.textSecondary),
                   ),
                   const SizedBox(height: AppSpace.sm),
-                  LayoutBuilder(
-                    builder: (context, box) {
-                      final double? width = wide ? box.maxWidth : null;
-                      return Wrap(
-                        spacing: AppSpace.sm,
-                        runSpacing: AppSpace.sm,
-                        children: [
-                          SizedBox(
-                            width: width,
-                            child: ShadButton.raw(
-                              onPressed: () => _change('role', null),
-
-                              variant: _query['role'] == null
-                                  ? ShadButtonVariant.primary
-                                  : ShadButtonVariant.outline,
-                              child: Flexible(child: Text('전체 사업')),
-                            ),
+                  for (final role in <String, String>{
+                    '': '전체 사업',
+                    ...roles,
+                  }.entries)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpace.xs),
+                      child: ShadButton.raw(
+                        key: ValueKey('industry-role-${role.key}'),
+                        variant: ShadButtonVariant.ghost,
+                        backgroundColor: (_query['role'] ?? '') == role.key
+                            ? colors.accentSubtle
+                            : null,
+                        foregroundColor: (_query['role'] ?? '') == role.key
+                            ? colors.accent
+                            : colors.textSecondary,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpace.sm,
+                          vertical: AppSpace.sm,
+                        ),
+                        height: 0,
+                        onPressed: () => _change(
+                          'role',
+                          _query['role'] == role.key ? null : role.key,
+                        ),
+                        trailing: Text(
+                          role.key.isEmpty
+                              ? '${activeItems.map((a) => a.corpCode).toSet().length}'
+                              : activeItems.any((a) => a.role == role.key)
+                              ? '${activeItems.where((a) => a.role == role.key).map((a) => a.corpCode).toSet().length}'
+                              : '미확인',
+                          style: typo.body(12, color: colors.textMuted),
+                        ),
+                        child: Expanded(
+                          child: Text(
+                            role.value,
+                            textAlign: TextAlign.left,
                           ),
-                          for (final role in roles.entries)
-                            SizedBox(
-                              width: width,
-                              child: ShadButton.raw(
-                                onPressed: () => _change(
-                                  'role',
-                                  _query['role'] == role.key ? null : role.key,
-                                ),
-
-                                variant: _query['role'] == role.key
-                                    ? ShadButtonVariant.primary
-                                    : ShadButtonVariant.outline,
-                                child: Flexible(
-                                  child: Text(
-                                    activeItems.any((a) => a.role == role.key)
-                                        ? '${role.value} · ${activeItems.where((a) => a.role == role.key).map((a) => a.corpCode).toSet().length}개사'
-                                        : '${role.value} · 근거 확인 전',
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: AppSpace.md),
                   if ((_query['role']?.startsWith('business:') ?? false) &&
                       !roles.containsKey(_query['role']))
@@ -527,7 +551,7 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                             variant: ShadButtonVariant.outline,
                             child: Flexible(
                               child: Text(
-                                '${data.activities.where((a) => a.corpCode == code).firstOrNull?.companyName ?? code} ×',
+                                '${_companyNames[code] ?? code} ×',
                               ),
                             ),
                           ),
@@ -569,46 +593,7 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                                     ).toString(),
                                   );
                                 },
-                          enabled:
-                              (_selected.length < 2
-                                  ? null
-                                  : () {
-                                      final product = _query['product'];
-                                      final shared =
-                                          product != null &&
-                                          product != 'equipment_unspecified' &&
-                                          !product.startsWith('ksic:') &&
-                                          !product.startsWith('registered:') &&
-                                          !product.startsWith('activity:') &&
-                                          !product.startsWith(
-                                            'kind-registration:',
-                                          ) &&
-                                          _selected.every(
-                                            (code) => filtered.any(
-                                              (a) =>
-                                                  a.corpCode == code &&
-                                                  a.productKey == product,
-                                            ),
-                                          );
-                                      final label = shared
-                                          ? data.activities
-                                                .firstWhere(
-                                                  (a) =>
-                                                      a.productKey == product,
-                                                )
-                                                .productName
-                                          : null;
-                                      context.push(
-                                        Uri(
-                                          path: '/compare',
-                                          queryParameters: {
-                                            'codes': _selected.join(','),
-                                            'industryProduct': ?label,
-                                          },
-                                        ).toString(),
-                                      );
-                                    }) !=
-                              null,
+                          enabled: _selected.length >= 2,
                           variant: ShadButtonVariant.primary,
                           child: Flexible(
                             child: Text('${_selected.length}개 기업 비교 →'),
@@ -623,15 +608,39 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                       '이 조건의 사업 근거를 아직 확보하지 못했어요. 다른 사업을 골라보세요.',
                       style: typo.body(14),
                     ),
-                  for (final entry in companies.entries.take(_limit)) ...[
-                    _company(entry.value),
-                    const SizedBox(height: AppSpace.sm),
-                  ],
+                  if (companies.isNotEmpty)
+                    LayoutBuilder(
+                      builder: (context, box) {
+                        final entries = companies.values.take(_limit).toList();
+                        final columns = box.maxWidth >= 960
+                            ? 3
+                            : box.maxWidth >= 720
+                            ? 2
+                            : 1;
+                        final width =
+                            (box.maxWidth - AppSpace.md * (columns - 1)) /
+                            columns;
+                        return Wrap(
+                          spacing: AppSpace.md,
+                          runSpacing: AppSpace.md,
+                          children: [
+                            for (final items in entries)
+                              SizedBox(
+                                width: width,
+                                child: DataPanel(
+                                  child: _company(items, tile: true),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  const SizedBox(height: AppSpace.md),
                   if (companies.length > _limit)
                     ShadButton.raw(
-                      onPressed: () => setState(() => _limit += 10),
+                      onPressed: () => setState(() => _limit += 20),
                       variant: ShadButtonVariant.outline,
-                      child: Flexible(child: Text('기업 10개 더 보기')),
+                      child: Flexible(child: Text('기업 20개 더 보기')),
                     ),
                   if (withoutBusiness.isNotEmpty) ...[
                     const SizedBox(height: AppSpace.lg),
@@ -686,7 +695,24 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    navigation,
+                    DataPanel(
+                      child: ShadAccordion<int>(
+                        controller: _businessFilters,
+                        maintainState: false,
+                        children: [
+                          ShadAccordionItem<int>(
+                            value: 0,
+                            separator: const SizedBox.shrink(),
+                            padding: EdgeInsets.zero,
+                            title: Text(
+                              '사업 선택 · ${roles[_query['role']] ?? '전체 사업'}',
+                              style: typo.body(14, weight: FontWeight.w600),
+                            ),
+                            child: navigation,
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: AppSpace.lg),
                     results,
                   ],
@@ -695,7 +721,7 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(width: 240, child: navigation),
+                  SizedBox(width: 248, child: navigation),
                   const SizedBox(width: AppSpace.lg),
                   Expanded(child: results),
                 ],
@@ -759,86 +785,166 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
     );
   }
 
-  Widget _company(List<IndustryActivity> items) {
+  Widget _company(List<IndustryActivity> items, {bool tile = false}) {
     final a = items.first;
     final selected = _selected.contains(a.corpCode);
+    final canSelect = selected || _selected.length < 4;
     final products = {for (final item in items) item.productName}.join(' · ');
-    final identity = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final name = companyDisplayName(name: a.companyName);
+    final identity = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ShadButton.raw(
-          onPressed: () => context.push(AppRoutes.company(a.corpCode)),
-          variant: ShadButtonVariant.link,
-          child: Flexible(child: Text(a.companyName)),
-        ),
-        if (items.every(
-          (item) => item.classificationBasis == 'registered_activity',
-        ))
-          Text(
-            '등록 업종 근거 · 세부 사업 확인 전',
-            style: context.typo.body(12, color: context.colors.textMuted),
+        CompanyLogo(name: a.companyName, corpCode: a.corpCode, size: 36),
+        const SizedBox(width: AppSpace.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ShadButton.raw(
+                onPressed: () => context.push(AppRoutes.company(a.corpCode)),
+                variant: ShadButtonVariant.ghost,
+                padding: EdgeInsets.zero,
+                height: 0,
+                foregroundColor: context.colors.textPrimary,
+                mainAxisAlignment: MainAxisAlignment.start,
+                child: Flexible(
+                  child: Text(
+                    name,
+                    textAlign: TextAlign.left,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.typo.body(15, weight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpace.xs),
+              Text.rich(
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                TextSpan(
+                  children: [
+                    TextSpan(text: products),
+                    TextSpan(
+                      text:
+                          ' · ${{'kospi': '코스피', 'kosdaq': '코스닥', 'konex': '코넥스'}[a.market] ?? a.market}',
+                      style: context.typo.body(
+                        12,
+                        color: context.colors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+                style: context.typo.body(
+                  13,
+                  color: context.colors.textSecondary,
+                ),
+              ),
+              if (items.every(
+                (item) => item.classificationBasis == 'registered_activity',
+              ))
+                Text(
+                  '등록 업종 근거 · 세부 사업 확인 전',
+                  style: context.typo.body(12, color: context.colors.textMuted),
+                ),
+              if (items.every(
+                (item) => item.classificationBasis == 'filing_activity',
+              ))
+                Text(
+                  '공시로 사업군 확인 · 세부 제품 확인 전',
+                  style: context.typo.body(12, color: context.colors.textMuted),
+                ),
+            ],
           ),
-        if (items.every(
-          (item) => item.classificationBasis == 'filing_activity',
-        ))
-          Text(
-            '공시로 사업군 확인 · 세부 제품 확인 전',
-            style: context.typo.body(12, color: context.colors.textMuted),
-          ),
-        Text(
-          products,
-          style: context.typo.body(13, color: context.colors.textSecondary),
         ),
       ],
     );
-    final actions = Wrap(
-      spacing: AppSpace.sm,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    void toggleComparison() {
+      final codes = _selected;
+      selected ? codes.remove(a.corpCode) : codes.add(a.corpCode);
+      _change('codes', codes.join(','));
+    }
+
+    final actions = Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        ShadButton.raw(
-          onPressed: () => _showEvidence(items),
-          variant: ShadButtonVariant.link,
-          child: Flexible(child: Text('근거 보기')),
+        ShadTooltip(
+          builder: (_) => const Text('근거 보기'),
+          child: Semantics(
+            container: true,
+            label: '근거 보기',
+            button: true,
+            onTap: () => _showEvidence(items),
+            child: ExcludeSemantics(
+              child: ShadIconButton.ghost(
+                width: 36,
+                height: 36,
+                padding: EdgeInsets.zero,
+                icon: const Icon(LucideIcons.fileText, size: 18),
+                onPressed: () => _showEvidence(items),
+              ),
+            ),
+          ),
         ),
-        ShadButton.raw(
-          onPressed: !selected && _selected.length >= 4
-              ? null
-              : () {
-                  final codes = _selected;
-                  selected ? codes.remove(a.corpCode) : codes.add(a.corpCode);
-                  _change('codes', codes.join(','));
-                },
-          enabled:
-              (!selected && _selected.length >= 4
-                  ? null
-                  : () {
-                      final codes = _selected;
-                      selected
-                          ? codes.remove(a.corpCode)
-                          : codes.add(a.corpCode);
-                      _change('codes', codes.join(','));
-                    }) !=
-              null,
-          variant: ShadButtonVariant.outline,
-          child: Flexible(child: Text(selected ? '비교에서 빼기' : '비교에 추가')),
+        const SizedBox(width: AppSpace.xs),
+        ShadTooltip(
+          builder: (_) => Text(
+            selected
+                ? '비교에서 빼기'
+                : canSelect
+                ? '비교에 추가'
+                : '최대 4개 기업까지 비교할 수 있어요',
+          ),
+          child: Semantics(
+            container: true,
+            label: selected ? '비교에서 빼기' : '비교에 추가',
+            button: true,
+            enabled: canSelect,
+            selected: selected,
+            onTap: canSelect ? toggleComparison : null,
+            child: ExcludeSemantics(
+              child: ShadIconButton.raw(
+                variant: selected
+                    ? ShadButtonVariant.secondary
+                    : ShadButtonVariant.outline,
+                width: 36,
+                height: 36,
+                padding: EdgeInsets.zero,
+                enabled: canSelect,
+                icon: Icon(
+                  selected ? LucideIcons.check : LucideIcons.plus,
+                  size: 18,
+                ),
+                onPressed: canSelect ? toggleComparison : null,
+              ),
+            ),
+          ),
         ),
       ],
     );
-    return DataPanel(
+    if (tile) {
+      return Row(
+        children: [
+          Expanded(child: identity),
+          const SizedBox(width: AppSpace.sm),
+          actions,
+        ],
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
       child: LayoutBuilder(
         builder: (context, box) {
-          if (box.maxWidth < 500) {
+          if (box.maxWidth < 560) {
             return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 identity,
                 const SizedBox(height: AppSpace.sm),
-                actions,
+                Align(alignment: Alignment.centerRight, child: actions),
               ],
             );
           }
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(child: identity),
               const SizedBox(width: AppSpace.md),

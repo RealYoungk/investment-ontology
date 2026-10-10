@@ -29,6 +29,17 @@ abstract class ShareholderReturn
     this.stockTotalYear,
     required this.stockTotals,
     required this.sources,
+    this.interimDividends,
+    this.interimReportName,
+    this.treasuryReportName,
+    this.stockTotalReportName,
+    this.latestReportName,
+    this.latestYear,
+    this.annualEndYear,
+    this.availableYears,
+    this.latestDividendStatus,
+    this.latestTreasuryStatus,
+    this.latestStockTotalStatus,
   });
 
   factory ShareholderReturn({
@@ -39,6 +50,17 @@ abstract class ShareholderReturn
     int? stockTotalYear,
     required List<_iujsfq9w.StockTotalRow> stockTotals,
     required List<_i5ra8lvy.Source> sources,
+    List<_i2wevjp3.DividendEntry>? interimDividends,
+    String? interimReportName,
+    String? treasuryReportName,
+    String? stockTotalReportName,
+    String? latestReportName,
+    int? latestYear,
+    int? annualEndYear,
+    List<int>? availableYears,
+    String? latestDividendStatus,
+    String? latestTreasuryStatus,
+    String? latestStockTotalStatus,
   }) = _ShareholderReturnImpl;
 
   factory ShareholderReturn.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -61,6 +83,29 @@ abstract class ShareholderReturn
       sources: _i4yshtjp.Protocol().deserialize<List<_i5ra8lvy.Source>>(
         jsonSerialization['sources'],
       ),
+      interimDividends: jsonSerialization['interimDividends'] == null
+          ? null
+          : _i4yshtjp.Protocol().deserialize<List<_i2wevjp3.DividendEntry>>(
+              jsonSerialization['interimDividends'],
+            ),
+      interimReportName: jsonSerialization['interimReportName'] as String?,
+      treasuryReportName: jsonSerialization['treasuryReportName'] as String?,
+      stockTotalReportName:
+          jsonSerialization['stockTotalReportName'] as String?,
+      latestReportName: jsonSerialization['latestReportName'] as String?,
+      latestYear: jsonSerialization['latestYear'] as int?,
+      annualEndYear: jsonSerialization['annualEndYear'] as int?,
+      availableYears: jsonSerialization['availableYears'] == null
+          ? null
+          : _i4yshtjp.Protocol().deserialize<List<int>>(
+              jsonSerialization['availableYears'],
+            ),
+      latestDividendStatus:
+          jsonSerialization['latestDividendStatus'] as String?,
+      latestTreasuryStatus:
+          jsonSerialization['latestTreasuryStatus'] as String?,
+      latestStockTotalStatus:
+          jsonSerialization['latestStockTotalStatus'] as String?,
     );
   }
 
@@ -79,6 +124,29 @@ abstract class ShareholderReturn
 
   List<_i5ra8lvy.Source> sources;
 
+  /// 최신 중간보고서 배당 행. 연간 배당 추이에 합치지 않는다.
+  List<_i2wevjp3.DividendEntry>? interimDividends;
+
+  String? interimReportName;
+
+  String? treasuryReportName;
+
+  String? stockTotalReportName;
+
+  String? latestReportName;
+
+  int? latestYear;
+
+  int? annualEndYear;
+
+  List<int>? availableYears;
+
+  String? latestDividendStatus;
+
+  String? latestTreasuryStatus;
+
+  String? latestStockTotalStatus;
+
   /// Returns a shallow copy of this [ShareholderReturn]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
@@ -90,6 +158,17 @@ abstract class ShareholderReturn
     int? stockTotalYear,
     List<_iujsfq9w.StockTotalRow>? stockTotals,
     List<_i5ra8lvy.Source>? sources,
+    List<_i2wevjp3.DividendEntry>? interimDividends,
+    String? interimReportName,
+    String? treasuryReportName,
+    String? stockTotalReportName,
+    String? latestReportName,
+    int? latestYear,
+    int? annualEndYear,
+    List<int>? availableYears,
+    String? latestDividendStatus,
+    String? latestTreasuryStatus,
+    String? latestStockTotalStatus,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -102,6 +181,24 @@ abstract class ShareholderReturn
       if (stockTotalYear != null) 'stockTotalYear': stockTotalYear,
       'stockTotals': stockTotals.toJson(valueToJson: (v) => v.toJson()),
       'sources': sources.toJson(valueToJson: (v) => v.toJson()),
+      if (interimDividends != null)
+        'interimDividends': interimDividends?.toJson(
+          valueToJson: (v) => v.toJson(),
+        ),
+      if (interimReportName != null) 'interimReportName': interimReportName,
+      if (treasuryReportName != null) 'treasuryReportName': treasuryReportName,
+      if (stockTotalReportName != null)
+        'stockTotalReportName': stockTotalReportName,
+      if (latestReportName != null) 'latestReportName': latestReportName,
+      if (latestYear != null) 'latestYear': latestYear,
+      if (annualEndYear != null) 'annualEndYear': annualEndYear,
+      if (availableYears != null) 'availableYears': availableYears?.toJson(),
+      if (latestDividendStatus != null)
+        'latestDividendStatus': latestDividendStatus,
+      if (latestTreasuryStatus != null)
+        'latestTreasuryStatus': latestTreasuryStatus,
+      if (latestStockTotalStatus != null)
+        'latestStockTotalStatus': latestStockTotalStatus,
     };
   }
 
@@ -118,6 +215,24 @@ abstract class ShareholderReturn
         valueToJson: (v) => v.toJsonForProtocol(),
       ),
       'sources': sources.toJson(valueToJson: (v) => v.toJsonForProtocol()),
+      if (interimDividends != null)
+        'interimDividends': interimDividends?.toJson(
+          valueToJson: (v) => v.toJsonForProtocol(),
+        ),
+      if (interimReportName != null) 'interimReportName': interimReportName,
+      if (treasuryReportName != null) 'treasuryReportName': treasuryReportName,
+      if (stockTotalReportName != null)
+        'stockTotalReportName': stockTotalReportName,
+      if (latestReportName != null) 'latestReportName': latestReportName,
+      if (latestYear != null) 'latestYear': latestYear,
+      if (annualEndYear != null) 'annualEndYear': annualEndYear,
+      if (availableYears != null) 'availableYears': availableYears?.toJson(),
+      if (latestDividendStatus != null)
+        'latestDividendStatus': latestDividendStatus,
+      if (latestTreasuryStatus != null)
+        'latestTreasuryStatus': latestTreasuryStatus,
+      if (latestStockTotalStatus != null)
+        'latestStockTotalStatus': latestStockTotalStatus,
     };
   }
 
@@ -138,6 +253,17 @@ class _ShareholderReturnImpl extends ShareholderReturn {
     int? stockTotalYear,
     required List<_iujsfq9w.StockTotalRow> stockTotals,
     required List<_i5ra8lvy.Source> sources,
+    List<_i2wevjp3.DividendEntry>? interimDividends,
+    String? interimReportName,
+    String? treasuryReportName,
+    String? stockTotalReportName,
+    String? latestReportName,
+    int? latestYear,
+    int? annualEndYear,
+    List<int>? availableYears,
+    String? latestDividendStatus,
+    String? latestTreasuryStatus,
+    String? latestStockTotalStatus,
   }) : super._(
          corpCode: corpCode,
          dividends: dividends,
@@ -146,6 +272,17 @@ class _ShareholderReturnImpl extends ShareholderReturn {
          stockTotalYear: stockTotalYear,
          stockTotals: stockTotals,
          sources: sources,
+         interimDividends: interimDividends,
+         interimReportName: interimReportName,
+         treasuryReportName: treasuryReportName,
+         stockTotalReportName: stockTotalReportName,
+         latestReportName: latestReportName,
+         latestYear: latestYear,
+         annualEndYear: annualEndYear,
+         availableYears: availableYears,
+         latestDividendStatus: latestDividendStatus,
+         latestTreasuryStatus: latestTreasuryStatus,
+         latestStockTotalStatus: latestStockTotalStatus,
        );
 
   /// Returns a shallow copy of this [ShareholderReturn]
@@ -160,6 +297,17 @@ class _ShareholderReturnImpl extends ShareholderReturn {
     Object? stockTotalYear = _Undefined,
     List<_iujsfq9w.StockTotalRow>? stockTotals,
     List<_i5ra8lvy.Source>? sources,
+    Object? interimDividends = _Undefined,
+    Object? interimReportName = _Undefined,
+    Object? treasuryReportName = _Undefined,
+    Object? stockTotalReportName = _Undefined,
+    Object? latestReportName = _Undefined,
+    Object? latestYear = _Undefined,
+    Object? annualEndYear = _Undefined,
+    Object? availableYears = _Undefined,
+    Object? latestDividendStatus = _Undefined,
+    Object? latestTreasuryStatus = _Undefined,
+    Object? latestStockTotalStatus = _Undefined,
   }) {
     return ShareholderReturn(
       corpCode: corpCode ?? this.corpCode,
@@ -173,6 +321,35 @@ class _ShareholderReturnImpl extends ShareholderReturn {
       stockTotals:
           stockTotals ?? this.stockTotals.map((e0) => e0.copyWith()).toList(),
       sources: sources ?? this.sources.map((e0) => e0.copyWith()).toList(),
+      interimDividends: interimDividends is List<_i2wevjp3.DividendEntry>?
+          ? interimDividends
+          : this.interimDividends?.map((e0) => e0.copyWith()).toList(),
+      interimReportName: interimReportName is String?
+          ? interimReportName
+          : this.interimReportName,
+      treasuryReportName: treasuryReportName is String?
+          ? treasuryReportName
+          : this.treasuryReportName,
+      stockTotalReportName: stockTotalReportName is String?
+          ? stockTotalReportName
+          : this.stockTotalReportName,
+      latestReportName: latestReportName is String?
+          ? latestReportName
+          : this.latestReportName,
+      latestYear: latestYear is int? ? latestYear : this.latestYear,
+      annualEndYear: annualEndYear is int? ? annualEndYear : this.annualEndYear,
+      availableYears: availableYears is List<int>?
+          ? availableYears
+          : this.availableYears?.map((e0) => e0).toList(),
+      latestDividendStatus: latestDividendStatus is String?
+          ? latestDividendStatus
+          : this.latestDividendStatus,
+      latestTreasuryStatus: latestTreasuryStatus is String?
+          ? latestTreasuryStatus
+          : this.latestTreasuryStatus,
+      latestStockTotalStatus: latestStockTotalStatus is String?
+          ? latestStockTotalStatus
+          : this.latestStockTotalStatus,
     );
   }
 }
