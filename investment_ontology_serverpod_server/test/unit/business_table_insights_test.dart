@@ -7,11 +7,11 @@ void main() {
   test('verified order totals are not duplicated by source fallback cards', () {
     const header = '## 매출 및 수주\n(단위 : 백만원)\n품목 | 수주총액 | 기납품액 | 수주잔고\n';
     final valid = BusinessTableInsights.parse(
-      '${header}합계 | 100 | 40 | 60',
+      '$header합계 | 100 | 40 | 60',
       reportPeriod: '2026 반기',
     );
     final invalid = BusinessTableInsights.parse(
-      '${header}합계 | 100 | 40 | 80',
+      '$header합계 | 100 | 40 | 80',
       reportPeriod: '2026 반기',
     );
     expect(valid.where((t) => t.topic == 'orderSource'), isEmpty);

@@ -12,7 +12,7 @@ void main() {
     final text = file.readAsStringSync();
     final orders = OrderFacts.parse(text);
     final tables = BusinessTableInsights.parse(text, reportPeriod: 'current');
-    print(
+    stdout.writeln(
       jsonEncode({
         'file': file.path,
         'orders': [

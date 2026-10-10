@@ -57,7 +57,7 @@ void main() {
               fetchedAt: DateTime.utc(2026),
             ),
           );
-          if (section == DartSection.dividend)
+          if (section == DartSection.dividend) {
             await DividendEntry.db.insertRow(
               session,
               DividendEntry(
@@ -70,7 +70,8 @@ void main() {
                 current: amount,
               ),
             );
-          if (section == DartSection.stockTotal)
+          }
+          if (section == DartSection.stockTotal) {
             await DisclosureRow.db.insertRow(
               session,
               DisclosureRow(
@@ -80,7 +81,8 @@ void main() {
                 rowJson: '{"se":"보통주","istc_totqy":"$year"}',
               ),
             );
-          if (section == DartSection.treasuryStock)
+          }
+          if (section == DartSection.treasuryStock) {
             await TreasuryStockEntry.db.insertRow(
               session,
               TreasuryStockEntry(
@@ -92,6 +94,7 @@ void main() {
                 isTotal: true,
               ),
             );
+          }
         }
       }
       final annualDividend = (await DisclosureReport.db.find(

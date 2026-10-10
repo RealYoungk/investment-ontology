@@ -346,8 +346,9 @@ class DisclosureEndpoint extends Endpoint {
       if (expected == null) return actual == null ? 'pending' : 'stored';
       if (actual != null &&
           actual.bsnsYear == expected.bsnsYear &&
-          actual.reportCode == expected.reportCode)
+          actual.reportCode == expected.reportCode) {
         return 'stored';
+      }
       return ledger
               .where((l) => l.section == section)
               .firstOrNull
@@ -427,8 +428,9 @@ class DisclosureEndpoint extends Endpoint {
     where: (t) {
       Expression e =
           t.companyId.equals(companyId) & t.supersededById.equals(null);
-      if (!includeInterim)
+      if (!includeInterim) {
         e = e & t.reportCode.equals(FinancialReportCode.annual);
+      }
       if (section != null) e = e & t.section.equals(section);
       return e;
     },

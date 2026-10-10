@@ -161,8 +161,9 @@ class _AppShellState extends State<AppShell> {
               if (_directionTravel.sign != delta.sign) _directionTravel = 0;
               _directionTravel += delta;
               if (notification.metrics.pixels > 48 &&
-                  _directionTravel.abs() < 16)
+                  _directionTravel.abs() < 16) {
                 return false;
+              }
               final hide =
                   _directionTravel > 0 && notification.metrics.pixels > 48;
               if (_readingDown != hide) setState(() => _readingDown = hide);
