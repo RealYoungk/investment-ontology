@@ -320,6 +320,11 @@ class _BusinessTableHistoryState extends State<BusinessTableHistory> {
     for (final report in _reports) {
       for (final table in report.tableInsights ?? <BusinessTableInsight>[]) {
         if (widget.topic != null && table.topic != widget.topic) continue;
+        if (widget.topic != 'derivatives' &&
+            widget.title != null &&
+            table.title != widget.title) {
+          continue;
+        }
 
         final periods = table.measures.map((m) => m.period).toSet();
         if (periods.isEmpty) continue;

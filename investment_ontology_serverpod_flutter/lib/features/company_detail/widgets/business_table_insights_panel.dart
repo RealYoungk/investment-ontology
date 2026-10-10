@@ -37,16 +37,21 @@ bool hasBusinessRecordHistory(BusinessTableInsight insight) =>
               RegExp(r'^20\d{2}년?$').hasMatch(r.cells.first),
         ));
 
-/// A history card already gathers every source table for its topic. Rendering
+/// A history card already gathers every source table for its topic and title.
+/// Derivatives share one topic-wide history across source titles. Rendering
 /// one per latest table repeats all of those charts and their source evidence.
 List<BusinessTableInsight> businessHistoryCardInsights(
   List<BusinessTableInsight> insights,
 ) {
-  final topics = <String>{};
+  final histories = <(String, String)>{};
   return insights.where((insight) {
     final history =
         (insight.measures.isNotEmpty || hasBusinessRecordHistory(insight));
-    return !history || topics.add(insight.topic);
+    return !history ||
+        histories.add((
+          insight.topic,
+          insight.topic == 'derivatives' ? '' : insight.title,
+        ));
   }).toList();
 }
 

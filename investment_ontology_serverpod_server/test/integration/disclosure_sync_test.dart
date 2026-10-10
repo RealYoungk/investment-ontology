@@ -1179,6 +1179,9 @@ void main() {
           DartSection.executives,
           DartSection.investments,
           DartSection.minorityShareholders,
+          DartSection.dividend,
+          DartSection.treasuryStock,
+          DartSection.stockTotal,
         ]),
       );
       final core = await DartFilingSection.db.findFirstRow(

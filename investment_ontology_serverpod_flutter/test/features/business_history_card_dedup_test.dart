@@ -87,7 +87,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('제품 판매가격 변화'), findsOneWidget);
       expect(find.text('별도 가격'), findsOneWidget);
-      expect(find.byType(BusinessTableHistory), findsNWidgets(2));
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is BusinessTableHistory && widget.topic == 'productPrice',
+        ),
+        findsNWidgets(2),
+      );
       for (final label in ['특장차량 · 차량', '냉동냉장 · 냉동기', '공조 · 에어컨']) {
         expect(find.text(label), findsOneWidget);
       }
