@@ -901,7 +901,8 @@ class DisclosureSync {
           CASE "reportCode" WHEN 'q3' THEN 3 WHEN 'halfYear' THEN 2 ELSE 1 END DESC,
           "rceptNo" DESC
       ) f CROSS JOIN (VALUES ('businessContent', 2), ('largestShareholders', 0),
-        ('executives', 0), ('investments', 0), ('minorityShareholders', 0)) AS s(section, tier)
+        ('executives', 0), ('investments', 0), ('minorityShareholders', 0),
+        ('dividend', 0), ('treasuryStock', 0), ('stockTotal', 0)) AS s(section, tier)
       WHERE NOT EXISTS (SELECT 1 FROM dart_filing a
         WHERE a."companyId"=f."companyId" AND a."reportCode"='annual'
           AND a."bsnsYear">=f."bsnsYear")

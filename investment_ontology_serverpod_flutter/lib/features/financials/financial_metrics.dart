@@ -45,7 +45,8 @@ String formatUnitAmount(double value, String unit) => switch (unit) {
   '억원' => formatKrwLong(value * 100000000),
   '조원' => formatKrwLong(value * 1000000000000),
   '원' => formatKrwLong(value),
-  _ => '${formatDecimal(value)}$unit',
+  _ =>
+    '${formatDecimal(value)}${RegExp(r'^\d').hasMatch(unit) ? ' ' : ''}$unit',
 };
 
 /// 요약 카드용 금액. 원화로 확인된 단위만 환산하며 소수 첫째 자리까지 표시한다.

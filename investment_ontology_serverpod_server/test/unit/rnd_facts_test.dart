@@ -4,6 +4,30 @@ import 'package:test/test.dart';
 /// 실제 사업보고서의 "연구개발비용" 표 모양으로 확인한다. 검산(비율 = 계 ÷ 매출액)은
 /// 재무제표가 필요해 store()에서 하고, 여기서는 표를 읽는 부분만 본다.
 void main() {
+  test('삼기처럼 비용 절의 합계와 짧은 비율 표기를 읽는다', () {
+    const text = '''
+3) 연구개발비용
+(단위 : 천원)
+구분 | 2026년 반기 | 2025년 | 2024년
+판관비 | 1,130,222 | 2,681,072 | 2,247,429
+합계 | 1,130,222 | 2,681,072 | 2,247,429
+(매출액 대비 비율) | 1.4% | 3.1% | 2.8%
+''';
+    final result = RndFacts.parse(text, bsnsYear: 2026)!;
+    expect(result.totals.single.values, [1130222, 2681072, 2247429]);
+    expect(result.ratio!.values, [1.4, 3.1, 2.8]);
+    expect(
+      RndFacts.parse(text.replaceFirst('연구개발비용', '매출 현황'), bsnsYear: 2026),
+      isNull,
+    );
+    expect(
+      RndFacts.parse(
+        text.replaceFirst('구분 |', '4) 매출 현황\n구분 |'),
+        bsnsYear: 2026,
+      ),
+      isNull,
+    );
+  });
   test('연도 머리글·계 줄·비율 줄·매출액 줄을 읽는다 (한국전력기술)', () {
     const t = '''
 2) 연구개발비용

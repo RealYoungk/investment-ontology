@@ -1,0 +1,7 @@
+class: BusinessTableMeasure
+fields:
+  label: String
+  metric: String
+  period: String
+  value: double
+  unit: String

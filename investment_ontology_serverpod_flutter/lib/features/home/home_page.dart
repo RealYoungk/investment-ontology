@@ -1,3 +1,5 @@
+import '../../design/components/company_logo.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -268,6 +270,12 @@ class _HomePageState extends State<HomePage> {
               child: Flexible(
                 child: Row(
                   children: [
+                    CompanyLogo(
+                      name: item.name,
+                      stockCode: item.stockCode,
+                      corpCode: item.corpCode,
+                    ),
+                    const SizedBox(width: AppSpace.sm),
                     Expanded(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

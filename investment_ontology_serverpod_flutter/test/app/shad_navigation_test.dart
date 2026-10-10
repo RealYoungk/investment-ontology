@@ -13,6 +13,47 @@ import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/brands/ledger_brand.dart';
 
 void main() {
+  testWidgets('mobile menu hides down and returns up', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = GoRouter(
+      routes: [
+        ShellRoute(
+          builder: (context, state, child) =>
+              AppShell(location: state.uri, child: child),
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (_, _) => ListView(
+                children: const [SizedBox(height: 3000, child: Text('긴 본문'))],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      shadTestHost(
+        MaterialApp.router(
+          theme: buildAppTheme(ledgerBrand),
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final menu = find.byWidgetPredicate(
+      (w) => w is ShadIconButton && w.semanticLabel == '전체 메뉴',
+    );
+    expect(menu.hitTestable(), findsOneWidget);
+    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    await tester.pumpAndSettle();
+    expect(menu.hitTestable(), findsNothing);
+    await tester.drag(find.byType(ListView), const Offset(0, 120));
+    await tester.pumpAndSettle();
+    expect(menu.hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
   for (final width in [390.0, 1440.0]) {
     testWidgets('nested route retains navigation semantics at $width', (
       tester,

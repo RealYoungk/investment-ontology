@@ -3,6 +3,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 
 import '../../../client.dart';
 import '../market_load_notice.dart';
+import 'market_summary.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../common/formatters.dart';
@@ -13,9 +14,10 @@ import '../../financials/financial_metrics.dart';
 /// 그 기준일에 시세가 있는 종목의 시가총액 합이다. 상장·폐지로 종목 수가 달라지므로
 /// 지수가 아니라 "그날 시장에 얼마가 있었는가"로 읽는다.
 class MarketCapTrend extends StatefulWidget {
-  const MarketCapTrend({super.key, this.market});
+  const MarketCapTrend({super.key, this.market, this.controls});
 
   final Market? market;
+  final Widget? controls;
 
   static const ranges = <({String label, int days})>[
     (label: '1년', days: 365),
@@ -66,7 +68,54 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      LayoutBuilder(
+        builder: (context, box) {
+          final title = SectionLabel(
+            '시가총액 추이',
+            style: context.typo.display(20),
+            tooltip: '그날 시세가 있는 종목의 시가총액 합입니다. 상장·폐지로 종목 수가 달라지므로 지수와는 다릅니다.',
+          );
+          if (widget.controls == null) return title;
+          if (box.maxWidth < 720) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                title,
+                const SizedBox(height: AppSpace.md),
+                widget.controls!,
+              ],
+            );
+          }
+          return Row(
+            children: [
+              title,
+              const SizedBox(width: AppSpace.xl),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: SizedBox(width: 440, child: widget.controls!),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      if (widget.controls != null) ...[
+        const SizedBox(height: AppSpace.sm),
+        Text(
+          MarketSummary.scopeNote,
+          style: context.typo.body(12, color: context.colors.textMuted),
+        ),
+      ],
+      const SizedBox(height: AppSpace.lg),
+      _buildChart(context),
+    ],
+  );
+
+  Widget _buildChart(BuildContext context) {
     if (_failed) {
       return MarketLoadNotice(subject: '시가총액 추이', retry: _load);
     }
@@ -121,16 +170,6 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionLabel(
-          '시가총액 추이',
-          tooltip: '그날 시세가 있는 종목의 시가총액 합입니다. 상장·폐지로 종목 수가 달라지므로 지수와는 다릅니다.',
-          trailing: AppToggleGroup<int>(
-            value: _days,
-            onChanged: _pick,
-            options: {for (final r in MarketCapTrend.ranges) r.days: r.label},
-          ),
-        ),
-        const SizedBox(height: AppSpace.sm),
         Text(
           formatKrw(last.marketCap),
           style: t.numeric(26, weight: FontWeight.w600),
@@ -174,19 +213,37 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
           ),
         ),
         const SizedBox(height: AppSpace.md),
-        AppLineChart(
-          formatCategory: (date) =>
-              date.length >= 7 ? date.substring(2, 7) : date,
-          maxAxisLabels: 6,
-          categories: [for (final p in points) formatDate(p.date)],
-          series: ChartSeries(
-            label: '시가총액',
-            color: c.marketChange(change),
-            values: [for (final p in points) p.marketCap.toDouble()],
-          ),
-          formatValue: formatKrwShort,
-          height: 180,
-          includeZeroBaseline: false,
+        Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 44),
+              child: AppLineChart(
+                formatCategory: (date) =>
+                    date.length >= 7 ? date.substring(2, 7) : date,
+                maxAxisLabels: 6,
+                categories: [for (final p in points) formatDate(p.date)],
+                series: ChartSeries(
+                  label: '시가총액',
+                  color: c.marketChange(change),
+                  values: [for (final p in points) p.marketCap.toDouble()],
+                ),
+                formatValue: formatKrwShort,
+                height: 180,
+                includeZeroBaseline: false,
+              ),
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: AppToggleGroup<int>(
+                value: _days,
+                onChanged: _pick,
+                options: {
+                  for (final r in MarketCapTrend.ranges) r.days: r.label,
+                },
+              ),
+            ),
+          ],
         ),
         Theme(
           data: Theme.of(context).copyWith(dividerColor: c.surface),

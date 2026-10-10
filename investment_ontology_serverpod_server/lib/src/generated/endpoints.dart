@@ -12,22 +12,14 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls.dart'
     as _i4o8e4lj;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_sort.dart'
-    as _iosqhah1;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/dart_section.dart'
-    as _i6h8j7tv;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/document_fact_kind.dart'
     as _i1rhjzgf;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/fs_div.dart'
     as _i69nddnn;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
-    as _iyonaxpd;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/relation_predicate.dart'
     as _iw7mt1ku;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/relation_status.dart'
     as _iy39k7od;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/screen_sort.dart'
-    as _i9blzem0;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -41,23 +33,16 @@ import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
 import '../ontology/endpoints/bond_endpoint.dart' as _iuax3zj5;
 import '../ontology/endpoints/capital_endpoint.dart' as _idxbctvq;
 import '../ontology/endpoints/charter_endpoint.dart' as _ivo40lq7;
-import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
-import '../ontology/endpoints/company_news_endpoint.dart' as _ij4mm9jr;
 import '../ontology/endpoints/company_research_endpoint.dart' as _iqx60vuh;
-import '../ontology/endpoints/disclosure_endpoint.dart' as _i23b9rs7;
 import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
-import '../ontology/endpoints/governance_endpoint.dart' as _i6kw8hva;
-import '../ontology/endpoints/graph_endpoint.dart' as _ixdq71x8;
 import '../ontology/endpoints/group_endpoint.dart' as _i8zm50hy;
 import '../ontology/endpoints/industry_endpoint.dart' as _ihimn963;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
+import '../ontology/endpoints/investment_notes_endpoint.dart' as _i2cfmec4;
 import '../ontology/endpoints/macro_endpoint.dart' as _ii38wwy2;
-import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 import '../ontology/endpoints/membership_endpoint.dart' as _i4hwwhem;
 import '../ontology/endpoints/membership_offer_endpoint.dart' as _ilgl7tj9;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
-import '../ontology/endpoints/screen_endpoint.dart' as _ilgabfhk;
-import '../ontology/endpoints/theme_endpoint.dart' as _iqaca509;
 import '../ontology/endpoints/watchlist_endpoint.dart' as _ia3gawxy;
 export 'future_calls.dart' show ServerpodFutureCallsGetter;
 
@@ -113,46 +98,16 @@ class Endpoints extends _is.EndpointDispatch {
           'charter',
           null,
         ),
-      'company': _itnisr3u.CompanyEndpoint()
-        ..initialize(
-          server,
-          'company',
-          null,
-        ),
-      'companyNews': _ij4mm9jr.CompanyNewsEndpoint()
-        ..initialize(
-          server,
-          'companyNews',
-          null,
-        ),
       'research': _iqx60vuh.ResearchEndpoint()
         ..initialize(
           server,
           'research',
           null,
         ),
-      'disclosure': _i23b9rs7.DisclosureEndpoint()
-        ..initialize(
-          server,
-          'disclosure',
-          null,
-        ),
       'financial': _ipit2z9y.FinancialEndpoint()
         ..initialize(
           server,
           'financial',
-          null,
-        ),
-      'governance': _i6kw8hva.GovernanceEndpoint()
-        ..initialize(
-          server,
-          'governance',
-          null,
-        ),
-      'graph': _ixdq71x8.GraphEndpoint()
-        ..initialize(
-          server,
-          'graph',
           null,
         ),
       'group': _i8zm50hy.GroupEndpoint()
@@ -173,16 +128,16 @@ class Endpoints extends _is.EndpointDispatch {
           'ingest',
           null,
         ),
+      'investmentNotes': _i2cfmec4.InvestmentNotesEndpoint()
+        ..initialize(
+          server,
+          'investmentNotes',
+          null,
+        ),
       'macro': _ii38wwy2.MacroEndpoint()
         ..initialize(
           server,
           'macro',
-          null,
-        ),
-      'market': _iaw7fzks.MarketEndpoint()
-        ..initialize(
-          server,
-          'market',
           null,
         ),
       'membership': _i4hwwhem.MembershipEndpoint()
@@ -201,18 +156,6 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'review',
-          null,
-        ),
-      'screen': _ilgabfhk.ScreenEndpoint()
-        ..initialize(
-          server,
-          'screen',
-          null,
-        ),
-      'theme': _iqaca509.ThemeEndpoint()
-        ..initialize(
-          server,
-          'theme',
           null,
         ),
       'watchlist': _ia3gawxy.WatchlistEndpoint()
@@ -929,147 +872,6 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
-    connectors['company'] = _is.EndpointConnector(
-      name: 'company',
-      endpoint: endpoints['company']!,
-      methodConnectors: {
-        'overview': _is.MethodConnector(
-          name: 'overview',
-          params: {},
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['company'] as _itnisr3u.CompanyEndpoint)
-                  .overview(session),
-        ),
-        'divisions': _is.MethodConnector(
-          name: 'divisions',
-          params: {
-            'sectionCode': _is.ParameterDescription(
-              name: 'sectionCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'market': _is.ParameterDescription(
-              name: 'market',
-              type: _is.getType<_iyonaxpd.Market?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['company'] as _itnisr3u.CompanyEndpoint).divisions(
-                    session,
-                    params['sectionCode'],
-                    market: params['market'],
-                  ),
-        ),
-        'list': _is.MethodConnector(
-          name: 'list',
-          params: {
-            'query': _is.ParameterDescription(
-              name: 'query',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-            'market': _is.ParameterDescription(
-              name: 'market',
-              type: _is.getType<_iyonaxpd.Market?>(),
-              nullable: true,
-            ),
-            'sectionCode': _is.ParameterDescription(
-              name: 'sectionCode',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-            'divisionCode': _is.ParameterDescription(
-              name: 'divisionCode',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-            'sort': _is.ParameterDescription(
-              name: 'sort',
-              type: _is.getType<_iosqhah1.CompanySort?>(),
-              nullable: true,
-            ),
-            'offset': _is.ParameterDescription(
-              name: 'offset',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-            'limit': _is.ParameterDescription(
-              name: 'limit',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['company'] as _itnisr3u.CompanyEndpoint).list(
-                    session,
-                    query: params['query'],
-                    market: params['market'],
-                    sectionCode: params['sectionCode'],
-                    divisionCode: params['divisionCode'],
-                    sort: params['sort'],
-                    offset: params['offset'],
-                    limit: params['limit'],
-                  ),
-        ),
-        'detail': _is.MethodConnector(
-          name: 'detail',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['company'] as _itnisr3u.CompanyEndpoint).detail(
-                    session,
-                    params['corpCode'],
-                  ),
-        ),
-      },
-    );
-    connectors['companyNews'] = _is.EndpointConnector(
-      name: 'companyNews',
-      endpoint: endpoints['companyNews']!,
-      methodConnectors: {
-        'recent': _is.MethodConnector(
-          name: 'recent',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['companyNews'] as _ij4mm9jr.CompanyNewsEndpoint)
-                      .recent(
-                        session,
-                        params['corpCode'],
-                      ),
-        ),
-      },
-    );
     connectors['research'] = _is.EndpointConnector(
       name: 'research',
       endpoint: endpoints['research']!,
@@ -1241,268 +1043,6 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
-    connectors['disclosure'] = _is.EndpointConnector(
-      name: 'disclosure',
-      endpoint: endpoints['disclosure']!,
-      methodConnectors: {
-        'understanding': _is.MethodConnector(
-          name: 'understanding',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .understanding(
-                        session,
-                        params['corpCode'],
-                      ),
-        ),
-        'sections': _is.MethodConnector(
-          name: 'sections',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .sections(
-                        session,
-                        params['corpCode'],
-                      ),
-        ),
-        'table': _is.MethodConnector(
-          name: 'table',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'section': _is.ParameterDescription(
-              name: 'section',
-              type: _is.getType<_i6h8j7tv.DartSection>(),
-              nullable: false,
-            ),
-            'bsnsYear': _is.ParameterDescription(
-              name: 'bsnsYear',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .table(
-                        session,
-                        params['corpCode'],
-                        params['section'],
-                        bsnsYear: params['bsnsYear'],
-                      ),
-        ),
-        'businessContent': _is.MethodConnector(
-          name: 'businessContent',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'bsnsYear': _is.ParameterDescription(
-              name: 'bsnsYear',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .businessContent(
-                        session,
-                        params['corpCode'],
-                        bsnsYear: params['bsnsYear'],
-                      ),
-        ),
-        'shareholderReturn': _is.MethodConnector(
-          name: 'shareholderReturn',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .shareholderReturn(
-                        session,
-                        params['corpCode'],
-                      ),
-        ),
-        'facts': _is.MethodConnector(
-          name: 'facts',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .facts(
-                        session,
-                        params['corpCode'],
-                      ),
-        ),
-        'factPeriods': _is.MethodConnector(
-          name: 'factPeriods',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .factPeriods(
-                        session,
-                        params['corpCode'],
-                      ),
-        ),
-        'factTrends': _is.MethodConnector(
-          name: 'factTrends',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .factTrends(
-                        session,
-                        params['corpCode'],
-                      ),
-        ),
-        'recentOf': _is.MethodConnector(
-          name: 'recentOf',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'limit': _is.ParameterDescription(
-              name: 'limit',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .recentOf(
-                        session,
-                        params['corpCode'],
-                        limit: params['limit'],
-                      ),
-        ),
-        'digest': _is.MethodConnector(
-          name: 'digest',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'bsnsYear': _is.ParameterDescription(
-              name: 'bsnsYear',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .digest(
-                        session,
-                        params['corpCode'],
-                        bsnsYear: params['bsnsYear'],
-                      ),
-        ),
-        'recentFilings': _is.MethodConnector(
-          name: 'recentFilings',
-          params: {
-            'market': _is.ParameterDescription(
-              name: 'market',
-              type: _is.getType<_iyonaxpd.Market?>(),
-              nullable: true,
-            ),
-            'limit': _is.ParameterDescription(
-              name: 'limit',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
-                      .recentFilings(
-                        session,
-                        market: params['market'],
-                        limit: params['limit'],
-                      ),
-        ),
-      },
-    );
     connectors['financial'] = _is.EndpointConnector(
       name: 'financial',
       endpoint: endpoints['financial']!,
@@ -1553,173 +1093,6 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
-    connectors['governance'] = _is.EndpointConnector(
-      name: 'governance',
-      endpoint: endpoints['governance']!,
-      methodConnectors: {
-        'summary': _is.MethodConnector(
-          name: 'summary',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'bsnsYear': _is.ParameterDescription(
-              name: 'bsnsYear',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
-                      .summary(
-                        session,
-                        params['corpCode'],
-                        bsnsYear: params['bsnsYear'],
-                      ),
-        ),
-        'ownershipHistory': _is.MethodConnector(
-          name: 'ownershipHistory',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
-                      .ownershipHistory(
-                        session,
-                        params['corpCode'],
-                      ),
-        ),
-        'searchPersons': _is.MethodConnector(
-          name: 'searchPersons',
-          params: {
-            'query': _is.ParameterDescription(
-              name: 'query',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'limit': _is.ParameterDescription(
-              name: 'limit',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
-                      .searchPersons(
-                        session,
-                        params['query'],
-                        limit: params['limit'],
-                      ),
-        ),
-        'person': _is.MethodConnector(
-          name: 'person',
-          params: {
-            'personId': _is.ParameterDescription(
-              name: 'personId',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
-                      .person(
-                        session,
-                        params['personId'],
-                      ),
-        ),
-        'rejectPersonLink': _is.MethodConnector(
-          name: 'rejectPersonLink',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'holderName': _is.ParameterDescription(
-              name: 'holderName',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
-                      .rejectPersonLink(
-                        session,
-                        params['corpCode'],
-                        params['holderName'],
-                      ),
-        ),
-      },
-    );
-    connectors['graph'] = _is.EndpointConnector(
-      name: 'graph',
-      endpoint: endpoints['graph']!,
-      methodConnectors: {
-        'neighborhood': _is.MethodConnector(
-          name: 'neighborhood',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'depth': _is.ParameterDescription(
-              name: 'depth',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-            'maxNodes': _is.ParameterDescription(
-              name: 'maxNodes',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-            'includeNames': _is.ParameterDescription(
-              name: 'includeNames',
-              type: _is.getType<bool?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['graph'] as _ixdq71x8.GraphEndpoint).neighborhood(
-                    session,
-                    params['corpCode'],
-                    depth: params['depth'],
-                    maxNodes: params['maxNodes'],
-                    includeNames: params['includeNames'],
-                  ),
-        ),
-      },
-    );
     connectors['group'] = _is.EndpointConnector(
       name: 'group',
       endpoint: endpoints['group']!,
@@ -1760,13 +1133,22 @@ class Endpoints extends _is.EndpointDispatch {
       methodConnectors: {
         'browse': _is.MethodConnector(
           name: 'browse',
-          params: {},
+          params: {
+            'industry': _is.ParameterDescription(
+              name: 'industry',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
           call:
               (
                 _is.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['industry'] as _ihimn963.IndustryEndpoint)
-                  .browse(session),
+              ) async =>
+                  (endpoints['industry'] as _ihimn963.IndustryEndpoint).browse(
+                    session,
+                    industry: params['industry'],
+                  ),
         ),
         'discover': _is.MethodConnector(
           name: 'discover',
@@ -1777,6 +1159,16 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['industry'] as _ihimn963.IndustryEndpoint)
                   .discover(session),
+        ),
+        'rebuild': _is.MethodConnector(
+          name: 'rebuild',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['industry'] as _ihimn963.IndustryEndpoint)
+                  .rebuild(session),
         ),
       },
     );
@@ -1979,6 +1371,135 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
+    connectors['investmentNotes'] = _is.EndpointConnector(
+      name: 'investmentNotes',
+      endpoint: endpoints['investmentNotes']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+            'offset': _is.ParameterDescription(
+              name: 'offset',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .list(
+                        session,
+                        corpCode: params['corpCode'],
+                        offset: params['offset'],
+                      ),
+        ),
+        'detail': _is.MethodConnector(
+          name: 'detail',
+          params: {
+            'articleId': _is.ParameterDescription(
+              name: 'articleId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .detail(
+                        session,
+                        params['articleId'],
+                      ),
+        ),
+        'importDraft': _is.MethodConnector(
+          name: 'importDraft',
+          params: {
+            'payload': _is.ParameterDescription(
+              name: 'payload',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'articleId': _is.ParameterDescription(
+              name: 'articleId',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .importDraft(
+                        session,
+                        params['payload'],
+                        articleId: params['articleId'],
+                      ),
+        ),
+        'preview': _is.MethodConnector(
+          name: 'preview',
+          params: {
+            'articleId': _is.ParameterDescription(
+              name: 'articleId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .preview(
+                        session,
+                        params['articleId'],
+                      ),
+        ),
+        'publish': _is.MethodConnector(
+          name: 'publish',
+          params: {
+            'articleId': _is.ParameterDescription(
+              name: 'articleId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'approvedDigest': _is.ParameterDescription(
+              name: 'approvedDigest',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .publish(
+                        session,
+                        params['articleId'],
+                        params['approvedDigest'],
+                      ),
+        ),
+      },
+    );
     connectors['macro'] = _is.EndpointConnector(
       name: 'macro',
       endpoint: endpoints['macro']!,
@@ -1992,143 +1513,6 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['macro'] as _ii38wwy2.MacroEndpoint)
                   .overview(session),
-        ),
-      },
-    );
-    connectors['market'] = _is.EndpointConnector(
-      name: 'market',
-      endpoint: endpoints['market']!,
-      methodConnectors: {
-        'companyCapHistory': _is.MethodConnector(
-          name: 'companyCapHistory',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'years': _is.ParameterDescription(
-              name: 'years',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['market'] as _iaw7fzks.MarketEndpoint)
-                  .companyCapHistory(
-                    session,
-                    params['corpCode'],
-                    years: params['years'],
-                  ),
-        ),
-        'industryTreemap': _is.MethodConnector(
-          name: 'industryTreemap',
-          params: {
-            'sectionCode': _is.ParameterDescription(
-              name: 'sectionCode',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-            'market': _is.ParameterDescription(
-              name: 'market',
-              type: _is.getType<_iyonaxpd.Market?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['market'] as _iaw7fzks.MarketEndpoint)
-                  .industryTreemap(
-                    session,
-                    sectionCode: params['sectionCode'],
-                    market: params['market'],
-                  ),
-        ),
-        'capHistory': _is.MethodConnector(
-          name: 'capHistory',
-          params: {
-            'market': _is.ParameterDescription(
-              name: 'market',
-              type: _is.getType<_iyonaxpd.Market?>(),
-              nullable: true,
-            ),
-            'days': _is.ParameterDescription(
-              name: 'days',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['market'] as _iaw7fzks.MarketEndpoint).capHistory(
-                    session,
-                    market: params['market'],
-                    days: params['days'],
-                  ),
-        ),
-        'indexHistory': _is.MethodConnector(
-          name: 'indexHistory',
-          params: {
-            'name': _is.ParameterDescription(
-              name: 'name',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'series': _is.ParameterDescription(
-              name: 'series',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-            'days': _is.ParameterDescription(
-              name: 'days',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['market'] as _iaw7fzks.MarketEndpoint)
-                  .indexHistory(
-                    session,
-                    params['name'],
-                    series: params['series'],
-                    days: params['days'],
-                  ),
-        ),
-        'priceHistory': _is.MethodConnector(
-          name: 'priceHistory',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'days': _is.ParameterDescription(
-              name: 'days',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['market'] as _iaw7fzks.MarketEndpoint)
-                  .priceHistory(
-                    session,
-                    params['corpCode'],
-                    days: params['days'],
-                  ),
         ),
       },
     );
@@ -2689,399 +2073,6 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async =>
                   (endpoints['review'] as _i9uttt4a.ReviewEndpoint).forCompany(
-                    session,
-                    params['corpCode'],
-                  ),
-        ),
-      },
-    );
-    connectors['screen'] = _is.EndpointConnector(
-      name: 'screen',
-      endpoint: endpoints['screen']!,
-      methodConnectors: {
-        'peerCandidates': _is.MethodConnector(
-          name: 'peerCandidates',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'focusKey': _is.ParameterDescription(
-              name: 'focusKey',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['screen'] as _ilgabfhk.ScreenEndpoint)
-                  .peerCandidates(
-                    session,
-                    params['corpCode'],
-                    focusKey: params['focusKey'],
-                  ),
-        ),
-        'list': _is.MethodConnector(
-          name: 'list',
-          params: {
-            'corpCodes': _is.ParameterDescription(
-              name: 'corpCodes',
-              type: _is.getType<List<String>?>(),
-              nullable: true,
-            ),
-            'market': _is.ParameterDescription(
-              name: 'market',
-              type: _is.getType<_iyonaxpd.Market?>(),
-              nullable: true,
-            ),
-            'sectionCode': _is.ParameterDescription(
-              name: 'sectionCode',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-            'perMax': _is.ParameterDescription(
-              name: 'perMax',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'pbrMax': _is.ParameterDescription(
-              name: 'pbrMax',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'roeMin': _is.ParameterDescription(
-              name: 'roeMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'operatingMarginMin': _is.ParameterDescription(
-              name: 'operatingMarginMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'revenueGrowthMin': _is.ParameterDescription(
-              name: 'revenueGrowthMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'operatingIncomeGrowthMin': _is.ParameterDescription(
-              name: 'operatingIncomeGrowthMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'debtRatioMax': _is.ParameterDescription(
-              name: 'debtRatioMax',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'dividendYieldMin': _is.ParameterDescription(
-              name: 'dividendYieldMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'fcfYieldMin': _is.ParameterDescription(
-              name: 'fcfYieldMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'dividendPayoutMax': _is.ParameterDescription(
-              name: 'dividendPayoutMax',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'dividendYearsMin': _is.ParameterDescription(
-              name: 'dividendYearsMin',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-            'volumeMin': _is.ParameterDescription(
-              name: 'volumeMin',
-              type: _is.getType<BigInt?>(),
-              nullable: true,
-            ),
-            'volumeRatioMin': _is.ParameterDescription(
-              name: 'volumeRatioMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'return3mMin': _is.ParameterDescription(
-              name: 'return3mMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'return12mMin': _is.ParameterDescription(
-              name: 'return12mMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'bandPositionMin': _is.ParameterDescription(
-              name: 'bandPositionMin',
-              type: _is.getType<double?>(),
-              nullable: true,
-            ),
-            'marketCapMin': _is.ParameterDescription(
-              name: 'marketCapMin',
-              type: _is.getType<BigInt?>(),
-              nullable: true,
-            ),
-            'avgTradingValueMin': _is.ParameterDescription(
-              name: 'avgTradingValueMin',
-              type: _is.getType<BigInt?>(),
-              nullable: true,
-            ),
-            'sort': _is.ParameterDescription(
-              name: 'sort',
-              type: _is.getType<_i9blzem0.ScreenSort?>(),
-              nullable: true,
-            ),
-            'ascending': _is.ParameterDescription(
-              name: 'ascending',
-              type: _is.getType<bool?>(),
-              nullable: true,
-            ),
-            'offset': _is.ParameterDescription(
-              name: 'offset',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-            'limit': _is.ParameterDescription(
-              name: 'limit',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['screen'] as _ilgabfhk.ScreenEndpoint).list(
-                session,
-                corpCodes: params['corpCodes'],
-                market: params['market'],
-                sectionCode: params['sectionCode'],
-                perMax: params['perMax'],
-                pbrMax: params['pbrMax'],
-                roeMin: params['roeMin'],
-                operatingMarginMin: params['operatingMarginMin'],
-                revenueGrowthMin: params['revenueGrowthMin'],
-                operatingIncomeGrowthMin: params['operatingIncomeGrowthMin'],
-                debtRatioMax: params['debtRatioMax'],
-                dividendYieldMin: params['dividendYieldMin'],
-                fcfYieldMin: params['fcfYieldMin'],
-                dividendPayoutMax: params['dividendPayoutMax'],
-                dividendYearsMin: params['dividendYearsMin'],
-                volumeMin: params['volumeMin'],
-                volumeRatioMin: params['volumeRatioMin'],
-                return3mMin: params['return3mMin'],
-                return12mMin: params['return12mMin'],
-                bandPositionMin: params['bandPositionMin'],
-                marketCapMin: params['marketCapMin'],
-                avgTradingValueMin: params['avgTradingValueMin'],
-                sort: params['sort'],
-                ascending: params['ascending'],
-                offset: params['offset'],
-                limit: params['limit'],
-              ),
-        ),
-        'peers': _is.MethodConnector(
-          name: 'peers',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['screen'] as _ilgabfhk.ScreenEndpoint).peers(
-                    session,
-                    params['corpCode'],
-                  ),
-        ),
-      },
-    );
-    connectors['theme'] = _is.EndpointConnector(
-      name: 'theme',
-      endpoint: endpoints['theme']!,
-      methodConnectors: {
-        'list': _is.MethodConnector(
-          name: 'list',
-          params: {},
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['theme'] as _iqaca509.ThemeEndpoint).list(session),
-        ),
-        'create': _is.MethodConnector(
-          name: 'create',
-          params: {
-            'name': _is.ParameterDescription(
-              name: 'name',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'description': _is.ParameterDescription(
-              name: 'description',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['theme'] as _iqaca509.ThemeEndpoint).create(
-                session,
-                params['name'],
-                description: params['description'],
-              ),
-        ),
-        'update': _is.MethodConnector(
-          name: 'update',
-          params: {
-            'themeId': _is.ParameterDescription(
-              name: 'themeId',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-            'name': _is.ParameterDescription(
-              name: 'name',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'description': _is.ParameterDescription(
-              name: 'description',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['theme'] as _iqaca509.ThemeEndpoint).update(
-                session,
-                params['themeId'],
-                params['name'],
-                description: params['description'],
-              ),
-        ),
-        'delete': _is.MethodConnector(
-          name: 'delete',
-          params: {
-            'themeId': _is.ParameterDescription(
-              name: 'themeId',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['theme'] as _iqaca509.ThemeEndpoint).delete(
-                session,
-                params['themeId'],
-              ),
-        ),
-        'detail': _is.MethodConnector(
-          name: 'detail',
-          params: {
-            'themeId': _is.ParameterDescription(
-              name: 'themeId',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['theme'] as _iqaca509.ThemeEndpoint).detail(
-                session,
-                params['themeId'],
-              ),
-        ),
-        'addCompany': _is.MethodConnector(
-          name: 'addCompany',
-          params: {
-            'themeId': _is.ParameterDescription(
-              name: 'themeId',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'note': _is.ParameterDescription(
-              name: 'note',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['theme'] as _iqaca509.ThemeEndpoint).addCompany(
-                    session,
-                    params['themeId'],
-                    params['corpCode'],
-                    note: params['note'],
-                  ),
-        ),
-        'removeCompany': _is.MethodConnector(
-          name: 'removeCompany',
-          params: {
-            'themeId': _is.ParameterDescription(
-              name: 'themeId',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['theme'] as _iqaca509.ThemeEndpoint).removeCompany(
-                    session,
-                    params['themeId'],
-                    params['corpCode'],
-                  ),
-        ),
-        'themesOf': _is.MethodConnector(
-          name: 'themesOf',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['theme'] as _iqaca509.ThemeEndpoint).themesOf(
                     session,
                     params['corpCode'],
                   ),

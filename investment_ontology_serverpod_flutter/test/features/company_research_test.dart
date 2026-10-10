@@ -44,6 +44,29 @@ DocumentFact fact(
 );
 
 void main() {
+  test(
+    'all verified order and research table metrics reach operating charts',
+    () {
+      final kinds = [
+        DocumentFactKind.orderTotal,
+        DocumentFactKind.orderDelivered,
+        DocumentFactKind.rndExpense,
+        DocumentFactKind.rndRatio,
+      ];
+      final series = operatingSeries([
+        for (final kind in kinds)
+          fact(kind, kind == DocumentFactKind.rndRatio ? '%' : '백만원', 2025),
+        fact(
+          DocumentFactKind.rndExpense,
+          '백만원',
+          2026,
+          status: RelationStatus.draft,
+        ),
+      ]);
+      expect(series.map((s) => s.first.kind).toSet(), kinds.toSet());
+      expect(series.every((s) => s.length == 1), isTrue);
+    },
+  );
   test('backlog total stays visible ahead of product focus, while other metrics remain secondary', () {
     final dram = [
       fact(DocumentFactKind.marketShare, '%', 2025).copyWith(label: 'DRAM'),
@@ -467,7 +490,7 @@ void main() {
         status: RelationStatus.draft,
       ),
     ]);
-    expect(series.length, 4);
+    expect(series.length, 5);
     expect(series.first.map((f) => f.bsnsYear), [2024, 2025]);
     expect(
       series
@@ -475,10 +498,17 @@ void main() {
           .length,
       2,
     );
-    expect(series.last.single.kind, DocumentFactKind.investmentPlan);
+    expect(
+      series
+          .where((s) => s.first.kind == DocumentFactKind.investmentPlan)
+          .single
+          .single
+          .bsnsYear,
+      2026,
+    );
   });
   test(
-    'identical annotated labels collapse but differing values stay distinct',
+    'different scope annotations remain distinct even when values match',
     () {
       final short = fact(
         DocumentFactKind.marketShare,
@@ -486,17 +516,9 @@ void main() {
         2025,
       ).copyWith(label: 'TV');
       final annotated = short.copyWith(label: 'TV (금액 기준, Omdia)');
-      expect(
-        operatingSeries([short, annotated]).single.single.label,
-        annotated.label,
-      );
+      expect(operatingSeries([short, annotated]).length, 2);
       expect(operatingSeries([short, annotated.copyWith(value: 71)]).length, 2);
-      expect(
-        operatingSeries([short, short.copyWith(bsnsYear: 2024), annotated])
-            .single
-            .length,
-        2,
-      );
+      expect(operatingSeries([short, short.copyWith(label: ' TV ')]).length, 1);
     },
   );
   for (final width in [320.0, 768.0, 1280.0]) {

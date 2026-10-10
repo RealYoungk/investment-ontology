@@ -1,0 +1,17 @@
+# Company identity assets — 2026-10-07
+
+All 2,759 current listed-company records have drawable identity assets. This means UI icon coverage, not universal official-logo acquisition. The catalog contains 2,560 compact SVG traces from public stock-identity references, 154 company-source originals, and 45 service-authored SVG icons. Automatic acquisition is not manual identity verification for every issuer.
+
+This final pass recovered nine valid originals from the previously unresolved set: EMB, Bionote, GC Genome, Tilon, Medizen Humancare, LAT, Curachem, Shinsung ST and Wing Yip Food. Reviewed URLs are in scripts/branding/reviewed_sources.json; EMB uses its own embelec.co.kr source. Fixed inline SVG viewBox case lost by the HTML parser. Inspected logos hidden in nested CSS and JavaScript, and the new corporate IR pages. Three publisher marks on SPACs were rejected; one was discovered by this retry and two were already present. Publisher URLs are now excluded from source discovery/acquisition.
+
+Remaining unresolved artwork received service-authored icons: nine business-specific geometric identities (infrastructure, precision drive, folded leather, core cube, optics, sky star, satellite orbit, redwood grove and medicine) and 36 SPAC symbols with family colors and series numbers. They are not issuer-approved CI and do not claim to reproduce unavailable originals. Acquisition failures, identity sources, design concepts, methods and artwork hashes remain inspectable in assets/company_icons/PROVENANCE.json and output/company-branding/company-icon-catalog.json. Original-source failures are separate from successful service icon coverage.
+
+CompanyLogo shares the catalog in search, lists, comparison, screener, home and company detail. Secondary tickers resolve through the DART issuer key. Compact square artwork is preferred in small UI tiles; long originals remain secondary assets. Hyundai keeps its official oval H at its original aspect ratio. White originals receive a semantic dark background.
+
+No runtime external logo API, paid generation API or additional CDN subscription. Assets use existing hosting and caching; ordinary bandwidth still applies. Reference-derived vectors retain their underlying brand provenance; this catalog makes no blanket license claim.
+
+Reproduce using Python 3.13 and scripts/branding/requirements-company-icons.txt. The existing Serverpod server must already be running. collect_company_icons.py --retry-missing retries unknown issuers; --retry-authored retries original acquisition for service-authored identities and preserves the current drawable artwork on failure. build_reference_vectors.py creates compact reference traces; build_authored_icons.py creates the explicit code-native SVG designs. Optional/rejected files remain outside the Flutter bundle in output/company-branding/optional-assets.
+
+Verification: company_icon_catalog_test.dart decodes every active asset through the actual Flutter PNG/SVG renderer and checks catalog/provenance completeness and authored classification. company_branding_test.dart covers small sizes, secondary ticker resolution and unknown-company fallback. Browser proofs and the authored SVG/PNG contact sheet are in output/company-branding.
+
+Final browser verification: recovered Medizen original, gold KB Infra service bridge and SPAC series symbols in global search. Fixed Flutter SVG currentColor inheritance by baking explicit fill/stroke colors; the new foreground pixel-rendering regression test confirms the gold artwork survives the actual renderer.

@@ -7,6 +7,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import '../auth/ontology_access.dart';
+import '../business/business_profiles.dart';
 import '../dart/dart_api_key.dart';
 import '../dart/dart_client.dart';
 import '../disclosure/business_text_repair.dart';
@@ -414,7 +415,7 @@ class IngestEndpoint extends Endpoint {
       session,
       where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
     );
-    var stored = 0, links = 0, repaired = 0;
+    var stored = 0, links = 0, repaired = 0, damaged = 0;
     // A targeted replay also repairs malformed legacy text, with the existing
     // DART budget and admin gate. Global offline replay never makes API calls.
     final key = company == null ? null : DartApiKey.read(session);
@@ -441,18 +442,37 @@ class IngestEndpoint extends Endpoint {
             )) {
               repaired++;
             }
+          } on DartApiException catch (error) {
+            // Preserve the original and report the blocked repair. A temporary
+            // upstream outage must not abort extraction of healthy documents.
+            session.log('원문 복구 대기: ${doc.rceptNo}, DART ${error.status}');
           } finally {
             await meter!.flush(session);
           }
         }
-        stored += await ProductionFacts.store(session, doc, companyKeys: keys);
-        stored += await RndFacts.store(session, doc);
-        links += await SupplierRelations.store(session, doc, listed: listed);
+        final current = await BusinessDocument.db.findById(session, id);
+        if (current == null) continue;
+        if (current.text.contains('\uFFFD')) {
+          damaged++;
+          continue;
+        }
+        await BusinessProfiles.store(session, current);
+        stored += await ProductionFacts.store(
+          session,
+          current,
+          companyKeys: keys,
+        );
+        stored += await RndFacts.store(session, current);
+        links += await SupplierRelations.store(
+          session,
+          current,
+          listed: listed,
+        );
       }
     } finally {
       dart?.close();
     }
-    return '본문 ${ids.length}건에서 값 $stored건, 공급 관계 $links건을 읽었습니다. 원문 $repaired건 복구.';
+    return '본문 ${ids.length}건에서 값 $stored건, 공급 관계 $links건을 읽었습니다. 원문 $repaired건 복구, 인코딩 손상 $damaged건 재수집 대기.';
   }
 
   static void _requireDartKey(Session session) {

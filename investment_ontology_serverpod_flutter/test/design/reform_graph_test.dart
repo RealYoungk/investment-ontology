@@ -7,6 +7,10 @@ import 'package:investment_ontology_serverpod_flutter/design/tokens.dart';
 
 import '../support/shad_test_host.dart';
 
+import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
+
+import 'package:investment_ontology_serverpod_flutter/features/graph/graph_page.dart';
+
 Widget host(Widget child) => shadTestHost(
   MaterialApp(
     theme: buildAppTheme(
@@ -26,6 +30,77 @@ Widget host(Widget child) => shadTestHost(
 );
 
 void main() {
+  testWidgets('320px 관계 데이터 행은 지분율과 추정을 유지하고 넘치지 않는다', (tester) async {
+    tester.view.physicalSize = const Size(320, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      host(
+        GraphPage(
+          corpCode: '00000001',
+          fetch:
+              (
+                code, {
+                required depth,
+                required maxNodes,
+                required includeNames,
+              }) async => CompanyGraph(
+                centerKey: 'c1',
+                truncated: false,
+                nodes: [
+                  GraphNode(
+                    key: 'c1',
+                    kind: 'company',
+                    label: '중심 기업',
+                    depth: 0,
+                  ),
+                  GraphNode(
+                    key: 'n1',
+                    kind: 'name',
+                    label: '아주 긴 이름을 가진 합성 관계 기업',
+                    depth: 1,
+                  ),
+                ],
+                edges: [
+                  GraphEdge(
+                    from: 'n1',
+                    to: 'c1',
+                    predicate: RelationPredicate.shareholderOf,
+                    weight: 15,
+                    estimated: true,
+                    ai: false,
+                  ),
+                ],
+              ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('주주 1'), findsOneWidget);
+    expect(find.text('추정 '), findsOneWidget);
+    expect(find.text('15.0%'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('아주 긴 이름을 가진 합성 관계 기업'));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('320px 관계망 시작 화면은 검색과 탐색 설정을 표시한다', (tester) async {
+    tester.view.physicalSize = const Size(320, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(host(const GraphPage()));
+    await tester.pump();
+    expect(find.text('중심 기업'), findsOneWidget);
+    expect(find.text('어떤 기업과 연결되어 있을까요?'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('비상장·해외 법인 포함'));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('관계망은 서버 없이 그려지고 표시 노드 선택을 전달한다', (tester) async {
     tester.view.physicalSize = const Size(1000, 900);
     tester.view.devicePixelRatio = 1;

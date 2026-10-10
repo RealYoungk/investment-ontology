@@ -24,6 +24,13 @@ abstract final class NewsCompanyMatcher {
       r'''(?=\s|[,.·:;!?…()\[\]"']|[은는이가의를와과]|$)''',
       caseSensitive: false,
     );
+    // A group reference is explicit; arbitrary company-name prefixes are not.
+    final groupMention = RegExp(
+      '(?:^|[^가-힣a-zA-Z0-9])${RegExp.escape(issuer)}\\s*그룹'
+      r'(?=\s|[,.·:;!?]|$)',
+      caseSensitive: false,
+    );
+    if (groupMention.hasMatch(text)) return true;
     if (!mention.hasMatch(text)) return false;
     if (!ambiguous) return true;
     if (stockCode != null &&
@@ -35,6 +42,10 @@ abstract final class NewsCompanyMatcher {
       final start = hit.start < 45 ? 0 : hit.start - 45;
       final end = hit.end + 65 > text.length ? text.length : hit.end + 65;
       final window = text.substring(start, end);
+      if (RegExp(r'반도체|연료전지|발전설비|인수|영업이익|매출액|공급계약|유상증자|전환사채')
+          .hasMatch(window)) {
+        return true;
+      }
       if (ceoName != null &&
           ceoName
               .split(RegExp(r'[,/·]'))

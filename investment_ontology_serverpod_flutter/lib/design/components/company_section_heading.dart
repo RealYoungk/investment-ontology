@@ -12,10 +12,12 @@ class CompanySectionHeading extends StatelessWidget {
     super.key,
     this.description,
     this.help,
+    this.trailing,
   });
   final String title;
   final String? description;
   final String? help;
+  final Widget? trailing;
   void _showHelp(BuildContext context) => showAdaptiveDetail(
     context: context,
     builder: (context) => Padding(
@@ -53,45 +55,67 @@ class CompanySectionHeading extends StatelessWidget {
     ),
   );
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: context.typo.sectionTitle,
-            ),
-          ),
-          if (help != null)
-            Semantics(
-              container: true,
-              label: '$title 읽는 법',
-              button: true,
-              onTap: () => _showHelp(context),
-              child: ExcludeSemantics(
-                child: ShadIconButton.ghost(
-                  icon: Icon(
-                    Icons.info_outline,
-                    size: 18,
-                    color: context.colors.textMuted,
-                  ),
-                  onPressed: () => _showHelp(context),
+  Widget build(BuildContext context) {
+    final heading = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(child: Text(title, style: context.typo.sectionTitle)),
+        if (help != null)
+          Semantics(
+            container: true,
+            label: '$title 읽는 법',
+            button: true,
+            onTap: () => _showHelp(context),
+            child: ExcludeSemantics(
+              child: ShadIconButton.ghost(
+                icon: Icon(
+                  Icons.info_outline,
+                  size: 18,
+                  color: context.colors.textMuted,
                 ),
+                onPressed: () => _showHelp(context),
               ),
             ),
-        ],
-      ),
-      if (description != null) ...[
-        const SizedBox(height: AppSpace.xs),
-        Text(
-          description!,
-          style: context.typo.body(13, color: context.colors.textSecondary),
-        ),
+          ),
       ],
-    ],
-  );
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LayoutBuilder(
+          builder: (context, box) {
+            if (trailing == null) return heading;
+            if (box.maxWidth < 600) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  heading,
+                  const SizedBox(height: AppSpace.sm),
+                  Align(alignment: Alignment.centerRight, child: trailing!),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(
+                  child: Align(alignment: Alignment.centerLeft, child: heading),
+                ),
+                const SizedBox(width: AppSpace.md),
+                trailing!,
+              ],
+            );
+          },
+        ),
+        if (description != null) ...[
+          const SizedBox(height: AppSpace.xs),
+          Text(
+            description!,
+            style: context.typo.body(13, color: context.colors.textSecondary),
+          ),
+        ],
+      ],
+    );
+  }
 }
 
 /// 탭의 목적은 한 번만 안내하고, 아래의 섹션 제목보다 한 단계 높게 표시한다.

@@ -1,3 +1,5 @@
+import 'revenue_trends.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -10,15 +12,29 @@ import 'business_operating_section.dart'
     show businessFactDate, businessPeriodLabel;
 
 /// Preserve filing labels before the amount, including merged category cells.
-/// A percentage is shown only when the first printed amount matches the fact.
+/// Dated facts use an unambiguous amount/ratio pair from the printed row.
 ({String label, double? share}) revenuePresentation(DocumentFact fact) {
-  final cells = fact.evidence.split('|').map((s) => s.trim()).toList();
+  final cells = fact.evidence
+      .split('\n')
+      .first
+      .split('|')
+      .map((s) => s.trim())
+      .toList();
   final combined = RegExp(r'^([\d,]+(?:\.\d+)?)\s*\(\s*([\d.]+)\s*%\s*\)$');
-  for (var i = 1; i < cells.length; i++) {
-    final match = combined.firstMatch(cells[i]);
-    if (match == null) continue;
-    // The first combined column is the current period; never borrow a prior ratio.
-    if (double.tryParse(match.group(1)!.replaceAll(',', '')) != fact.value) {
+  final combinedCells = cells.map(combined.firstMatch).nonNulls.toList();
+  if (combinedCells.isNotEmpty) {
+    final matching = combinedCells
+        .where(
+          (m) => double.tryParse(m.group(1)!.replaceAll(',', '')) == fact.value,
+        )
+        .toList();
+    final match = fact.asOf == null
+        ? combinedCells.first
+        : matching.length == 1
+        ? matching.single
+        : null;
+    if (match == null ||
+        double.tryParse(match.group(1)!.replaceAll(',', '')) != fact.value) {
       return (label: fact.label, share: null);
     }
     final share = double.tryParse(match.group(2)!);
@@ -27,14 +43,28 @@ import 'business_operating_section.dart'
       share: share != null && share <= 100 ? share : null,
     );
   }
-  final index = cells.indexWhere(
+  final firstAmount = cells.indexWhere(
     (s) => RegExp(r'^-?[\d,]+(?:\.\d+)?$').hasMatch(s),
   );
+  final matches = [
+    for (var i = 0; i + 1 < cells.length; i++)
+      if (double.tryParse(cells[i].replaceAll(',', '')) == fact.value &&
+          RegExp(r'^\d+(?:\.\d+)?%$').hasMatch(cells[i + 1]))
+        i,
+  ];
+  if (fact.asOf != null && matches.length > 1) {
+    return (label: fact.label, share: null);
+  }
+  // Period-dated rule facts can come from ascending year headers. The stored
+  // amount must identify exactly one amount/ratio pair; never guess on ties.
+  final index = fact.asOf != null && matches.length == 1
+      ? matches.single
+      : firstAmount;
   if (index <= 0 ||
       double.tryParse(cells[index].replaceAll(',', '')) != fact.value) {
     return (label: fact.label, share: null);
   }
-  final labels = cells.take(index).where((s) => s.isNotEmpty).toList();
+  final labels = cells.take(firstAmount).where((s) => s.isNotEmpty).toList();
   final share =
       index + 1 < cells.length &&
           RegExp(r'^\d+(?:\.\d+)?%$').hasMatch(cells[index + 1])
@@ -44,6 +74,16 @@ import 'business_operating_section.dart'
     label: labels.join(' · '),
     share: share != null && share <= 100 ? share : null,
   );
+}
+
+String revenueBasisNote(DocumentFact fact) {
+  final basis = RegExp(r'\(\s*(별도|연결)\s*\)')
+      .allMatches(fact.evidence)
+      .map((m) => m.group(1)!)
+      .toSet();
+  return basis.length == 1
+      ? '${basis.single} 기준 · 재무 탭과 보고 기준을 확인해 비교하세요.'
+      : '연결·별도 기준은 공시 원문에서 확인하세요.';
 }
 
 /// A validated row does not prove that the whole company's mix was extracted.
@@ -91,7 +131,13 @@ class RevenueComposition extends StatefulWidget {
     required this.corpCode,
     this.products = const [],
     this.printedMix,
+    this.showTrends = true,
+    this.compact = false,
+    this.latestReport,
   });
+  final bool compact;
+  final FinancialPeriod? latestReport;
+  final bool showTrends;
   final String corpCode;
   final List<BusinessProduct> products;
   final PowerProductLesson? printedMix;
@@ -101,6 +147,8 @@ class RevenueComposition extends StatefulWidget {
 
 class _RevenueCompositionState extends State<RevenueComposition> {
   List<DocumentFact>? _rows;
+  List<DocumentFact> _history = [];
+  List<BusinessFactPeriod> _historyPeriods = [];
   bool _failed = false;
   int _seq = 0;
   @override
@@ -119,12 +167,20 @@ class _RevenueCompositionState extends State<RevenueComposition> {
     final seq = ++_seq;
     setState(() {
       _rows = null;
+      _history = [];
       _failed = false;
     });
     try {
-      final facts = await client.disclosure.factTrends(widget.corpCode);
+      final (facts, periods) = await (
+        client.disclosure.factTrends(widget.corpCode),
+        client.disclosure.factPeriods(widget.corpCode),
+      ).wait;
       if (mounted && seq == _seq) {
-        setState(() => _rows = latestRevenueFacts(facts));
+        setState(() {
+          _rows = latestRevenueFacts(facts);
+          _history = facts;
+          _historyPeriods = periods;
+        });
       }
     } catch (_) {
       if (mounted && seq == _seq) setState(() => _failed = true);
@@ -173,9 +229,55 @@ class _RevenueCompositionState extends State<RevenueComposition> {
                   businessPeriodLabel(rows.first),
                   style: t.body(13, color: c.textSecondary),
                 ),
+                Text(
+                  revenueBasisNote(rows.first),
+                  style: t.body(12, color: c.textMuted),
+                ),
                 const SizedBox(height: AppSpace.sm),
                 for (final fact in rows)
-                  _RevenueRow(fact: fact, products: widget.products),
+                  if (widget.compact)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpace.sm,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              revenuePresentation(fact).label
+                                  .split(' · ')
+                                  .first,
+                              style: t.body(14),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: LinearProgressIndicator(
+                              value:
+                                  ((revenuePresentation(fact).share ?? 0) / 100)
+                                      .clamp(0, 1),
+                              minHeight: 8,
+                              color: c.chartSeries1,
+                              backgroundColor: c.chartGrid,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpace.md),
+                          SizedBox(
+                            width: 55,
+                            child: Text(
+                              revenuePresentation(fact).share == null
+                                  ? '—'
+                                  : '${revenuePresentation(fact).share!.toStringAsFixed(1)}%',
+                              textAlign: TextAlign.end,
+                              style: t.numeric(14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    _RevenueRow(fact: fact, products: widget.products),
                 if (rows.any((r) => revenuePresentation(r).share == null) ||
                     rows.fold<double>(
                           0,
@@ -183,10 +285,28 @@ class _RevenueCompositionState extends State<RevenueComposition> {
                         ) <
                         99)
                   Text('일부 항목만 확인됨', style: t.body(11, color: c.textMuted)),
+                if (rows.fold<double>(
+                      0,
+                      (s, r) => s + (revenuePresentation(r).share ?? 0),
+                    ) >
+                    101)
+                  Text(
+                    revenueCoverageNote(rows),
+                    style: t.body(12, color: c.textSecondary),
+                  ),
               ],
             ],
           ),
         ),
+        if (_history.isNotEmpty) ...[
+          const SizedBox(height: AppSpace.md),
+          if (widget.showTrends)
+            RevenueTrends(
+              facts: _history,
+              periods: _historyPeriods,
+              latestReport: widget.latestReport,
+            ),
+        ],
       ],
     );
   }
@@ -268,7 +388,9 @@ class _RevenueRow extends StatelessWidget {
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 500;
         final label = Text(
-          product?.name ?? row.label,
+          parts.first,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: t.body(13, weight: FontWeight.w600),
         );
         return Padding(
@@ -278,7 +400,25 @@ class _RevenueRow extends StatelessWidget {
             children: [
               Expanded(
                 child: description == null
-                    ? label
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label,
+                          if (parts.length > 1)
+                            ShadAccordion<int>(
+                              children: [
+                                ShadAccordionItem<int>(
+                                  value: 0,
+                                  title: Text('제품·용도 보기', style: t.body(12)),
+                                  child: Text(
+                                    parts.skip(1).join(' · '),
+                                    style: t.body(12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      )
                     : ShadTooltip(
                         builder: (_) => Text(description),
                         child: Semantics(tooltip: description, child: label),

@@ -40,13 +40,6 @@ charter:
   - collectionStatus:
   - collectionCoverage:
   - summary:
-company:
-  - overview:
-  - divisions:
-  - list:
-  - detail:
-companyNews:
-  - recent:
 research:
   - data:
   - preview:
@@ -54,35 +47,16 @@ research:
   - collectBatch:
   - connectionStatus:
   - collect:
-disclosure:
-  - understanding:
-  - sections:
-  - table:
-  - businessContent:
-  - shareholderReturn:
-  - facts:
-  - factPeriods:
-  - factTrends:
-  - recentOf:
-  - digest:
-  - recentFilings:
 financial:
   - summary:
   - report:
-governance:
-  - summary:
-  - ownershipHistory:
-  - searchPersons:
-  - person:
-  - rejectPersonLink:
-graph:
-  - neighborhood:
 group:
   - list:
   - of:
 industry:
   - browse:
   - discover:
+  - rebuild:
 ingest:
   - startCompanyMaster:
   - startFinancials:
@@ -97,14 +71,14 @@ ingest:
   - schedule:
   - latestOfKinds:
   - rebuildProductionFacts:
+investmentNotes:
+  - list:
+  - detail:
+  - importDraft:
+  - preview:
+  - publish:
 macro:
   - overview:
-market:
-  - companyCapHistory:
-  - industryTreemap:
-  - capHistory:
-  - indexHistory:
-  - priceHistory:
 membership:
   - paymentsForAccount:
   - refundPayment:
@@ -130,19 +104,6 @@ review:
   - facts:
   - decideFact:
   - forCompany:
-screen:
-  - peerCandidates:
-  - list:
-  - peers:
-theme:
-  - list:
-  - create:
-  - update:
-  - delete:
-  - detail:
-  - addCompany:
-  - removeCompany:
-  - themesOf:
 watchlist:
   - mine:
   - add:

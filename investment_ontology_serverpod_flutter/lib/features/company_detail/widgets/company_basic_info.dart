@@ -14,7 +14,17 @@ class CompanyBasicInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final company = detail.company;
+    final address = company.address
+        ?.replaceAll(
+          RegExp(r'&nbsp;?|&#160;?|&#x0*a0;?', caseSensitive: false),
+          ' ',
+        )
+        .replaceAll('\u00a0', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
     final fields = <Widget>[
+      if (company.name != company.displayName)
+        _BasicField(label: '법인명 · DART', value: company.name),
       _BasicField(
         label: '시장',
         value: company.market == Market.kospi
@@ -42,6 +52,38 @@ class CompanyBasicInfo extends StatelessWidget {
         ),
       if (company.irUrl?.trim().isNotEmpty == true)
         _BasicField(label: 'IR', value: company.irUrl!, url: company.irUrl),
+      if (address?.isNotEmpty == true)
+        _BasicField(
+          label: '주소 · 네이버지도',
+          value: address!,
+          url: 'https://map.naver.com/p/search/${Uri.encodeComponent(address)}',
+        ),
+      if (company.jurirNo?.trim().isNotEmpty == true)
+        ShadTooltip(
+          builder: (_) => Text('인터넷등기소에서 법인등록번호로 검색해 주세요.'),
+          child: Semantics(
+            tooltip: '인터넷등기소에서 법인등록번호로 검색해 주세요.',
+            child: _BasicField(
+              label: '법인등록번호 · 인터넷등기소',
+              value: company.jurirNo!,
+              url: 'https://www.iros.go.kr/',
+            ),
+          ),
+        ),
+      if (company.bizrNo?.trim().isNotEmpty == true)
+        _BasicField(label: '사업자등록번호', value: company.bizrNo!),
+      if (detail.industryPath.isNotEmpty)
+        ShadTooltip(
+          builder: (_) =>
+              Text(detail.industryPath.map((item) => item.name).join(' › ')),
+          child: Semantics(
+            tooltip: detail.industryPath.map((item) => item.name).join(' › '),
+            child: _BasicField(
+              label: 'KSIC',
+              value: detail.industryPath.last.code,
+            ),
+          ),
+        ),
     ];
     var expanded = false;
     return StatefulBuilder(
@@ -55,7 +97,7 @@ class CompanyBasicInfo extends StatelessWidget {
               final labels = [
                 if (company.homepageUrl?.trim().isNotEmpty == true) '홈페이지',
                 if (company.phone?.trim().isNotEmpty == true) '전화',
-                if (company.address?.trim().isNotEmpty == true) '본사 위치',
+                if (address?.isNotEmpty == true) '본사 위치',
                 expanded ? '기본정보 접기' : '기본정보 더보기',
               ];
               var requiredWidth = AppSpace.sm * (labels.length - 1);
@@ -97,14 +139,14 @@ class CompanyBasicInfo extends StatelessWidget {
                         path: company.phone!.replaceAll(RegExp(r'[^0-9+]'), ''),
                       ),
                     ),
-                  if (company.address?.trim().isNotEmpty == true)
+                  if (address?.isNotEmpty == true)
                     _QuickLink(
                       label: '본사 위치',
                       icon: Icons.location_on_outlined,
                       compact: compact,
-                      hint: company.address!,
+                      hint: address!,
                       uri: Uri.parse(
-                        'https://map.naver.com/p/search/${Uri.encodeComponent(company.address!.trim())}',
+                        'https://map.naver.com/p/search/${Uri.encodeComponent(address)}',
                       ),
                     ),
                   if (compact)
@@ -167,60 +209,6 @@ class CompanyBasicInfo extends StatelessWidget {
                   ],
                 );
               },
-            ),
-            if (company.address?.trim().isNotEmpty == true) ...[
-              const SizedBox(height: AppSpace.md),
-              _BasicField(
-                label: '주소 · 네이버지도',
-                value: company.address!,
-                url:
-                    'https://map.naver.com/p/search/${Uri.encodeComponent(company.address!.trim())}',
-              ),
-            ],
-            const SizedBox(height: AppSpace.md),
-            Wrap(
-              spacing: AppSpace.lg,
-              runSpacing: AppSpace.xs,
-              children: [
-                if (company.jurirNo?.trim().isNotEmpty == true)
-                  ShadTooltip(
-                    builder: (_) => Text('인터넷등기소에서 법인등록번호로 검색해 주세요.'),
-                    child: Semantics(
-                      tooltip: '인터넷등기소에서 법인등록번호로 검색해 주세요.',
-                      child: _BasicField(
-                        label: '법인등록번호 · 인터넷등기소',
-                        value: company.jurirNo!,
-                        url: 'https://www.iros.go.kr/',
-                      ),
-                    ),
-                  ),
-                if (company.bizrNo?.trim().isNotEmpty == true)
-                  Text(
-                    '사업자등록번호 ${company.bizrNo}',
-                    style: context.typo.body(
-                      11,
-                      color: context.colors.textMuted,
-                    ),
-                  ),
-                if (detail.industryPath.isNotEmpty)
-                  ShadTooltip(
-                    builder: (_) => Text(
-                      detail.industryPath.map((item) => item.name).join(' › '),
-                    ),
-                    child: Semantics(
-                      tooltip: detail.industryPath
-                          .map((item) => item.name)
-                          .join(' › '),
-                      child: Text(
-                        'KSIC ${detail.industryPath.last.code}',
-                        style: context.typo.body(
-                          11,
-                          color: context.colors.textMuted,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
             ),
             if (detail.changes.isNotEmpty)
               ShadAccordion<int>(
@@ -325,6 +313,7 @@ class _BasicField extends StatelessWidget {
               .replaceFirst(RegExp(r'/$'), '');
     final text = Text(
       display,
+      textAlign: TextAlign.start,
       style: context.typo
           .body(13, color: context.colors.textPrimary)
           .copyWith(
@@ -347,6 +336,7 @@ class _BasicField extends StatelessWidget {
             child: ShadButton.ghost(
               height: 0,
               width: double.infinity,
+              mainAxisAlignment: MainAxisAlignment.start,
               padding: EdgeInsets.zero,
               onPressed: () => launchUrl(
                 Uri.parse(
@@ -356,12 +346,7 @@ class _BasicField extends StatelessWidget {
                 ),
                 mode: LaunchMode.externalApplication,
               ),
-              child: Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
-                  child: text,
-                ),
-              ),
+              child: Flexible(child: text),
             ),
           ),
       ],

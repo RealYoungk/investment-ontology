@@ -11,11 +11,17 @@ import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../auth/app_viewer.dart';
-import '../business/business_tab.dart';
+import '../watchlist/watchlist_button.dart';
+import '../common/formatters.dart';
+import '../financials/financial_metrics.dart';
+import 'widgets/company_news_section.dart';
+import 'widgets/price_chart.dart';
 import '../financials/financial_section.dart';
 import '../governance/governance_tab.dart';
 import '../shareholder_return/shareholder_return_tab.dart';
+import '../disclosures/disclosure_tab.dart';
 import 'widgets/company_header.dart';
+import 'widgets/collapsing_company_frame.dart';
 import 'widgets/company_overview_tab.dart';
 
 enum CompanyTab {
@@ -47,7 +53,7 @@ class CompanyPage extends StatefulWidget {
   const CompanyPage({
     super.key,
     required this.corpCode,
-    this.initialTab = CompanyTab.overview,
+    this.initialTab = CompanyTab.business,
   });
 
   final String corpCode;
@@ -58,8 +64,6 @@ class CompanyPage extends StatefulWidget {
 }
 
 class _CompanyPageState extends State<CompanyPage> {
-  late CompanyTab _tab = widget.initialTab;
-
   CompanyDetail? _detail;
   CompanyFinancials? _financials;
   List<DisclosureSectionInfo> _sections = const [];
@@ -111,7 +115,21 @@ class _CompanyPageState extends State<CompanyPage> {
     }
   }
 
-  /// 계산식을 펼친 지표. 머리의 지표를 누르면 재무 탭에서 그 계산식을 연다.
+  @override
+  void didUpdateWidget(covariant CompanyPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.corpCode != widget.corpCode) {
+      _detail = null;
+      _financials = null;
+      _sections = const [];
+      _error = null;
+      _loaded = false;
+      _fsDiv = null;
+      _changingBasis = false;
+      _basisError = null;
+      _load();
+    }
+  }
 
   @override
   void initState() {
@@ -165,11 +183,11 @@ class _CompanyPageState extends State<CompanyPage> {
 
   /// 데이터가 있는 탭만.
   Map<CompanyTab, String> get _tabs => {
-    CompanyTab.overview: '개요',
+    CompanyTab.business: '사업',
     CompanyTab.financials: '재무',
     if (_has(_governanceSections)) CompanyTab.governance: '지배구조',
     if (_has(_returnSections)) CompanyTab.returns: '주주환원',
-    CompanyTab.disclosures: '공시',
+    CompanyTab.disclosures: '소식·공시',
   };
 
   @override
@@ -178,8 +196,27 @@ class _CompanyPageState extends State<CompanyPage> {
     final t = context.typo;
     final detail = _detail;
     final tabs = _tabs;
-    final tab = tabs.containsKey(_tab) ? _tab : CompanyTab.overview;
+    final tab = tabs.containsKey(widget.initialTab)
+        ? widget.initialTab
+        : CompanyTab.business;
 
+    final navigation = Align(
+      alignment: Alignment.centerLeft,
+      child: AppTabBar<CompanyTab>(
+        fitContent: true,
+        tabs: tabs,
+        value: tab,
+        onChanged: (tab) => Router.neglect(
+          context,
+          () => context.replace(
+            AppRoutes.company(
+              widget.corpCode,
+              tab: tab == CompanyTab.business ? null : tab.name,
+            ),
+          ),
+        ),
+      ),
+    );
     return ExpansionTileTheme(
       data: ExpansionTileThemeData(
         tilePadding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
@@ -191,7 +228,75 @@ class _CompanyPageState extends State<CompanyPage> {
         shape: Border(bottom: BorderSide(color: c.border)),
         collapsedShape: Border(bottom: BorderSide(color: c.border)),
       ),
-      child: PageFrame(
+      child: CollapsingCompanyFrame(
+        corpCode: detail?.company.corpCode,
+        name: detail?.company.displayName ?? '',
+        code: detail?.company.stockCode ?? '',
+        marketLabel: detail == null ? '' : marketLabel(detail.company.market),
+        marketCap: _financials?.market?.marketCap == null
+            ? ''
+            : formatKrw(_financials!.market!.marketCap),
+        price: _financials?.market?.securities
+            .where((q) => q.shortCode == detail?.company.stockCode)
+            .firstOrNull
+            ?.closePrice
+            ?.toInt(),
+        actionsBuilder: detail == null
+            ? null
+            : (context, progress) => Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WatchlistButton(
+                    corpCode: widget.corpCode,
+                    compact: true,
+                    labelProgress: 1 - progress,
+                  ),
+                  const SizedBox(width: AppSpace.sm),
+                  ShadButton.outline(
+                    size: ShadButtonSize.sm,
+                    onPressed: () =>
+                        context.push(AppRoutes.compare([widget.corpCode])),
+                    leading: const Icon(
+                      Icons.compare_arrows_outlined,
+                      size: 16,
+                    ),
+                    child: ClipRect(
+                      child: Align(
+                        widthFactor: 1 - progress,
+                        child: Opacity(
+                          opacity: 1 - progress,
+                          child: const Text('기업비교'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+        navigation: navigation,
+        header: detail == null
+            ? const SizedBox.shrink()
+            : CompanyHeader(
+                identityOnly: true,
+                detail: detail,
+                onCompare: () =>
+                    context.push(AppRoutes.compare([widget.corpCode])),
+                financials: _financials,
+                onBasisChanged: _changeBasis,
+                changingBasis: _changingBasis,
+                selectedBasis: _fsDiv,
+                basisError: _basisError,
+              ),
+        metrics: detail == null
+            ? null
+            : CompanyHeader(
+                metricsOnly: true,
+                detail: detail,
+                financials: _financials,
+                onBasisChanged: _changeBasis,
+                changingBasis: _changingBasis,
+                selectedBasis: _fsDiv,
+                basisError: _basisError,
+              ),
         children: [
           if (!_loaded)
             const ShadProgress(minHeight: 2)
@@ -203,47 +308,7 @@ class _CompanyPageState extends State<CompanyPage> {
                     style: t.body(14, color: c.textSecondary),
                   ))
           else ...[
-            CompanyHeader(
-              detail: detail,
-              onCompare: () =>
-                  context.push(AppRoutes.compare([widget.corpCode])),
-              financials: _financials,
-              onBasisChanged: _changeBasis,
-              changingBasis: _changingBasis,
-              selectedBasis: _fsDiv,
-              basisError: _basisError,
-            ),
-            const SizedBox(height: AppSpace.lg),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: AppTabBar<CompanyTab>(
-                tabs: tabs,
-                value: tab,
-                onChanged: (tab) => setState(() {
-                  _tab = tab;
-                }),
-              ),
-            ),
-            const SizedBox(height: AppSpace.xl),
             switch (tab) {
-              CompanyTab.overview => Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  CompanyOverviewTab(
-                    key: ValueKey(_version),
-                    detail: detail,
-                    latestReport: _financials?.periods.lastOrNull,
-                    dataVersion: _version,
-                  ),
-                  if (_sections.isEmpty) ...[
-                    const SizedBox(height: AppSpace.section),
-                    _DisclosureFetchCard(
-                      corpCode: widget.corpCode,
-                      onDone: _load,
-                    ),
-                  ],
-                ],
-              ),
               CompanyTab.governance => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -255,7 +320,7 @@ class _CompanyPageState extends State<CompanyPage> {
                   GovernanceTab(
                     key: ValueKey('governance-$_version'),
                     corpCode: widget.corpCode,
-                    companyName: detail.company.name,
+                    companyName: detail.company.displayName,
                   ),
                 ],
               ),
@@ -271,6 +336,8 @@ class _CompanyPageState extends State<CompanyPage> {
               CompanyTab.disclosures => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  CompanyNewsSection(corpCode: widget.corpCode),
+                  const SizedBox(height: AppSpace.xl),
                   ResearchSection(
                     corpCode: widget.corpCode,
                     kinds: const [
@@ -280,19 +347,52 @@ class _CompanyPageState extends State<CompanyPage> {
                       'majorHoldings',
                     ],
                   ),
+                  if (_sections.any(
+                    (s) => s.section != DartSection.businessContent,
+                  )) ...[
+                    const SizedBox(height: AppSpace.xl),
+                    const CompanySectionHeading('정기보고서 · 연도별 공시'),
+                    const SizedBox(height: AppSpace.sm),
+                    Text(
+                      '직원·보수·감사·출자·배당 등 수집된 항목을 보고서 연도별로 확인합니다.',
+                      style: context.typo.body(13),
+                    ),
+                    ShadAccordion<int>(
+                      children: [
+                        ShadAccordionItem<int>(
+                          value: 0,
+                          title: const Text('공시 항목과 연도별 원문 표 보기'),
+                          child: DisclosureTab(
+                            corpCode: widget.corpCode,
+                            sections: _sections
+                                .where(
+                                  (s) =>
+                                      s.section != DartSection.businessContent,
+                                )
+                                .toList(),
+                            dataVersion: _version,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
-              CompanyTab.business => BusinessTab(
-                key: const ValueKey('business'),
+              CompanyTab.overview || CompanyTab.business => CompanyOverviewTab(
+                key: ValueKey('business-$_version'),
+                detail: detail,
+                latestReport: _financials?.periods.lastOrNull,
                 dataVersion: _version,
-                corpCode: widget.corpCode,
+                businessDetail: true,
               ),
               CompanyTab.financials => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  CompanyDataCard(child: PriceChart(corpCode: widget.corpCode)),
+                  const SizedBox(height: AppSpace.xl),
                   FinancialSection(
                     industryCode: detail.company.industryCode,
-                    companyName: detail.company.name,
+                    companyName: detail.company.displayName,
                     key: const ValueKey('financials'),
                     dataVersion: _version,
                     corpCode: widget.corpCode,

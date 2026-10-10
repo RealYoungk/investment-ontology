@@ -1,0 +1,11 @@
+### 저장된 정기보고서의 명시적 표 헤더로 구조화한 정보. 숫자를 추론하거나 단위를 변환하지 않는다.
+class: BusinessTableInsight
+fields:
+  topic: String
+  title: String
+  columns: List<String>
+  rows: List<BusinessTableRecord>
+  measures: List<BusinessTableMeasure>
+  evidence: String
+  validation: String
+  scope: String?

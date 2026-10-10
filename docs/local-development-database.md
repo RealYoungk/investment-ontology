@@ -1,11 +1,12 @@
 # 로컬 개발 DB
 
-운영 서비스는 iwinv DB를 사용한다. Mac에는 같은 embedded PostgreSQL 클러스터 안에 두 개의 별도 데이터베이스를 둔다. 코드/채팅 포크가 아니다.
+운영 서비스는 iwinv DB를 사용한다. Mac에는 같은 embedded PostgreSQL 클러스터 안에 별도 데이터베이스들을 둔다. 코드/채팅 포크가 아니다.
 
 | 이름 | 목적 | 쓰기 |
 | --- | --- | --- |
 | `investment_ontology_serverpod` | 운영 이전 시점 보관본 | 기본 읽기 전용 유지 |
 | `investment_ontology_dev` | 기능 개발·로컬 검증 | 허용 |
+| `investment_ontology_cloud_20261006` | 2026-10-06 04:01 KST 운영 백업 복원본; 현재 로컬 앱 사용 | 허용 |
 
 `config/development.yaml`의 `database.name`으로 앱이 사용할 DB를 선택한다. `dataPath`는 기존 `.serverpod/development/pgdata`를 유지한다. 두 DB는 논리적으로 분리되지만 PostgreSQL 프로세스와 디스크를 공유한다. 클러스터 디렉터리를 삭제하면 둘 다 사라지므로 초기화 목적으로 삭제하지 않는다. 기존 운영 이전 백업은 별도로 유지한다.
 
@@ -24,6 +25,12 @@
 - 보관본 확인이 필요하면 읽기 전용 DB로 직접 접속한다. 개발 작업을 위해 보관본의 읽기 전용 설정을 해제하지 않는다.
 
 ## 상태
+
+2026-10-06: 사용자 승인으로 04:01:05 KST 운영 백업(`alfinder-20261005T190105Z.dump.gz`)을 새 DB `investment_ontology_cloud_20261006`에 복원했다. 백업 SHA256 검증과 84개 public 테이블 전체의 COPY 행 수 대조를 완료했으며 차이는 0건이다. company 2,764; financial_report 115,684; financial_fact 16,995,512; market_snapshot 3,408,764; business_document 15,390; research_snapshot 3,760. 기존 DB들은 보존했다.
+
+`development.yaml`을 새 DB로 전환하고 MCP 재시작 완료를 로그로 확인했다. 실제 연결 10개가 새 DB를 사용하며 미코와 삼성전자 `disclosure/businessContent` 공개 조회 HTTP 200 및 2026년 반기보고서 본문을 확인했다. `futureCallExecutionEnabled: false`는 유지한다. 이는 해당 시점의 복원이며 지속 동기화가 아니다. 증빙은 `outputs/cloud-local-sync-20261006/`에 저장했다. 이전 개발 DB로 돌아갈 때에는 `database.name`을 `investment_ontology_dev`로 되돌리고 MCP 재시작한다.
+
+### 이전 검증 기록
 
 2026-10-01 복제 및 앱 연결 완료. 원본 `default_transaction_read_only=on`, 개발 `off`를 환경변수 덮어쓰기 없는 새 연결에서 확인했다. 개발 DB의 임시 테이블 쓰기/롤백 성공. 최초 검증 스크립트가 원본용 읽기 전용 세션 옵션을 개발 검증에도 적용한 오류는 수정 후 재검증했다.
 

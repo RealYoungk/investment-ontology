@@ -129,3 +129,35 @@ class GovernanceView {
 String formatRatio(double? v) => v == null
     ? '—'
     : '${v.toStringAsFixed(v >= 10 || v == v.roundToDouble() ? 1 : 2)}%';
+
+enum InvestmentSort { bookValue, profit, loss, incomeMagnitude }
+
+/// Missing amounts and aggregate rows follow individually disclosed values.
+List<InvestmentEntry> sortedInvestments(
+  Iterable<InvestmentEntry> entries,
+  InvestmentSort sort,
+) {
+  BigInt? value(InvestmentEntry row) => switch (sort) {
+    InvestmentSort.bookValue => row.bookValueEnd,
+    InvestmentSort.profit || InvestmentSort.loss => row.investeeNetIncome,
+    InvestmentSort.incomeMagnitude => row.investeeNetIncome?.abs(),
+  };
+  final rows = entries.toList();
+  rows.sort((a, b) {
+    if (a.isTotal != b.isTotal) return a.isTotal ? 1 : -1;
+    final av = value(a), bv = value(b);
+    if (av == null && bv != null) return 1;
+    if (av != null && bv == null) return -1;
+    final comparison = av == null || bv == null
+        ? 0
+        : sort == InvestmentSort.loss
+        ? av.compareTo(bv)
+        : bv.compareTo(av);
+    if (comparison != 0) return comparison;
+    final amountComparison = (b.bookValueEnd ?? BigInt.zero).compareTo(
+      a.bookValueEnd ?? BigInt.zero,
+    );
+    return amountComparison != 0 ? amountComparison : a.ord.compareTo(b.ord);
+  });
+  return rows;
+}

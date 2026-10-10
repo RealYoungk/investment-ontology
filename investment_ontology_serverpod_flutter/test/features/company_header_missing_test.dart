@@ -51,6 +51,19 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('149.5%'), findsOneWidget);
       expect(find.text('반기 누적 · 전년 동기 대비'), findsOneWidget);
+      final growthCell = find
+          .ancestor(
+            of: find.text('149.5%'),
+            matching: find.byType(AnimatedContainer),
+          )
+          .first;
+      final bounds = tester.getRect(growthCell);
+      expect(bounds.height, greaterThanOrEqualTo(112));
+      await tester.ensureVisible(growthCell);
+      final visibleBounds = tester.getRect(growthCell);
+      await tester.tapAt(visibleBounds.bottomRight - const Offset(6, 6));
+      await tester.pumpAndSettle();
+      expect(find.text('계산 방법'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

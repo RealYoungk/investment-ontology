@@ -85,6 +85,28 @@ void main() {
       [9],
     );
   });
+  test('기간이 확인된 오름차순 매출은 저장 금액의 비중을 찾는다', () {
+    final row = fact(
+      value: 17590074,
+      evidence: '전장부품 | FF-PCB 등 | 28,638 | 0.0% | 5,408,956 | 6.3% | 17,590,074 | 22.0%',
+    ).copyWith(asOf: DateTime.utc(2026, 6, 30));
+    expect(revenuePresentation(row).share, 22);
+    expect(revenuePresentation(row).label, '전장부품 · FF-PCB 등');
+    final combined = row.copyWith(
+      value: 17590074,
+      evidence: '전장부품 | 28,638 (0%) | 5,408,956 (6.3%) | 17,590,074 (22%)\n(별도) (단위: 천원)',
+    );
+    expect(revenuePresentation(combined).share, 22);
+    expect(revenueBasisNote(combined), contains('별도 기준'));
+    expect(
+      revenuePresentation(
+        combined.copyWith(
+          evidence: '전장부품 | 17,590,074 (5%) | 17,590,074 (22%)',
+        ),
+      ).share,
+      isNull,
+    );
+  });
   for (final width in [320.0, 1280.0]) {
     testWidgets('lesson navigation and original diagrams at $width', (
       tester,

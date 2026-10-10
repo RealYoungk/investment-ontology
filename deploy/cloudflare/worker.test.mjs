@@ -91,3 +91,27 @@ test('membership plans do not collide with the Pages-normalized legal HTML', asy
   assert.ok(routes.include.includes('/membership'));
   assert.ok(routes.include.includes('/membership.html'));
 });
+
+// Logo traffic must remain static; no billable Function invocation route.
+test('bundled company logos bypass Functions routes and upstream transport', async () => {
+  const path = '/assets/assets/company_logos/000660.webp';
+  const routes = JSON.parse(await readFile(new URL('./_routes.json', import.meta.url), 'utf8'));
+  const matches = (pattern) => pattern.endsWith('*') ? path.startsWith(pattern.slice(0, -1)) : path === pattern;
+  assert.equal(routes.include.some(matches), false);
+  const response = await handleRequest(new Request('https://alfinder.kr' + path),
+    {ASSETS: {fetch: async () => new Response('logo')}}, () => assert.fail('logo reached the backend'));
+  assert.equal(await response.text(), 'logo');
+  const headers = await readFile(new URL('./_headers', import.meta.url), 'utf8');
+  assert.match(headers, /\/assets\/assets\/company_logos\/\*\n  Cache-Control: public, max-age=86400/);
+});
+
+test('company vector assets remain static and cached', async () => {
+  const path = '/assets/assets/company_icons/420770.svg';
+  const routes = JSON.parse(await readFile(new URL('./_routes.json', import.meta.url), 'utf8'));
+  assert.equal(routes.include.some(pattern => pattern.endsWith('*') ? path.startsWith(pattern.slice(0, -1)) : path === pattern), false);
+  const response = await handleRequest(new Request('https://alfinder.kr' + path),
+    {ASSETS: {fetch: async () => new Response('<svg/>')}}, () => assert.fail('vector reached backend'));
+  assert.equal(await response.text(), '<svg/>');
+  const headers = await readFile(new URL('./_headers', import.meta.url), 'utf8');
+  assert.ok(headers.includes('/assets/assets/company_icons/*\n  Cache-Control: public, max-age=86400'));
+});

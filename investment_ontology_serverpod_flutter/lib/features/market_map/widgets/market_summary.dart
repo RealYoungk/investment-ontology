@@ -13,10 +13,18 @@ class MarketSummary extends StatelessWidget {
     required this.selected,
     required this.onSelect,
     this.failed = false,
+    this.showHeading = true,
+    this.showScopeNote = true,
+    this.alignment = WrapAlignment.start,
   });
 
   final Overview? overview;
   final bool failed;
+  final bool showHeading;
+  final bool showScopeNote;
+  final WrapAlignment alignment;
+
+  static const scopeNote = '시장 선택은 시가총액·업종 지도·최근 정기보고서에 적용됩니다.';
   final Market? selected;
   final ValueChanged<Market?> onSelect;
 
@@ -28,16 +36,18 @@ class MarketSummary extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        PageHeading(
-          title: '시장',
-          subtitle: overview == null
-              ? failed
-                    ? '시장 요약을 불러오지 못했어요'
-                    : '시장 요약 불러오는 중…'
-              : '국내 상장 ${formatCount(overview!.totalListed)}개사',
-        ),
-        const SizedBox(height: AppSpace.md),
+        if (showHeading)
+          PageHeading(
+            title: '시장',
+            subtitle: overview == null
+                ? failed
+                      ? '시장 요약을 불러오지 못했어요'
+                      : '시장 요약 불러오는 중…'
+                : '국내 상장 ${formatCount(overview!.totalListed)}개사',
+          ),
+        if (showHeading) const SizedBox(height: AppSpace.md),
         Wrap(
+          alignment: alignment,
           spacing: AppSpace.sm,
           runSpacing: AppSpace.sm,
           children: [
@@ -79,11 +89,12 @@ class MarketSummary extends StatelessWidget {
               ),
           ],
         ),
-        const SizedBox(height: AppSpace.sm),
-        Text(
-          '시장 선택은 시가총액·업종 지도·최근 정기보고서에 적용됩니다.',
-          style: context.typo.body(12, color: context.colors.textMuted),
-        ),
+        if (showScopeNote) const SizedBox(height: AppSpace.sm),
+        if (showScopeNote)
+          Text(
+            scopeNote,
+            style: context.typo.body(12, color: context.colors.textMuted),
+          ),
       ],
     );
   }

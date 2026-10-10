@@ -63,7 +63,7 @@ abstract final class BusinessProfiles {
       throw ArgumentError('기업 코드 형식 오류');
     }
     final rows = await session.db.unsafeQuery('''
-      SELECT latest."bsnsYear", latest."rceptNo", p.products, p."ruleVersion", p."computedAt", latest."reportCode", latest."reportName"
+      SELECT latest."bsnsYear", coalesce(latest."sourceReceipt", latest."rceptNo"), p.products, p."ruleVersion", p."computedAt", latest."reportCode", latest."reportName"
       FROM (${LatestBusinessReport.sql}) latest
       JOIN company c ON c.id=latest."companyId"
       LEFT JOIN business_profile p ON p."documentId"=latest."documentId"

@@ -1,0 +1,15 @@
+### Stored classification, built by the server independently of page requests.
+class: IndustryCatalogSnapshot
+table: industry_catalog_snapshot
+serverOnly: true
+fields:
+  snapshotKey: String
+  sourceFingerprint: String
+  builderVersion: int
+  catalog: IndustryDiscovery
+  pilot: IndustryDiscovery
+  computedAt: DateTime
+indexes:
+  industry_catalog_snapshot_key_idx:
+    fields: snapshotKey
+    unique: true

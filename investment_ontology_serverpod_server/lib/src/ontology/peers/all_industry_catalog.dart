@@ -1,4 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+
 import 'package:serverpod/serverpod.dart';
+
+import '../cache/single_flight.dart';
+import 'industry_catalog_hooks.dart';
 
 import '../../generated/protocol.dart';
 import '../ingest/ksic_revision.dart';
@@ -10,11 +18,159 @@ import 'kind_product_catalog.dart';
 import 'issuer_offering_catalog.dart';
 import 'discovery_resolution.dart';
 
+/// Protocol dependency of classes declared with `extends Endpoint`.
 /// Every listed company remains discoverable, even without a business filing.
 /// Registered activities and filing-backed products remain distinct evidence.
 abstract final class AllIndustryCatalog {
-  static Future<IndustryDiscovery> read(Session session) async {
-    final semiconductor = await IndustryDiscoveryCatalog.read(session);
+  // Bump when classification rules or catalog normalization change.
+  static const builderVersion = 1;
+  static const snapshotKey = 'listed-company-industry';
+  static final _loadFlight = SingleFlight<IndustryCatalogSnapshot?>();
+  static final _buildFlight = SingleFlight<IndustryCatalogSnapshot?>();
+  static IndustryCatalogSnapshot? _stored;
+  static Timer? _timer;
+
+  /// Classification is a persistent server-managed read model, not a page job.
+  /// Only worker processes build in production; read-only API processes load it.
+  static void start(Serverpod pod) {
+    _timer?.cancel();
+    void tick() => requestRefresh(pod);
+    tick();
+    _timer = Timer.periodic(const Duration(minutes: 5), (_) => tick());
+    IndustryCatalogHooks.changed = () => requestRefresh(pod);
+  }
+
+  static void requestRefresh(Serverpod pod) {
+    unawaited(_background(pod).catchError((Object error, StackTrace stack) {}));
+  }
+
+  static Future<void> _background(Serverpod pod) async {
+    await _buildFlight.run(() async {
+      final session = await pod.createSession(enableLogging: false);
+      try {
+        // Load durable state BEFORE checking sources or running any rules.
+        final saved = await loadStored(session);
+        if (saved != null) _stored = saved;
+        if (pod.runMode != 'production' ||
+            pod.config.futureCallExecutionEnabled) {
+          final result = await rebuild(session);
+          if (result != null) _stored = result;
+        }
+        return _stored;
+      } catch (error, stack) {
+        session.log(
+          'Stored industry classification refresh failed',
+          level: LogLevel.error,
+          exception: error,
+          stackTrace: stack,
+        );
+        return _stored;
+      } finally {
+        await session.close();
+      }
+    });
+  }
+
+  static Future<IndustryCatalogSnapshot?> loadStored(Session session) =>
+      IndustryCatalogSnapshot.db.findFirstRow(
+        session,
+        where: (t) => t.snapshotKey.equals(snapshotKey),
+      );
+
+  /// A missing snapshot is unavailable data, never an invitation to classify
+  /// inside an anonymous read. Tests use the same rule as the real application.
+  static Future<IndustryCatalogSnapshot> _readStored(Session session) async {
+    if (session.serverpod.runMode != 'test' && _stored != null) return _stored!;
+    final saved = await _loadFlight.run(() => loadStored(session));
+    if (saved == null) {
+      throw StateError('기업 분류를 서버에서 준비하고 있습니다.');
+    }
+    if (session.serverpod.runMode != 'test') _stored = saved;
+    return saved;
+  }
+
+  static Future<IndustryDiscovery> read(Session session) async =>
+      (await _readStored(session)).catalog;
+
+  static Future<IndustryDiscovery> pilot(Session session) async =>
+      (await _readStored(session)).pilot;
+
+  static Future<String> sourceFingerprint(Session session) async {
+    final rows = await IndustryDiscoveryCatalog.sourceRows(session);
+    final industries = await Industry.db.find(
+      session,
+      orderByList: (t) => [t.revision, t.code],
+    );
+    final usedCodes = await session.db.unsafeQuery(
+      'SELECT DISTINCT "industryCode" FROM company ORDER BY "industryCode"',
+    );
+    return sha256
+        .convert(
+          utf8.encode(
+            jsonEncode([
+              builderVersion,
+              DateTime.now().year,
+              rows.map((r) => r.toList()).toList(),
+              industries.map((i) => i.toJson()).toList(),
+              usedCodes.map((r) => r.toList()).toList(),
+              KindProductCatalog.source,
+              IssuerOfferingCatalog.rows,
+            ]),
+          ),
+        )
+        .toString();
+  }
+
+  /// The process writer/advisory lock keeps concurrent workers from publishing
+  /// different generations. Replacement is atomic; failures keep the old row.
+  /// Called only by server background work or an administrator, never a read.
+  static Future<IndustryCatalogSnapshot?> rebuild(Session session) async {
+    final result = await session.db.transaction((tx) async {
+      final lock = await session.db.unsafeQuery(
+        'SELECT pg_try_advisory_xact_lock(461009, 1)',
+        transaction: tx,
+      );
+      if (lock.first[0] != true) return loadStored(session);
+      final saved = await loadStored(session);
+      final fingerprint = await sourceFingerprint(session);
+      if (saved?.sourceFingerprint == fingerprint &&
+          saved?.builderVersion == builderVersion) {
+        return saved;
+      }
+      await KsicRevision.invalidate(session);
+      final built = await _compute(session);
+      // If ingestion moved the source while building, retain the last result.
+      if (await sourceFingerprint(session) != fingerprint) return saved;
+      final next = IndustryCatalogSnapshot(
+        id: saved?.id,
+        snapshotKey: snapshotKey,
+        sourceFingerprint: fingerprint,
+        builderVersion: builderVersion,
+        catalog: built.catalog,
+        pilot: built.pilot,
+        computedAt: built.catalog.computedAt,
+      );
+      final result = saved == null
+          ? await IndustryCatalogSnapshot.db.insertRow(
+              session,
+              next,
+              transaction: tx,
+            )
+          : await IndustryCatalogSnapshot.db.updateRow(
+              session,
+              next,
+              transaction: tx,
+            );
+      return result;
+    });
+    if (session.serverpod.runMode != 'test' && result != null) _stored = result;
+    return result;
+  }
+
+  static Future<({IndustryDiscovery catalog, IndustryDiscovery pilot})>
+  _compute(Session session) async {
+    final built = await IndustryDiscoveryCatalog.build(session);
+    final semiconductor = built.pilot;
     final revision = await KsicRevision.current(session);
     final industries = await Industry.db.find(
       session,
@@ -41,7 +197,7 @@ abstract final class AllIndustryCatalog {
     final activities = <IndustryActivity>[
       for (final c in companies) ...KindProductCatalog.forCompany(c),
       for (final c in companies) ...IssuerOfferingCatalog.forCompany(c),
-      ...await IndustryDiscoveryCatalog.businessActivities(session),
+      ...built.business,
       for (final a in semiconductor.activities)
         a.copyWith(
           industryKey: 'semiconductor',
@@ -119,17 +275,21 @@ abstract final class AllIndustryCatalog {
       );
     }
     activities.sort((a, b) => a.companyName.compareTo(b.companyName));
-    return semiconductor.copyWith(
-      activities: DiscoveryCoverage.complete(
-        DiscoveryResolution.resolve(activities),
+    return (
+      pilot: semiconductor,
+      catalog: semiconductor.copyWith(
+        activities: DiscoveryCoverage.complete(
+          DiscoveryResolution.resolve(activities),
+        ),
+        listedCompanyCount: companies.length,
+        classifiedCompanyCount: activities
+            .where((a) => a.classificationBasis != 'unclassified')
+            .map((a) => a.corpCode)
+            .toSet()
+            .length,
+        ruleVersion: 12,
+        computedAt: DateTime.now().toUtc(),
       ),
-      listedCompanyCount: companies.length,
-      classifiedCompanyCount: activities
-          .where((a) => a.classificationBasis != 'unclassified')
-          .map((a) => a.corpCode)
-          .toSet()
-          .length,
-      ruleVersion: 12,
     );
   }
 }

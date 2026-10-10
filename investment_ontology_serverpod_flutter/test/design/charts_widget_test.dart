@@ -95,6 +95,82 @@ void main() {
     semantics.dispose();
   });
 
+  testWidgets('터치 상세는 선택한 시점을 유지하고 다른 시점·가로 드래그로 이동한다', (tester) async {
+    await tester.pumpWidget(
+      _app(
+        AppLineChart(
+          categories: const ['2023', '2024', '2025'],
+          series: const ChartSeries(
+            label: '합성',
+            color: Color(0xFF2F6DA8),
+            values: [101, 202, 303],
+          ),
+          formatValue: (v) => '${v.toInt()}원',
+        ),
+        width: 320,
+      ),
+    );
+    final origin = tester.getTopLeft(find.byType(AppLineChart));
+    final first = origin + const Offset(80, 120);
+    await tester.tapAt(first);
+    await tester.pump();
+    expect(find.text('101원'), findsOneWidget);
+    await tester.tapAt(first);
+    await tester.pump();
+    expect(find.text('101원'), findsOneWidget);
+    await tester.tapAt(origin + const Offset(290, 120));
+    await tester.pump();
+    expect(find.text('303원'), findsOneWidget);
+    expect(find.text('101원'), findsNothing);
+    final gesture = await tester.startGesture(first);
+    await gesture.moveBy(const Offset(30, 0));
+    await gesture.moveTo(origin + const Offset(290, 120));
+    await gesture.up();
+    await tester.pump();
+    expect(find.text('303원'), findsOneWidget);
+    await tester.tapAt(const Offset(500, 400));
+    await tester.pump();
+    expect(find.text('303원'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('차트 위의 세로 드래그는 페이지를 스크롤하고 상세를 열지 않는다', (tester) async {
+    final controller = ScrollController();
+    await tester.pumpWidget(
+      _app(
+        SingleChildScrollView(
+          controller: controller,
+          child: Column(
+            children: [
+              const SizedBox(height: 100),
+              AppLineChart(
+                categories: const ['2023', '2024', '2025'],
+                series: const ChartSeries(
+                  label: '합성',
+                  color: Color(0xFF2F6DA8),
+                  values: [101, 202, 303],
+                ),
+                formatValue: (v) => '${v.toInt()}원',
+              ),
+              const SizedBox(height: 1200),
+            ],
+          ),
+        ),
+        width: 320,
+      ),
+    );
+    await tester.dragFrom(
+      tester.getCenter(find.byType(AppLineChart)),
+      const Offset(0, -100),
+    );
+    await tester.pumpAndSettle();
+    expect(controller.offset, greaterThan(0));
+    expect(find.text('202원'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    controller.dispose();
+  });
+
   testWidgets('중첩 연구 블록은 카드 하나로 유지하며 320px 긴 근거를 보존한다', (tester) async {
     await tester.pumpWidget(
       shadTestHost(
@@ -219,7 +295,7 @@ void main() {
     await tester.tapAt(origin + const Offset(160, 120));
     await tester.pump();
     expect(find.text('0원'), findsOneWidget);
-    expect(find.text('—'), findsNWidgets(2));
+    expect(find.text('—'), findsNothing);
     expect(find.text('-1230.0%'), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -245,7 +321,7 @@ void main() {
     await tester.tap(find.byType(AppComboChart));
     await tester.pump();
     expect(find.text('250원'), findsOneWidget);
-    expect(find.text('—'), findsOneWidget);
+    expect(find.text('—'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -280,7 +356,7 @@ void main() {
     await tester.tapAt(origin + const Offset(100, 120));
     await tester.pump();
     expect(find.text('-400.0%'), findsOneWidget);
-    expect(find.text('—'), findsOneWidget);
+    expect(find.text('—'), findsNothing);
     expect(find.text('100원'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -325,7 +401,7 @@ void main() {
     await gesture.moveTo(tester.getCenter(find.byType(AppColumnChart)));
     await tester.pump();
     expect(find.text('2024'), findsWidgets);
-    expect(find.text('—'), findsOneWidget, reason: '빈 값은 툴팁에 —');
+    expect(find.text('—'), findsNothing, reason: '다른 값이 있는 기간의 결측 행은 툴팁에서 생략');
   });
 
   testWidgets('트리맵: 세로 공간이 있으면 긴 이름을 여러 줄로 모두 표시한다', (tester) async {

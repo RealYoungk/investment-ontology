@@ -150,7 +150,6 @@ class _OwnershipChangesSectionState extends State<OwnershipChangesSection> {
               ? data.any((p) => (historyRow(p, k)?.ratioEnd ?? 0) >= 5)
               : isMajorHolder(data, k),
         )
-        .take(6)
         .toSet();
     final included = _included ?? defaults;
     final visible = keys.where(included.contains).toList();
@@ -233,8 +232,13 @@ class _OwnershipChangesSectionState extends State<OwnershipChangesSection> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      '비교 주주 · ${visible.length}/6',
+                      '비교 주주 · ${visible.length}/${keys.length}',
                       style: t.body(13, weight: FontWeight.w600),
+                    ),
+                    ShadButton.ghost(
+                      size: ShadButtonSize.sm,
+                      onPressed: () => setState(() => _included = keys.toSet()),
+                      child: const Text('전체 선택'),
                     ),
                     ShadButton.ghost(
                       size: ShadButtonSize.sm,
@@ -259,16 +263,12 @@ class _OwnershipChangesSectionState extends State<OwnershipChangesSection> {
                           child: IntrinsicWidth(
                             child: ShadCheckbox(
                               value: included.contains(key),
-                              onChanged:
-                                  !included.contains(key) &&
-                                      included.length >= 6
-                                  ? null
-                                  : (value) => setState(() {
-                                      _included = {...included};
-                                      value == true
-                                          ? _included!.add(key)
-                                          : _included!.remove(key);
-                                    }),
+                              onChanged: (value) => setState(() {
+                                _included = {...included};
+                                value == true
+                                    ? _included!.add(key)
+                                    : _included!.remove(key);
+                              }),
                               label: Text(
                                 widget.compact && included.contains(key)
                                     ? ownershipAvailableSummary(

@@ -36,6 +36,54 @@ Widget app(String code, CompanyNewsLoader loader) => MaterialApp(
   ),
 );
 void main() {
+  testWidgets(
+    'summary contains two headlines and one filing without detail controls',
+    (tester) async {
+      final result = feed('뉴스');
+      result.items = [
+        for (var i = 0; i < 5; i++) itemForSummary('뉴스$i', '언론사'),
+        itemForSummary('최신공시', 'DART'),
+      ];
+      await tester.pumpWidget(
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: CompanyNewsSection(
+                  corpCode: 'test',
+                  compact: true,
+                  loader: (_) async => result,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('뉴스0'), findsOneWidget);
+      expect(find.text('뉴스2'), findsNothing);
+      expect(find.text('최신공시'), findsOneWidget);
+      expect(find.text('소식 더 보기'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('DART titles without excerpts occupy visible row height', (
+    tester,
+  ) async {
+    final result = feed('임원 주요주주 소유상황보고서');
+    result.items.single.excerpt = '';
+    result.items.single.publisher = 'DART';
+    await tester.pumpWidget(shadTestHost(app('00366942', (_) async => result)));
+    await tester.pumpAndSettle();
+    final title = find.text('임원 주요주주 소유상황보고서');
+    expect(title, findsOneWidget);
+    expect(tester.getSize(title).height, greaterThan(10));
+    expect(tester.hitTestOnBinding(tester.getCenter(title)).path, isNotEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('뉴스 다섯 건도 더보기 후 다시 접을 수 있다', (tester) async {
     final result = feed('기사 1');
     result.items = List.generate(
@@ -114,3 +162,14 @@ void main() {
     expect(find.text('다시 시도'), findsOneWidget);
   });
 }
+
+CompanyNewsItem itemForSummary(String title, String publisher) =>
+    CompanyNewsItem(
+      title: title,
+      excerpt: '요약문',
+      url: 'https://example.com/$title',
+      publishedAt: DateTime.utc(2026, 10, 7),
+      category: '',
+      publisher: publisher,
+      relatedUrls: [],
+    );

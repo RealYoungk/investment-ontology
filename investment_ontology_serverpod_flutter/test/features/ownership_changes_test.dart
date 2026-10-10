@@ -84,13 +84,13 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.text('비교 주주 · 1/6'), findsOneWidget);
+        expect(find.text('비교 주주 · 1/1'), findsOneWidget);
         expect(find.byType(ShadCheckbox), findsOneWidget);
         expect(find.textContaining('9.00% → 9.00%'), findsOneWidget);
         await tester.ensureVisible(find.byType(ShadCheckbox));
         await tester.tap(find.byType(ShadCheckbox));
         await tester.pumpAndSettle();
-        expect(find.text('비교 주주 · 0/6'), findsOneWidget);
+        expect(find.text('비교 주주 · 0/1'), findsOneWidget);
         expect(find.text('비교할 주주를 선택하세요.'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },

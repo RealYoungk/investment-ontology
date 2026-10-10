@@ -85,6 +85,11 @@ void main() {
       // Existing registered links must not leave an invisible KSIC filter active.
       router.go('/industries?industry=pharma&basis=registered&role=ksic:group');
       await tester.pumpAndSettle();
+      if (width < 1000) {
+        await tester.ensureVisible(find.text('사업 선택 · 전체 사업'));
+        await tester.tap(find.text('사업 선택 · 전체 사업'));
+        await tester.pumpAndSettle();
+      }
       expect(find.text('전체 사업'), findsOneWidget);
       expect(find.text('사업군 · 1개사'), findsNothing);
       await tester.ensureVisible(find.text('전체 사업'));

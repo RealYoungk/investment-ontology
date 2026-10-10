@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generator: visioncortex VTracer 0.6.12 -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="480" height="480">
+<path d="M0 0 C158.4 0 316.8 0 480 0 C480 158.4 480 316.8 480 480 C321.6 480 163.2 480 0 480 C0 321.6 0 163.2 0 0 Z " fill="#ED1C24" transform="translate(0,0)"/>
+<path d="M0 0 C64.68 0 129.36 0 196 0 C196 48.51 196 97.02 196 147 C179.83 147 163.66 147 147 147 C147 163.17 147 179.34 147 196 C98.49 196 49.98 196 0 196 C0 131.32 0 66.64 0 0 Z " fill="#FEFEFE" transform="translate(145,145)"/>
+</svg>

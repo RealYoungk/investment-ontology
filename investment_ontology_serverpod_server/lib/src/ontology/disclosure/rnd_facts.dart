@@ -28,13 +28,14 @@ abstract final class RndFacts {
   static final _total = RegExp(
     r'^\(?연구개발비(용)?\s*(계|합계|총계|비용\s*계|비용\s*총계|비용\s*합계)',
   );
-  static final _ratio = RegExp(r'연구개발비(용)?\s*/\s*매출액|매출액\s*대비\s*연구개발비');
+  static final _ratio = RegExp(r'연구개발비(용)?\s*/\s*(매출액|영업수익)|매출액\s*대비\s*연구개발비');
   static final _revenue = RegExp(r'^매\s*출\s*액$');
   static final _number = RegExp(r'^[△▲\-]?\(?[\d,]+(?:\.\d+)?\)?%?$');
 
   /// 한 문서의 연구개발비 표 (없으면 null).
   static ({
     List<int> years,
+    bool consolidatedOnly,
     String unit,
     List<({String label, List<double?> values, String evidence})> totals,
     ({List<double?> values, String evidence})? ratio,
@@ -54,8 +55,40 @@ abstract final class RndFacts {
       }
       final cells = [for (final c in line.split('|')) c.trim()];
       if (cells.length < 3) continue;
-      final years = _years(cells, bsnsYear);
+      // Explicit consolidated/separate blocks may repeat the same year header.
+      // Keep the first (consolidated) block; never mix the two bases.
+      final previous = i > 0
+          ? lines[i - 1].split('|').map((v) => v.trim()).toList()
+          : <String>[];
+      final paired =
+          previous.length == 3 &&
+          previous[1] == '연결' &&
+          previous[2] == '별도' &&
+          cells.length.isEven &&
+          cells.length >= 4 &&
+          cells.take(cells.length ~/ 2).join('|') ==
+              cells.skip(cells.length ~/ 2).join('|');
+      final years = _years(
+        paired ? cells.take(cells.length ~/ 2).toList() : cells,
+        bsnsYear,
+      );
       if (years == null) continue;
+      // A generic 합계/비율 is meaningful only in an explicitly headed R&D
+      // cost subsection. Do not borrow a heading from another filing table.
+      final heading = lines
+          .take(i)
+          .toList()
+          .reversed
+          .firstWhere(
+            (s) =>
+                s.trim().isNotEmpty &&
+                !s.contains('|') &&
+                !_unitLine.hasMatch(s),
+            orElse: () => '',
+          );
+      final explicitCost =
+          RegExp(r'연구개발\s*비용').hasMatch(heading) &&
+          i - lines.lastIndexOf(heading) <= 3;
       // 연도 머리글 뒤 15줄 안에 연구개발비 줄이 있어야 이 표다.
       final totals =
           <({String label, List<double?> values, String evidence})>[];
@@ -69,11 +102,20 @@ abstract final class RndFacts {
         if (rc.length < 2) break;
         if (_years(rc, bsnsYear) != null) break; // 다음 표
         final label = rc.first;
-        final values = _values(rc.sublist(1), years.length);
+        final values = _values(
+          paired && rc.length == 1 + years.length * 2
+              ? rc.sublist(1, 1 + years.length)
+              : rc.sublist(1),
+          years.length,
+        );
         if (values == null) continue;
-        if (_total.hasMatch(label) && !label.contains('비율')) {
+        if ((_total.hasMatch(label) ||
+                (explicitCost && RegExp(r'^(합계|총계)$').hasMatch(label))) &&
+            !label.contains('비율')) {
           totals.add((label: label, values: values, evidence: row));
-        } else if (_ratio.hasMatch(label)) {
+        } else if (_ratio.hasMatch(label) ||
+            (explicitCost &&
+                RegExp(r'^\(?매출액\s*대비\s*비율\)?$').hasMatch(label))) {
           ratio ??= (values: values, evidence: row);
         } else if (_revenue.hasMatch(label)) {
           revenue ??= values;
@@ -87,6 +129,7 @@ abstract final class RndFacts {
       if (unit.isEmpty) continue;
       return (
         years: years,
+        consolidatedOnly: paired,
         unit: unit,
         totals: totals,
         ratio: ratio,
@@ -195,7 +238,10 @@ abstract final class RndFacts {
     final revenues = <double>[];
     if (table.revenue?.first case final r? when r > 0) revenues.add(r);
     if (revenues.isEmpty) {
-      for (final fs in [FsDiv.consolidated, FsDiv.separate]) {
+      for (final fs in [
+        FsDiv.consolidated,
+        if (!table.consolidatedOnly) FsDiv.separate,
+      ]) {
         final f = await FinancialFact.db.findFirstRow(
           session,
           transaction: tx,

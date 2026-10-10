@@ -21,7 +21,40 @@ class ScreenPreset {
     ascending: current.ascending,
   );
 
-  bool matches(ScreenFilter current) => applyTo(current) == current;
+  bool matches(ScreenFilter current) => current.presetIds.isNotEmpty
+      ? current.presetIds.contains(id)
+      : applyTo(current) == current;
+
+  /// Cards form an intersection. Removing one recomputes overlapping bounds.
+  ScreenFilter toggle(ScreenFilter current) {
+    final ids = current.presetIds.toSet();
+    if (!ids.remove(id)) ids.add(id);
+    final selected = screenPresets.where((p) => ids.contains(p.id)).toList();
+    final query = <String, String>{
+      if (current.market case final market?) 'market': market.name,
+      'sort': current.sort.name,
+      if (current.ascending) 'asc': '1',
+    };
+    const upperBounds = {'per', 'pbr', 'debt', 'payout'};
+    for (final preset in selected) {
+      for (final entry in Uri.parse(
+        preset.filter.location,
+      ).queryParameters.entries) {
+        final value = double.parse(entry.value);
+        final previous = double.tryParse(query[entry.key] ?? '');
+        if (previous == null ||
+            (upperBounds.contains(entry.key)
+                ? value < previous
+                : value > previous)) {
+          query[entry.key] = entry.value;
+        }
+      }
+    }
+    if (selected.isNotEmpty) {
+      query['presets'] = (selected.map((p) => p.id).toList()..sort()).join(',');
+    }
+    return ScreenFilter.fromQuery(query);
+  }
 
   static ScreenPreset? matching(ScreenFilter filter) =>
       screenPresets.where((p) => p.matches(filter)).firstOrNull;

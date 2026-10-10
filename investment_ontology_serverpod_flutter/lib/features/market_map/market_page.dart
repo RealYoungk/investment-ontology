@@ -17,6 +17,7 @@ import '../macro/macro_snapshot.dart';
 import 'widgets/industry_distribution.dart';
 import 'widgets/market_cap_trend.dart';
 import 'widgets/market_summary.dart';
+import 'widgets/new_companies.dart';
 import '../monetization/ad_content_state.dart';
 
 /// 시장: 시장별 상장사 수 · 업종 분포 · 업종별 시가총액 트리맵. 탐색의 시작점.
@@ -111,14 +112,12 @@ class _MarketPageState extends State<MarketPage> {
         itemCount: overview?.totalListed ?? 0,
       ).allowsAd,
       children: [
-        MarketSummary(
-          overview: overview,
-          failed: _failed,
-          selected: _market,
-          onSelect: (m) {
-            setState(() => _market = m);
-            _loadDivisions();
-          },
+        const PageHeading(title: '시장'),
+        const SizedBox(height: AppSpace.lg),
+        ValueListenableBuilder<int>(
+          valueListenable: IngestMonitor.instance.dataVersion,
+          builder: (context, version, _) =>
+              NewCompanies(key: ValueKey(version)),
         ),
         if (_failed) ...[
           const SizedBox(height: AppSpace.lg),
@@ -139,8 +138,20 @@ class _MarketPageState extends State<MarketPage> {
           valueListenable: IngestMonitor.instance.dataVersion,
           builder: (context, version, _) => DataPanel(
             child: MarketCapTrend(
-              key: ValueKey('cap-trend-$version-${_market?.name}'),
+              key: ValueKey('cap-trend-$version'),
               market: _market,
+              controls: MarketSummary(
+                showHeading: false,
+                showScopeNote: false,
+                alignment: WrapAlignment.end,
+                overview: overview,
+                failed: _failed,
+                selected: _market,
+                onSelect: (m) {
+                  setState(() => _market = m);
+                  _loadDivisions();
+                },
+              ),
             ),
           ),
         ),

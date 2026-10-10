@@ -5,6 +5,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../client.dart';
+import '../../app/ingest_monitor.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
@@ -79,21 +80,120 @@ class ShareholderReturnTab extends StatefulWidget {
   State<ShareholderReturnTab> createState() => _ShareholderReturnTabState();
 }
 
+class _InterimReturnCard extends StatelessWidget {
+  const _InterimReturnCard({required this.data});
+  final ShareholderReturn data;
+  @override
+  Widget build(BuildContext context) {
+    final d = data;
+    final interim = d.latestReportName?.contains('사업보고서') != true;
+    if (!interim) return const SizedBox.shrink();
+    String state(String? status) => switch (status) {
+      'stored' => '공시 항목 확인',
+      'noData' => 'DART API 응답 자료 없음',
+      'failed' => '수집 실패 · 재시도 필요',
+      _ => '자료 수집 대기',
+    };
+    final rows = (d.interimDividends ?? [])
+        .where(
+          (e) =>
+              e.item.contains('현금배당금') ||
+              e.item.contains('현금배당수익률') ||
+              e.item.contains('현금배당성향'),
+        )
+        .toList();
+    return CompanyDataCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          CompanySectionHeading('최근 중간보고서 · ${d.latestReportName}'),
+          const SizedBox(height: AppSpace.sm),
+          Text(
+            '분기·반기 공시의 현재 기간 값입니다. 연간 확정 배당 추이에 합치거나 연환산하지 않습니다. —는 미확인 값입니다.',
+            style: context.typo.body(12, color: context.colors.textMuted),
+          ),
+          const SizedBox(height: AppSpace.md),
+          AppDataTable(
+            columns: const [
+              AppColumn('배당 항목'),
+              AppColumn('공시 수치', numeric: true),
+            ],
+            rows: [
+              if (rows.isEmpty)
+                for (final label in ['주당 현금배당금', '현금배당수익률', '현금배당성향'])
+                  AppRow([
+                    AppDataTable.text(context, label),
+                    AppDataTable.text(context, '—', numeric: true),
+                  ]),
+              for (final e in rows)
+                AppRow([
+                  AppDataTable.text(
+                    context,
+                    e.stockKind == null ? e.item : '${e.item} · ${e.stockKind}',
+                  ),
+                  AppDataTable.text(
+                    context,
+                    formatDividendValue(e.current, e.unit),
+                    numeric: true,
+                  ),
+                ]),
+            ],
+          ),
+          const SizedBox(height: AppSpace.sm),
+          Text(
+            '배당: ${state(d.latestDividendStatus)}${d.interimReportName == null ? '' : ' · ${d.interimReportName}'}',
+            style: context.typo.body(12),
+          ),
+          Text(
+            '자기주식: ${state(d.latestTreasuryStatus)}',
+            style: context.typo.body(12),
+          ),
+          Text(
+            '주식 총수: ${state(d.latestStockTotalStatus)}',
+            style: context.typo.body(12),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
   ShareholderReturn? _data;
   Object? _error;
+  int? _year;
 
   @override
   void initState() {
     super.initState();
+    IngestMonitor.instance.dataVersion.addListener(_load);
     _load();
+  }
+
+  @override
+  void dispose() {
+    IngestMonitor.instance.dataVersion.removeListener(_load);
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ShareholderReturnTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.corpCode != oldWidget.corpCode) {
+      _year = null;
+      _data = null;
+      _load();
+    }
   }
 
   Future<void> _load() async {
     try {
-      final data = await (widget.loader ?? client.disclosure.shareholderReturn)(
-        widget.corpCode,
-      );
+      final data = widget.loader != null
+          ? await widget.loader!(widget.corpCode)
+          : await client.disclosure.shareholderReturn(
+              widget.corpCode,
+              bsnsYear: _year,
+            );
       if (mounted) {
         setState(() {
           _data = data;
@@ -116,15 +216,14 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     if (d == null) return const ShadProgress(minHeight: 2);
 
     final series = dividendSeries(d.dividends);
-    // 실제 공시 표의 당기·전기·전전기만 표시한다. 미공시 올해를 빈 차트 칸으로 만들지 않는다.
-    final years = {
-      for (final s in series) ...s.values.keys,
-      for (final entry in d.dividends) ...[
-        entry.bsnsYear,
-        entry.bsnsYear - 1,
-        entry.bsnsYear - 2,
-      ],
-    }.toList()..sort();
+    final end =
+        d.annualEndYear ??
+        series
+            .expand((s) => s.values.keys)
+            .fold<int?>(null, (a, b) => a == null || b > a ? b : a);
+    final years = end == null
+        ? <int>[]
+        : [for (var y = end - 4; y <= end; y++) y];
     DividendSeries? find(bool Function(DividendSeries s) test) =>
         series.where(test).firstOrNull;
     bool common(DividendSeries s) =>
@@ -156,6 +255,36 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (d.latestReportName != null) ...[
+          _InterimReturnCard(data: d),
+          const SizedBox(height: AppSpace.lg),
+        ],
+        if (widget.loader == null) ...[
+          Text('자기주식·주식 수 기준 연도', style: t.body(13)),
+          const SizedBox(height: AppSpace.sm),
+          ShadSelect<int>(
+            key: ValueKey('return-year-${_year ?? d.stockTotalYear}'),
+            initialValue: _year ?? d.stockTotalYear,
+            selectedOptionBuilder: (_, y) => Text('$y년'),
+            options: [
+              for (final y in ({
+                ...?(d.availableYears),
+                for (final e in d.dividends) e.bsnsYear,
+                if (d.stockTotalYear != null) d.stockTotalYear!,
+              }.toList()..sort()).reversed)
+                ShadOption(value: y, child: Text('$y년')),
+            ],
+            onChanged: (y) {
+              if (y == null || y == _year) return;
+              setState(() {
+                _year = y;
+                _data = null;
+              });
+              _load();
+            },
+          ),
+          const SizedBox(height: AppSpace.lg),
+        ],
         if (series.isEmpty)
           Text('배당 자료가 없습니다.', style: t.body(13, color: c.textMuted))
         else ...[
@@ -264,7 +393,11 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 CompanySectionHeading(
-                  '자기주식${d.treasuryYear == null ? '' : ' · ${d.treasuryYear}년'}',
+                  '자기주식${d.treasuryReportName != null
+                      ? ' · ${d.treasuryReportName}'
+                      : d.treasuryYear == null
+                      ? ''
+                      : ' · ${d.treasuryYear}년'}',
                   help: '취득은 회사가 자기 주식을 사들이는 것, 처분은 팔거나 이전하는 것, 소각은 주식을 없애는 것입니다. 처분과 소각은 다릅니다.\n\n이 차트는 해당 기간의 실제 보유량 변화를 보여줍니다.',
                 ),
                 const SizedBox(height: AppSpace.md),
@@ -274,7 +407,10 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
           ),
         if (!treasuryHasValues)
           Text(
-            '자기주식 취득·처분: 표시할 수량 내역이 없습니다. 해당사항 없음 또는 미수집 여부는 아래 공시 원문에서 확인할 수 있습니다.',
+            d.latestTreasuryStatus == 'noData' &&
+                    (_year == null || _year == d.latestYear)
+                ? '자기주식 취득·처분: 최신 보고서 DART API 응답에 자료가 없습니다. 공시 원문 부재나 보유량 0을 뜻하지 않습니다.'
+                : '${_year == null ? '' : '$_year년 '}자기주식 취득·처분: 표시할 수량 내역이 없습니다. 해당사항 없음 또는 미수집 여부는 아래 공시 원문에서 확인할 수 있습니다.',
             style: t.body(13, color: c.textMuted),
           )
         else
@@ -338,7 +474,11 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CompanySectionHeading(
-                '주식 수 현황${d.stockTotalYear == null ? '' : ' · FY${d.stockTotalYear}'}',
+                '주식 수 현황${d.stockTotalReportName != null
+                    ? ' · ${d.stockTotalReportName}'
+                    : d.stockTotalYear == null
+                    ? ''
+                    : ' · FY${d.stockTotalYear}'}',
               ),
               const SizedBox(height: AppSpace.sm),
               if (d.stockTotals.isEmpty)
@@ -557,9 +697,26 @@ class _StockComposition extends StatelessWidget {
               ],
             ),
           ),
+        for (final row in rows.where(
+          (r) =>
+              r.kind.replaceAll(' ', '') != '합계' &&
+              r.issued != null &&
+              r.treasury == null,
+        )) ...[
+          Text(
+            '${row.kind} · 발행 ${formatCount(row.issued!.toInt())}주',
+            style: t.numeric(18),
+          ),
+          if (row.outstanding != null)
+            Text(
+              '유통 ${formatCount(row.outstanding!.toInt())}주',
+              style: t.body(13, color: c.textSecondary),
+            ),
+          const SizedBox(height: AppSpace.sm),
+        ],
         Text(
           valid.isEmpty
-              ? '자기주식 비중을 계산할 수치가 공시 표에 없습니다. 발행·유통주식 수는 상세 표에서 확인할 수 있습니다.'
+              ? '자기주식 수는 미확인입니다. 공시의 빈값을 0으로 바꾸거나 발행·유통주식 차이로 보유량을 추정하지 않습니다.'
               : '자기주식 보유는 소각과 다릅니다. 취득·처분·소각 수량은 상세 자료에서 구분해 확인하세요.',
           style: t.body(12, color: c.textSecondary),
         ),

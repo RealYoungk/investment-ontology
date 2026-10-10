@@ -26,58 +26,22 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i8m2dvht;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ai_status.dart'
     as _ie40qci9;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_content.dart'
-    as _i6ht4m6x;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_digest_section.dart'
-    as _i5qsmr7t;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
     as _id7v70oo;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_fact_period.dart'
-    as _irhba4h9;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_understanding.dart'
-    as _ixjez09i;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
-    as _ig9j925g;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_financials.dart'
     as _i8vk5eaa;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_governance.dart'
-    as _iyg8kuqs;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_graph.dart'
-    as _ihkbqpbm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
     as _i7uvzrch;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_market_cap.dart'
-    as _idnoq35n;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_news_feed.dart'
-    as _ic30bbzw;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_page.dart'
-    as _itgpgg86;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_sort.dart'
-    as _i35nawlu;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/dart_disclosure.dart'
-    as _izt0hsdc;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/dart_section.dart'
-    as _iaqblgop;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
-    as _i39r1xmm;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_table.dart'
-    as _i1woaxtv;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/document_fact.dart'
     as _ip7x5uw8;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/document_fact_kind.dart'
     as _i7h2wu58;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
-    as _icfgas7c;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/fact_page.dart'
     as _i9n1o9ln;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/filing_feed_item.dart'
-    as _iuq4bocx;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/financial_report_detail.dart'
     as _iurgb10z;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/fs_div.dart'
     as _indtcksm;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/index_history.dart'
-    as _imi7bbqj;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/industry_discovery.dart'
     as _i0di9pdr;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_coverage.dart'
@@ -86,32 +50,10 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i1paap7y;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_schedule_entry.dart'
     as _idevncao;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
-    as _izhmhfon;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/macro_series_view.dart'
     as _ijzi50sx;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market.dart'
-    as _iamn97sz;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_point.dart'
-    as _i140v7gk;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_treemap.dart'
-    as _ifex1fnm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ontology_relation.dart'
     as _isup83mn;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
-    as _iqnrnt8q;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ownership_snapshot.dart'
-    as _iz9gjubn;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/peer_candidates.dart'
-    as _i68u57gi;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/peer_comparison.dart'
-    as _izfg2hmi;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
-    as _i96d117e;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_profile.dart'
-    as _impgjy6j;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/price_history.dart'
-    as _i8lezpm9;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/relation_predicate.dart'
     as _iklpi3wo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/relation_status.dart'
@@ -124,18 +66,6 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ihqozc6p;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_page.dart'
     as _i59ekwm6;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/screen_page.dart'
-    as _iy3d4gdi;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/screen_sort.dart'
-    as _iswpkxoo;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/shareholder_return.dart'
-    as _ir6fk3mk;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_detail.dart'
-    as _is8fq5gm;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_member.dart'
-    as _i33gd2p5;
-import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_summary.dart'
-    as _ihj01hrs;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/watchlist_view.dart'
     as _iyid6mkm;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
@@ -671,80 +601,6 @@ class EndpointCharter extends _isc.EndpointRef {
       );
 }
 
-/// 상장사 조회.
-/// {@category Endpoint}
-class EndpointCompany extends _isc.EndpointRef {
-  EndpointCompany(_isc.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'company';
-
-  /// 시장·대분류별 상장사 수와 최근 수집 작업.
-  _ida.Future<_iqnrnt8q.Overview> overview() =>
-      caller.callServerEndpoint<_iqnrnt8q.Overview>(
-        'company',
-        'overview',
-        {},
-      );
-
-  /// 대분류 안의 중분류별 상장사 수.
-  _ida.Future<List<_icfgas7c.FacetCount>> divisions(
-    String sectionCode, {
-    _iamn97sz.Market? market,
-  }) => caller.callServerEndpoint<List<_icfgas7c.FacetCount>>(
-    'company',
-    'divisions',
-    {
-      'sectionCode': sectionCode,
-      'market': market,
-    },
-  );
-
-  _ida.Future<_itgpgg86.CompanyPage> list({
-    String? query,
-    _iamn97sz.Market? market,
-    String? sectionCode,
-    String? divisionCode,
-    _i35nawlu.CompanySort? sort,
-    int? offset,
-    int? limit,
-  }) => caller.callServerEndpoint<_itgpgg86.CompanyPage>(
-    'company',
-    'list',
-    {
-      'query': query,
-      'market': market,
-      'sectionCode': sectionCode,
-      'divisionCode': divisionCode,
-      'sort': sort,
-      'offset': offset,
-      'limit': limit,
-    },
-  );
-
-  _ida.Future<_ig9j925g.CompanyDetail?> detail(String corpCode) =>
-      caller.callServerEndpoint<_ig9j925g.CompanyDetail?>(
-        'company',
-        'detail',
-        {'corpCode': corpCode},
-      );
-}
-
-/// {@category Endpoint}
-class EndpointCompanyNews extends _isc.EndpointRef {
-  EndpointCompanyNews(_isc.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'companyNews';
-
-  _ida.Future<_ic30bbzw.CompanyNewsFeed> recent(String corpCode) =>
-      caller.callServerEndpoint<_ic30bbzw.CompanyNewsFeed>(
-        'companyNews',
-        'recent',
-        {'corpCode': corpCode},
-      );
-}
-
 /// Public source-backed reads populate missing DART cache entries.
 /// Explicit collection/import remains admin-only.
 /// {@category Endpoint}
@@ -834,138 +690,6 @@ class EndpointResearch extends _isc.EndpointRef {
   );
 }
 
-/// 정기보고서 주요정보 조회: 항목 목록 · 원문 표 · 주주환원.
-/// {@category Endpoint}
-class EndpointDisclosure extends _isc.EndpointRef {
-  EndpointDisclosure(_isc.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'disclosure';
-
-  /// 최신 활성 공시에서 미리 추출한 제품·공정 설명.
-  _ida.Future<_ixjez09i.BusinessUnderstanding> understanding(String corpCode) =>
-      caller.callServerEndpoint<_ixjez09i.BusinessUnderstanding>(
-        'disclosure',
-        'understanding',
-        {'corpCode': corpCode},
-      );
-
-  /// 기업이 가진 주요정보 항목과 사업연도 (항목 순서는 [DartSections.info]).
-  _ida.Future<List<_i39r1xmm.DisclosureSectionInfo>> sections(
-    String corpCode,
-  ) => caller.callServerEndpoint<List<_i39r1xmm.DisclosureSectionInfo>>(
-    'disclosure',
-    'sections',
-    {'corpCode': corpCode},
-  );
-
-  /// 항목 하나의 원문 표 (응답 필드 그대로, 머리글만 한글). [bsnsYear]가 없으면 가장 최근.
-  _ida.Future<_i1woaxtv.DisclosureTable?> table(
-    String corpCode,
-    _iaqblgop.DartSection section, {
-    int? bsnsYear,
-  }) => caller.callServerEndpoint<_i1woaxtv.DisclosureTable?>(
-    'disclosure',
-    'table',
-    {
-      'corpCode': corpCode,
-      'section': section,
-      'bsnsYear': bsnsYear,
-    },
-  );
-
-  /// 사업보고서 본문 "II. 사업의 내용"을 하위 절로 나눠서. [bsnsYear]가 없으면 가장 최근.
-  _ida.Future<_i6ht4m6x.BusinessContent?> businessContent(
-    String corpCode, {
-    int? bsnsYear,
-  }) => caller.callServerEndpoint<_i6ht4m6x.BusinessContent?>(
-    'disclosure',
-    'businessContent',
-    {
-      'corpCode': corpCode,
-      'bsnsYear': bsnsYear,
-    },
-  );
-
-  /// 배당(사업보고서마다 당기·전기·전전기) · 가장 최근 자기주식 · 주식 총수.
-  _ida.Future<_ir6fk3mk.ShareholderReturn?> shareholderReturn(
-    String corpCode,
-  ) => caller.callServerEndpoint<_ir6fk3mk.ShareholderReturn?>(
-    'disclosure',
-    'shareholderReturn',
-    {'corpCode': corpCode},
-  );
-
-  /// 기업의 '본문에서 뽑은 값' 가운데 승인된 것 (수주잔고·가동률·점유율 등).
-  ///
-  /// 가장 최근 사업연도만. 화면은 이 값을 출처·근거와 함께 보여 준다.
-  _ida.Future<List<_ip7x5uw8.DocumentFact>> facts(String corpCode) =>
-      caller.callServerEndpoint<List<_ip7x5uw8.DocumentFact>>(
-        'disclosure',
-        'facts',
-        {'corpCode': corpCode},
-      );
-
-  /// 승인된 값 전부 (연도별 흐름을 보려고). 오래된 해부터.
-  ///
-  /// 같은 항목이 해마다 있으면 화면이 막대 차트로 그린다 — 표만 있으면 흐름이 안 보인다.
-  _ida.Future<List<_irhba4h9.BusinessFactPeriod>> factPeriods(
-    String corpCode,
-  ) => caller.callServerEndpoint<List<_irhba4h9.BusinessFactPeriod>>(
-    'disclosure',
-    'factPeriods',
-    {'corpCode': corpCode},
-  );
-
-  _ida.Future<List<_ip7x5uw8.DocumentFact>> factTrends(String corpCode) =>
-      caller.callServerEndpoint<List<_ip7x5uw8.DocumentFact>>(
-        'disclosure',
-        'factTrends',
-        {'corpCode': corpCode},
-      );
-
-  /// 이 기업의 최근 공시 (종류 가리지 않음). 계약·증자·주요사항 등.
-  _ida.Future<List<_izt0hsdc.DartDisclosure>> recentOf(
-    String corpCode, {
-    int? limit,
-  }) => caller.callServerEndpoint<List<_izt0hsdc.DartDisclosure>>(
-    'disclosure',
-    'recentOf',
-    {
-      'corpCode': corpCode,
-      'limit': limit,
-    },
-  );
-
-  /// "사업의 내용"을 읽기 좋게 녹인 절들 (없으면 빈 목록). [bsnsYear]가 없으면 가장 최근 해.
-  _ida.Future<List<_i5qsmr7t.BusinessDigestSection>> digest(
-    String corpCode, {
-    int? bsnsYear,
-  }) => caller.callServerEndpoint<List<_i5qsmr7t.BusinessDigestSection>>(
-    'disclosure',
-    'digest',
-    {
-      'corpCode': corpCode,
-      'bsnsYear': bsnsYear,
-    },
-  );
-
-  /// 최근 올라온 정기보고서. 새 공시를 눈에 띄게 보여 주는 용도다.
-  ///
-  /// 사업·반기·분기보고서만 다룬다 (수집 대상이 그것뿐이다). 정정 공시도 그대로 보인다.
-  _ida.Future<List<_iuq4bocx.FilingFeedItem>> recentFilings({
-    _iamn97sz.Market? market,
-    int? limit,
-  }) => caller.callServerEndpoint<List<_iuq4bocx.FilingFeedItem>>(
-    'disclosure',
-    'recentFilings',
-    {
-      'market': market,
-      'limit': limit,
-    },
-  );
-}
-
 /// 기업 재무·시세 조회. 파생 지표는 계산하지 않고 원천 값만 돌려준다.
 /// {@category Endpoint}
 class EndpointFinancial extends _isc.EndpointRef {
@@ -996,103 +720,6 @@ class EndpointFinancial extends _isc.EndpointRef {
         'report',
         {'reportId': reportId},
       );
-}
-
-/// 지배구조 조회: 최대주주 · 임원 · 타법인출자와 인물.
-/// {@category Endpoint}
-class EndpointGovernance extends _isc.EndpointRef {
-  EndpointGovernance(_isc.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'governance';
-
-  /// 기업의 한 사업연도(없으면 가장 최근) 지배구조.
-  _ida.Future<_iyg8kuqs.CompanyGovernance?> summary(
-    String corpCode, {
-    int? bsnsYear,
-  }) => caller.callServerEndpoint<_iyg8kuqs.CompanyGovernance?>(
-    'governance',
-    'summary',
-    {
-      'corpCode': corpCode,
-      'bsnsYear': bsnsYear,
-    },
-  );
-
-  /// 최근 5개 사업연도 말과 그 이후의 최신 분기/반기 최대주주 현황.
-  /// 수집되지 않은 기간도 남기며 보고서 발표일로 기간 순서를 뒤집지 않는다.
-  _ida.Future<List<_iz9gjubn.OwnershipSnapshot>> ownershipHistory(
-    String corpCode,
-  ) => caller.callServerEndpoint<List<_iz9gjubn.OwnershipSnapshot>>(
-    'governance',
-    'ownershipHistory',
-    {'corpCode': corpCode},
-  );
-
-  /// 이름으로 인물을 찾는다. 이어진 기업이 많은 순서로 [limit]명.
-  _ida.Future<List<_i96d117e.PersonHit>> searchPersons(
-    String query, {
-    int? limit,
-  }) => caller.callServerEndpoint<List<_i96d117e.PersonHit>>(
-    'governance',
-    'searchPersons',
-    {
-      'query': query,
-      'limit': limit,
-    },
-  );
-
-  /// 인물과 그가 주주·임원으로 있는 기업 (각 기업의 가장 최근 사업보고서 기준).
-  _ida.Future<_impgjy6j.PersonProfile?> person(int personId) =>
-      caller.callServerEndpoint<_impgjy6j.PersonProfile?>(
-        'governance',
-        'person',
-        {'personId': personId},
-      );
-
-  /// 추정 인물 연결을 끊는다: 이 기업의 이 이름은 다시 계산해도 묶지 않는다.
-  _ida.Future<void> rejectPersonLink(
-    String corpCode,
-    String holderName,
-  ) => caller.callServerEndpoint<void>(
-    'governance',
-    'rejectPersonLink',
-    {
-      'corpCode': corpCode,
-      'holderName': holderName,
-    },
-  );
-}
-
-/// 관계망: 기업을 가운데 두고 관계 색인(OntologyRelation)을 따라 이웃을 넓힌다.
-///
-/// 기업·인물 노드를 넓히고, 이름뿐인 대상(비상장·해외 법인, 제품)도 **본문에서 뽑은
-/// 관계(공급·매출·경쟁·제품)에 한해** 건너간다 — 같은 공급사를 쓰는 다른 상장사가
-/// 보인다. 이름은 표기를 정규화해 묶는다 ("SONY"·"Sony"는 한 노드). 주주·출자의
-/// 이름뿐인 대상은 끝 노드로만 둔다 (동명이인·수백 곳 폭발).
-/// 거절한 관계와 검수 전 AI 관계(draft)는 빼고, 인물 추정 연결(draft)은 점선으로 넣는다.
-/// {@category Endpoint}
-class EndpointGraph extends _isc.EndpointRef {
-  EndpointGraph(_isc.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'graph';
-
-  _ida.Future<_ihkbqpbm.CompanyGraph?> neighborhood(
-    String corpCode, {
-    int? depth,
-    int? maxNodes,
-    bool? includeNames,
-  }) => caller.callServerEndpoint<_ihkbqpbm.CompanyGraph?>(
-    'graph',
-    'neighborhood',
-    {
-      'corpCode': corpCode,
-      'depth': depth,
-      'maxNodes': maxNodes,
-      'includeNames': includeNames,
-    },
-  );
 }
 
 /// 지분으로 이어진 상장사 묶음 조회.
@@ -1130,11 +757,11 @@ class EndpointIndustry extends _isc.EndpointRef {
   String get name => 'industry';
 
   /// All listed companies with explicitly separated classification evidence.
-  _ida.Future<_i0di9pdr.IndustryDiscovery> browse() =>
+  _ida.Future<_i0di9pdr.IndustryDiscovery> browse({String? industry}) =>
       caller.callServerEndpoint<_i0di9pdr.IndustryDiscovery>(
         'industry',
         'browse',
-        {},
+        {'industry': industry},
       );
 
   /// Evidence-backed semiconductor pilot. Shared company information is public.
@@ -1142,6 +769,14 @@ class EndpointIndustry extends _isc.EndpointRef {
       caller.callServerEndpoint<_i0di9pdr.IndustryDiscovery>(
         'industry',
         'discover',
+        {},
+      );
+
+  /// Explicit server classification maintenance remains protected even in local development.
+  _ida.Future<_i0di9pdr.IndustryDiscovery> rebuild() =>
+      caller.callServerEndpoint<_i0di9pdr.IndustryDiscovery>(
+        'industry',
+        'rebuild',
         {},
       );
 }
@@ -1278,6 +913,65 @@ class EndpointIngest extends _isc.EndpointRef {
       );
 }
 
+/// Server-authorized reader projection and admin-only authored publication.
+/// {@category Endpoint}
+class EndpointInvestmentNotes extends _isc.EndpointRef {
+  EndpointInvestmentNotes(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'investmentNotes';
+
+  _ida.Future<String> list({
+    String? corpCode,
+    required int offset,
+  }) => caller.callServerEndpoint<String>(
+    'investmentNotes',
+    'list',
+    {
+      'corpCode': corpCode,
+      'offset': offset,
+    },
+  );
+
+  _ida.Future<String> detail(int articleId) =>
+      caller.callServerEndpoint<String>(
+        'investmentNotes',
+        'detail',
+        {'articleId': articleId},
+      );
+
+  _ida.Future<String> importDraft(
+    String payload, {
+    int? articleId,
+  }) => caller.callServerEndpoint<String>(
+    'investmentNotes',
+    'importDraft',
+    {
+      'payload': payload,
+      'articleId': articleId,
+    },
+  );
+
+  _ida.Future<String> preview(int articleId) =>
+      caller.callServerEndpoint<String>(
+        'investmentNotes',
+        'preview',
+        {'articleId': articleId},
+      );
+
+  _ida.Future<void> publish(
+    int articleId,
+    String approvedDigest,
+  ) => caller.callServerEndpoint<void>(
+    'investmentNotes',
+    'publish',
+    {
+      'articleId': articleId,
+      'approvedDigest': approvedDigest,
+    },
+  );
+}
+
 /// Public official market context, read from direct sources with bounded caching.
 /// {@category Endpoint}
 class EndpointMacro extends _isc.EndpointRef {
@@ -1292,97 +986,6 @@ class EndpointMacro extends _isc.EndpointRef {
         'overview',
         {},
       );
-}
-
-/// 시세 조회.
-/// {@category Endpoint}
-class EndpointMarket extends _isc.EndpointRef {
-  EndpointMarket(_isc.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'market';
-
-  /// Monthly raw company capitalization, bounded to five years.
-  /// All observed share classes are included; a missing quote leaves a gap.
-  _ida.Future<List<_idnoq35n.CompanyMarketCap>> companyCapHistory(
-    String corpCode, {
-    required int years,
-  }) => caller.callServerEndpoint<List<_idnoq35n.CompanyMarketCap>>(
-    'market',
-    'companyCapHistory',
-    {
-      'corpCode': corpCode,
-      'years': years,
-    },
-  );
-
-  /// 가장 최근 기준일의 업종별 시가총액.
-  ///
-  /// 기업 시가총액은 기업에 연결된 종목(보통주·우선주 등) 시가총액의 합이다.
-  /// [sectionCode]가 없으면 대분류 → 그 안 시가총액 상위 기업, 있으면 그 대분류의
-  /// 중분류 → 기업으로 묶는다. 화면에 다 그릴 수 없어 대분류마다 [_topCompanies]개까지만 보낸다.
-  _ida.Future<_ifex1fnm.MarketCapTreemap> industryTreemap({
-    String? sectionCode,
-    _iamn97sz.Market? market,
-  }) => caller.callServerEndpoint<_ifex1fnm.MarketCapTreemap>(
-    'market',
-    'industryTreemap',
-    {
-      'sectionCode': sectionCode,
-      'market': market,
-    },
-  );
-
-  /// 시장 전체 시가총액의 추이 ([days] 달력일).
-  ///
-  /// 그 기준일에 시세가 있는 종목의 시가총액 합이다. 상장·폐지로 종목 수가 달라지므로
-  /// 지수가 아니라 "그날 시장에 얼마가 있었는가"로 읽는다. 종목 수도 함께 준다.
-  _ida.Future<List<_i140v7gk.MarketCapPoint>> capHistory({
-    _iamn97sz.Market? market,
-    required int days,
-  }) => caller.callServerEndpoint<List<_i140v7gk.MarketCapPoint>>(
-    'market',
-    'capHistory',
-    {
-      'market': market,
-      'days': days,
-    },
-  );
-
-  /// 지수 추이 ([days] 달력일). 코스피·코스닥은 이름이 곧 지수명이다 ("코스피", "코스닥").
-  ///
-  /// 같은 이름이 여러 계열에 있으면(예: "IT 서비스"는 KOSPI·KOSDAQ 계열 둘 다) [series]로 고른다.
-  /// 없으면 null. 점은 [_pricePoints]개 안팎으로 솎고 마지막 점은 늘 최근 거래일이다.
-  _ida.Future<_imi7bbqj.IndexHistory?> indexHistory(
-    String name, {
-    String? series,
-    required int days,
-  }) => caller.callServerEndpoint<_imi7bbqj.IndexHistory?>(
-    'market',
-    'indexHistory',
-    {
-      'name': name,
-      'series': series,
-      'days': days,
-    },
-  );
-
-  /// 기업 대표 종목의 종가 추이 ([days] 거래일 아닌 달력일 기준).
-  ///
-  /// 기업에 종목이 여럿이면(보통주·우선주) 가장 최근 시가총액이 큰 쪽을 대표로 쓴다.
-  /// 5년치는 1,200일이 넘으므로 [_pricePoints]개 안팎으로 솎아 보낸다 — 마지막 점은
-  /// 늘 최근 거래일이다.
-  _ida.Future<_i8lezpm9.PriceHistory?> priceHistory(
-    String corpCode, {
-    required int days,
-  }) => caller.callServerEndpoint<_i8lezpm9.PriceHistory?>(
-    'market',
-    'priceHistory',
-    {
-      'corpCode': corpCode,
-      'days': days,
-    },
-  );
 }
 
 /// Personal, server-derived status and guarded checkout.
@@ -1673,196 +1276,6 @@ class EndpointReview extends _isc.EndpointRef {
       );
 }
 
-/// 재무·시세로 기업을 거르는 스크리닝.
-///
-/// 지표(PER·PBR·ROE·영업이익률)는 저장하지 않는다. 최근 12개월(TTM) 원천 값과 최근
-/// 시가총액으로 계산하고, 계산에 쓴 값도 같이 돌려준다. 기업 화면의 지표와 같은 기준이다.
-///
-/// 조건 검색은 전체 캐시를 사용하고, 기업 비교는 선택 기업만 SQL에서 계산한다.
-/// {@category Endpoint}
-class EndpointScreen extends _isc.EndpointRef {
-  EndpointScreen(_isc.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'screen';
-
-  /// 사전 처리된 최신 공시 제품군으로 선정한 비교 후보.
-  _ida.Future<_i68u57gi.PeerCandidates> peerCandidates(
-    String corpCode, {
-    String? focusKey,
-  }) => caller.callServerEndpoint<_i68u57gi.PeerCandidates>(
-    'screen',
-    'peerCandidates',
-    {
-      'corpCode': corpCode,
-      'focusKey': focusKey,
-    },
-  );
-
-  /// 조건에 맞는 기업. 값이 없는 기업(적자·자본잠식 등)은 그 지표 조건이 있으면 빠진다.
-  _ida.Future<_iy3d4gdi.ScreenPage> list({
-    List<String>? corpCodes,
-    _iamn97sz.Market? market,
-    String? sectionCode,
-    double? perMax,
-    double? pbrMax,
-    double? roeMin,
-    double? operatingMarginMin,
-    double? revenueGrowthMin,
-    double? operatingIncomeGrowthMin,
-    double? debtRatioMax,
-    double? dividendYieldMin,
-    double? fcfYieldMin,
-    double? dividendPayoutMax,
-    int? dividendYearsMin,
-    BigInt? volumeMin,
-    double? volumeRatioMin,
-    double? return3mMin,
-    double? return12mMin,
-    double? bandPositionMin,
-    BigInt? marketCapMin,
-    BigInt? avgTradingValueMin,
-    _iswpkxoo.ScreenSort? sort,
-    bool? ascending,
-    int? offset,
-    int? limit,
-  }) => caller.callServerEndpoint<_iy3d4gdi.ScreenPage>(
-    'screen',
-    'list',
-    {
-      'corpCodes': corpCodes,
-      'market': market,
-      'sectionCode': sectionCode,
-      'perMax': perMax,
-      'pbrMax': pbrMax,
-      'roeMin': roeMin,
-      'operatingMarginMin': operatingMarginMin,
-      'revenueGrowthMin': revenueGrowthMin,
-      'operatingIncomeGrowthMin': operatingIncomeGrowthMin,
-      'debtRatioMax': debtRatioMax,
-      'dividendYieldMin': dividendYieldMin,
-      'fcfYieldMin': fcfYieldMin,
-      'dividendPayoutMax': dividendPayoutMax,
-      'dividendYearsMin': dividendYearsMin,
-      'volumeMin': volumeMin,
-      'volumeRatioMin': volumeRatioMin,
-      'return3mMin': return3mMin,
-      'return12mMin': return12mMin,
-      'bandPositionMin': bandPositionMin,
-      'marketCapMin': marketCapMin,
-      'avgTradingValueMin': avgTradingValueMin,
-      'sort': sort,
-      'ascending': ascending,
-      'offset': offset,
-      'limit': limit,
-    },
-  );
-
-  /// 같은 업종 기업들과의 비교. 업종은 값이 있는 기업이 다섯 곳은 되도록
-  /// 세분류 → 중분류 → 대분류 순으로 넓혀 잡는다.
-  _ida.Future<_izfg2hmi.PeerComparison?> peers(String corpCode) =>
-      caller.callServerEndpoint<_izfg2hmi.PeerComparison?>(
-        'screen',
-        'peers',
-        {'corpCode': corpCode},
-      );
-}
-
-/// 테마 (5단계): 사용자가 정의하는 투자 주제와 기업 편입.
-///
-/// 편입은 사람의 판단이므로 출처는 manual Source로 남긴다.
-/// {@category Endpoint}
-class EndpointTheme extends _isc.EndpointRef {
-  EndpointTheme(_isc.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'theme';
-
-  /// 테마 목록. 편입 기업 시가총액이 큰 순서.
-  _ida.Future<List<_ihj01hrs.ThemeSummary>> list() =>
-      caller.callServerEndpoint<List<_ihj01hrs.ThemeSummary>>(
-        'theme',
-        'list',
-        {},
-      );
-
-  _ida.Future<_izhmhfon.InvestmentTheme> create(
-    String name, {
-    String? description,
-  }) => caller.callServerEndpoint<_izhmhfon.InvestmentTheme>(
-    'theme',
-    'create',
-    {
-      'name': name,
-      'description': description,
-    },
-  );
-
-  _ida.Future<_izhmhfon.InvestmentTheme?> update(
-    int themeId,
-    String name, {
-    String? description,
-  }) => caller.callServerEndpoint<_izhmhfon.InvestmentTheme?>(
-    'theme',
-    'update',
-    {
-      'themeId': themeId,
-      'name': name,
-      'description': description,
-    },
-  );
-
-  /// 테마를 지운다 (편입 기록도 함께). 사용자가 만든 것이라 지울 수 있다.
-  _ida.Future<void> delete(int themeId) => caller.callServerEndpoint<void>(
-    'theme',
-    'delete',
-    {'themeId': themeId},
-  );
-
-  /// 테마와 편입 기업 (시가총액 큰 순서).
-  _ida.Future<_is8fq5gm.ThemeDetail?> detail(int themeId) =>
-      caller.callServerEndpoint<_is8fq5gm.ThemeDetail?>(
-        'theme',
-        'detail',
-        {'themeId': themeId},
-      );
-
-  /// 기업을 테마에 넣는다. 이미 있으면 메모만 고친다.
-  _ida.Future<_i33gd2p5.ThemeMember?> addCompany(
-    int themeId,
-    String corpCode, {
-    String? note,
-  }) => caller.callServerEndpoint<_i33gd2p5.ThemeMember?>(
-    'theme',
-    'addCompany',
-    {
-      'themeId': themeId,
-      'corpCode': corpCode,
-      'note': note,
-    },
-  );
-
-  _ida.Future<void> removeCompany(
-    int themeId,
-    String corpCode,
-  ) => caller.callServerEndpoint<void>(
-    'theme',
-    'removeCompany',
-    {
-      'themeId': themeId,
-      'corpCode': corpCode,
-    },
-  );
-
-  /// 기업이 속한 테마.
-  _ida.Future<List<_izhmhfon.InvestmentTheme>> themesOf(String corpCode) =>
-      caller.callServerEndpoint<List<_izhmhfon.InvestmentTheme>>(
-        'theme',
-        'themesOf',
-        {'corpCode': corpCode},
-      );
-}
-
 /// {@category Endpoint}
 class EndpointWatchlist extends _isc.EndpointRef {
   EndpointWatchlist(_isc.EndpointCaller caller) : super(caller);
@@ -1983,23 +1396,16 @@ class Client extends _isc.ServerpodClientShared {
     bond = EndpointBond(this);
     capital = EndpointCapital(this);
     charter = EndpointCharter(this);
-    company = EndpointCompany(this);
-    companyNews = EndpointCompanyNews(this);
     research = EndpointResearch(this);
-    disclosure = EndpointDisclosure(this);
     financial = EndpointFinancial(this);
-    governance = EndpointGovernance(this);
-    graph = EndpointGraph(this);
     group = EndpointGroup(this);
     industry = EndpointIndustry(this);
     ingest = EndpointIngest(this);
+    investmentNotes = EndpointInvestmentNotes(this);
     macro = EndpointMacro(this);
-    market = EndpointMarket(this);
     membership = EndpointMembership(this);
     membershipOffer = EndpointMembershipOffer(this);
     review = EndpointReview(this);
-    screen = EndpointScreen(this);
-    theme = EndpointTheme(this);
     watchlist = EndpointWatchlist(this);
     modules = Modules(this);
   }
@@ -2020,19 +1426,9 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointCharter charter;
 
-  late final EndpointCompany company;
-
-  late final EndpointCompanyNews companyNews;
-
   late final EndpointResearch research;
 
-  late final EndpointDisclosure disclosure;
-
   late final EndpointFinancial financial;
-
-  late final EndpointGovernance governance;
-
-  late final EndpointGraph graph;
 
   late final EndpointGroup group;
 
@@ -2040,19 +1436,15 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointIngest ingest;
 
-  late final EndpointMacro macro;
+  late final EndpointInvestmentNotes investmentNotes;
 
-  late final EndpointMarket market;
+  late final EndpointMacro macro;
 
   late final EndpointMembership membership;
 
   late final EndpointMembershipOffer membershipOffer;
 
   late final EndpointReview review;
-
-  late final EndpointScreen screen;
-
-  late final EndpointTheme theme;
 
   late final EndpointWatchlist watchlist;
 
@@ -2068,23 +1460,16 @@ class Client extends _isc.ServerpodClientShared {
     'bond': bond,
     'capital': capital,
     'charter': charter,
-    'company': company,
-    'companyNews': companyNews,
     'research': research,
-    'disclosure': disclosure,
     'financial': financial,
-    'governance': governance,
-    'graph': graph,
     'group': group,
     'industry': industry,
     'ingest': ingest,
+    'investmentNotes': investmentNotes,
     'macro': macro,
-    'market': market,
     'membership': membership,
     'membershipOffer': membershipOffer,
     'review': review,
-    'screen': screen,
-    'theme': theme,
     'watchlist': watchlist,
   };
 

@@ -12,12 +12,16 @@ import '../../financials/financial_metrics.dart'
 
 const _operatingKinds = [
   DocumentFactKind.orderBacklog,
+  DocumentFactKind.orderTotal,
+  DocumentFactKind.orderDelivered,
   DocumentFactKind.utilization,
   DocumentFactKind.marketShare,
   DocumentFactKind.capacity,
   DocumentFactKind.production,
   DocumentFactKind.investmentActual,
   DocumentFactKind.investmentPlan,
+  DocumentFactKind.rndExpense,
+  DocumentFactKind.rndRatio,
 ];
 
 /// Do not combine currencies, physical units, plans and realized investments.
@@ -134,8 +138,7 @@ List<OperatingPoint> operatingTimeline(
       : latest.bsnsYear -
             (latest.reportCode == FinancialReportCode.annual ? 0 : 1);
   final end = yearly.keys.fold(lastYear, (a, b) => a > b ? a : b);
-  final first = yearly.keys.fold(end - 4, (a, b) => a < b ? a : b);
-  final start = first < end - 9 ? end - 9 : first;
+  final start = end - 4;
   final points = <OperatingPoint>[
     for (var y = start; y <= end; y++)
       OperatingPoint(
@@ -156,7 +159,10 @@ List<OperatingPoint> operatingTimeline(
   ];
   // Ratios and backlog snapshots can share a timeline with interim observations.
   // Cumulative production/investment amounts retain a separate annual chart.
-  if (facts.last.kind == DocumentFactKind.marketShare ||
+  if (facts.last.kind == DocumentFactKind.rndExpense ||
+      facts.last.kind == DocumentFactKind.rndRatio ||
+      facts.last.kind == DocumentFactKind.utilization ||
+      facts.last.kind == DocumentFactKind.marketShare ||
       facts.last.kind == DocumentFactKind.orderBacklog) {
     for (final f in facts.where((f) => !annual(f))) {
       final p = byDocument[f.documentId];
@@ -219,8 +225,7 @@ List<List<DocumentFact>> operatingSeries(
   }
   // The same table may be extracted under a short label and its annotated
   // equivalent. Collapse only identical annual values, retaining the annotation.
-  String base(String label) =>
-      label.replaceAll(RegExp(r'\s*\([^)]*\)'), '').trim();
+  String base(String label) => label.replaceAll(RegExp(r'\s+'), '').trim();
   final redundant = <List<DocumentFact>>{};
   for (var i = 0; i < result.length; i++) {
     for (var j = i + 1; j < result.length; j++) {
@@ -284,6 +289,7 @@ class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
   List<String> _focus = const [];
   List<BusinessFactPeriod> _periods = const [];
   bool _failed = false;
+  bool _loaded = false;
   int _seq = 0;
   @override
   void initState() {
@@ -306,6 +312,7 @@ class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
       _series = const [];
       _breakdowns = const [];
       _failed = false;
+      _loaded = false;
     });
     try {
       final (facts, catalog, periods) = await (
@@ -318,6 +325,7 @@ class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
           <String>[];
       if (mounted && seq == _seq) {
         setState(() {
+          _loaded = true;
           _periods = periods;
           _breakdowns = facts;
           _focus = focus;
@@ -355,7 +363,25 @@ class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
         ),
       );
     }
-    if (_series.isEmpty && _breakdowns.isEmpty) return const SizedBox.shrink();
+    if (!_loaded) return const SizedBox.shrink();
+    final expected = operatingLatestPeriod(_periods, widget.latestReport);
+    final missingKinds = _operatingKinds
+        // Investment table history below owns these slots; do not label its
+        // confirmed table values missing just because they are not facts.
+        .where(
+          (kind) =>
+              kind != DocumentFactKind.investmentActual &&
+              kind != DocumentFactKind.investmentPlan,
+        )
+        .where((kind) => !_breakdowns.any((f) => f.kind == kind))
+        .toList();
+    final annualEnd = expected == null
+        ? null
+        : expected.bsnsYear -
+              (expected.reportCode == FinancialReportCode.annual ? 0 : 1);
+    final years = annualEnd == null
+        ? <int>[]
+        : [for (var y = annualEnd - 4; y <= annualEnd; y++) y];
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.xl),
       child: Column(
@@ -374,6 +400,47 @@ class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
               focus: _focus,
               periods: _periods,
               latestReport: widget.latestReport,
+            ),
+          if (missingKinds.isNotEmpty && years.isNotEmpty)
+            DataPanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('공시 수치 미확인 항목', style: context.typo.sectionTitle),
+                  const SizedBox(height: AppSpace.sm),
+                  Text(
+                    '—는 확인된 추출값이 없는 기간입니다. 0이나 공시하지 않았다는 의미가 아닙니다.',
+                    style: context.typo.body(
+                      12,
+                      color: context.colors.textMuted,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpace.md),
+                  AppDataTable(
+                    columns: [
+                      const AppColumn('항목'),
+                      for (final year in years) AppColumn('$year년'),
+                      if (expected != null &&
+                          expected.reportCode != FinancialReportCode.annual)
+                        AppColumn(factPeriodLabel(expected)),
+                    ],
+                    rows: [
+                      for (final kind in missingKinds)
+                        AppRow([
+                          AppDataTable.text(
+                            context,
+                            documentFactKindLabel(kind),
+                          ),
+                          for (final _ in years)
+                            AppDataTable.text(context, '—'),
+                          if (expected != null &&
+                              expected.reportCode != FinancialReportCode.annual)
+                            AppDataTable.text(context, '—'),
+                        ]),
+                    ],
+                  ),
+                ],
+              ),
             ),
         ],
       ),
@@ -431,8 +498,32 @@ class _OperatingMetricsListState extends State<OperatingMetricsList> {
 
   @override
   Widget build(BuildContext context) {
-    final primary = primaryOperatingSeries(widget.series, focus: widget.focus);
-    final secondary = widget.series.where((s) => !primary.contains(s)).toList();
+    final utilization = widget.series
+        .where((s) => s.first.kind == DocumentFactKind.utilization)
+        .toList();
+    final otherSeries = widget.series
+        .where(
+          (s) => !{
+            DocumentFactKind.utilization,
+            DocumentFactKind.capacity,
+            DocumentFactKind.production,
+          }.contains(s.first.kind),
+        )
+        .toList();
+    final productionGroups =
+        <(DocumentFactKind, String), List<List<DocumentFact>>>{};
+    for (final facts in widget.series.where(
+      (s) => {
+        DocumentFactKind.capacity,
+        DocumentFactKind.production,
+      }.contains(s.first.kind),
+    )) {
+      (productionGroups[(facts.first.kind, facts.first.unit)] ??= []).add(
+        facts,
+      );
+    }
+    final primary = primaryOperatingSeries(otherSeries, focus: widget.focus);
+    final secondary = otherSeries.where((s) => !primary.contains(s)).toList();
     final groups = <DocumentFactKind, List<List<DocumentFact>>>{};
     for (final series in secondary) {
       (groups[series.last.kind] ??= []).add(series);
@@ -444,6 +535,24 @@ class _OperatingMetricsListState extends State<OperatingMetricsList> {
           '사업 지표',
           help: '생산능력은 설비의 생산 규모, 가동률은 설비를 사용한 비율입니다. 시장점유율은 해당 제품 시장에서 차지하는 비중입니다.\n\n지표마다 공시 시점과 단위가 다를 수 있으므로 표시된 기준 기간을 함께 확인하세요. 값이 없는 기간은 0으로 처리하지 않습니다.',
         ),
+        if (utilization.isNotEmpty) ...[
+          const SizedBox(height: AppSpace.md),
+          _UtilizationOverview(
+            series: utilization,
+            periods: widget.periods,
+            latestReport: widget.latestReport,
+          ),
+        ],
+        for (final group in productionGroups.entries) ...[
+          const SizedBox(height: AppSpace.md),
+          _UtilizationOverview(
+            series: group.value,
+            periods: widget.periods,
+            latestReport: widget.latestReport,
+            title: documentFactKindLabel(group.key.$1),
+            unit: group.key.$2,
+          ),
+        ],
         for (final series in primary) ...[
           const SizedBox(height: AppSpace.md),
           OperatingMetricCard(
@@ -530,6 +639,10 @@ class OperatingMetricCard extends StatelessWidget {
         .firstOrNull;
     final hint = switch (latest.kind) {
       DocumentFactKind.orderBacklog => '받은 주문 중 아직 매출로 이어지지 않은 금액',
+      DocumentFactKind.orderTotal => '공시 표에 기재된 계약 총액 · 신규 수주액과 구분',
+      DocumentFactKind.orderDelivered => '계약 중 이미 납품한 금액',
+      DocumentFactKind.rndExpense => '공시 표의 연구개발비 · 원문 단위 기준',
+      DocumentFactKind.rndRatio => '공시된 연구개발비 ÷ 매출액 비율',
       DocumentFactKind.utilization => '생산설비를 사용한 비율',
       DocumentFactKind.marketShare =>
         latest.reviewNote?.isNotEmpty == true
@@ -602,7 +715,10 @@ class OperatingMetricCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: AppSpace.xs),
                 child: Text(
                   [
-                    if (!snapshot) '연간 추이',
+                    if (!snapshot)
+                      points.any((p) => p.date.month != 12)
+                          ? '기간별 추이'
+                          : '연간 추이',
                     if (points.any((p) => p.fact == null)) '— 값 미확보',
                   ].join(' · '),
                   style: t.body(12, color: c.textMuted),
@@ -659,6 +775,144 @@ class OperatingMetricCard extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// One metric card; distinct source scopes remain separate colored series.
+class _UtilizationOverview extends StatelessWidget {
+  const _UtilizationOverview({
+    required this.series,
+    required this.periods,
+    this.latestReport,
+    this.title = '가동률',
+    this.unit = '%',
+  });
+  final List<List<DocumentFact>> series;
+  final List<BusinessFactPeriod> periods;
+  final FinancialPeriod? latestReport;
+  final String title, unit;
+  @override
+  Widget build(BuildContext context) {
+    final timelines = [
+      for (final facts in series)
+        operatingTimeline(facts, periods: periods, latestReport: latestReport),
+    ];
+    final points = <DateTime, OperatingPoint>{};
+    for (final timeline in timelines) {
+      for (final point in timeline) {
+        points[point.date] = point;
+      }
+    }
+    final dates = points.keys.toList()..sort();
+    final palette = categoricalChartColors(context);
+    final chartSeries = [
+      for (final (index, facts) in series.indexed)
+        ChartSeries(
+          label: facts.first.label,
+          color: palette[index % palette.length],
+          values: [
+            for (final date in dates)
+              timelines[index]
+                  .where((p) => p.date == date)
+                  .firstOrNull
+                  ?.fact
+                  ?.value,
+          ],
+        ),
+    ];
+    return CompanyDataCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          CompanySectionHeading(
+            title,
+            help: '서로 다른 원문 명칭·측정 범위는 별도 색상으로 표시합니다. 명칭이 바뀐 기간을 같은 계열로 임의 연결하지 않습니다. 합계는 개별 항목과 구분합니다.',
+          ),
+          Text(
+            '단위: $unit',
+            style: context.typo.body(12, color: context.colors.textMuted),
+          ),
+          ChartLegend(series: chartSeries),
+          Text(
+            '품목 분류가 바뀐 기간은 별도 색상으로 표시합니다. 빈 구간은 해당 품목의 공시 수치가 없는 기간입니다.',
+            style: context.typo.body(12, color: context.colors.textMuted),
+          ),
+          AppColumnChart(
+            categories: [for (final date in dates) points[date]!.axisLabel],
+            series: chartSeries,
+            formatValue: (value) => unit == '%'
+                ? '${value.toStringAsFixed(1)}%'
+                : formatUnitAmount(value, ''),
+            showMissingMarkers: true,
+            height: 240,
+            categoryNotes: [for (final date in dates) points[date]!.label],
+          ),
+          if (series.first.first.kind == DocumentFactKind.capacity ||
+              series.first.first.kind == DocumentFactKind.production) ...[
+            Text(
+              '차트는 연간 기준입니다. 중간보고서의 생산 규모는 연간 값과 합산하지 않습니다.',
+              style: context.typo.body(12, color: context.colors.textMuted),
+            ),
+            if (series.any(
+              (facts) => businessFactDate(facts.last).month != 12,
+            )) ...[
+              const SizedBox(height: AppSpace.md),
+              Text(
+                '최근 중간보고서',
+                style: context.typo.body(13, weight: FontWeight.w600),
+              ),
+              AppDataTable(
+                columns: const [
+                  AppColumn('품목'),
+                  AppColumn('기간'),
+                  AppColumn('공시 수치', numeric: true),
+                ],
+                rows: [
+                  for (final facts in series)
+                    if (businessFactDate(facts.last).month != 12)
+                      AppRow([
+                        AppDataTable.text(context, facts.last.label),
+                        AppDataTable.text(
+                          context,
+                          businessPeriodLabel(facts.last),
+                        ),
+                        AppDataTable.text(
+                          context,
+                          formatUnitAmount(facts.last.value, unit),
+                        ),
+                      ]),
+                ],
+              ),
+            ],
+          ],
+          ShadAccordion<int>(
+            children: [
+              ShadAccordionItem<int>(
+                value: 0,
+                title: const Text('기간별 수치와 원문 근거'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final facts in series) ...[
+                      Text(
+                        facts.first.label,
+                        style: context.typo.body(14, weight: FontWeight.w600),
+                      ),
+                      for (final fact in facts)
+                        Text(
+                          '${businessPeriodLabel(fact)} · ${formatUnitAmount(fact.value, fact.unit)}\n${fact.evidence}',
+                          style: context.typo.body(12),
+                        ),
+                      const SizedBox(height: AppSpace.md),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

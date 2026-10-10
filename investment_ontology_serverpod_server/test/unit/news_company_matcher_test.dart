@@ -8,6 +8,22 @@ void main() {
     excerpt: '',
     ceoName: '박외진',
   );
+  test(
+    'group names survive while celebrity homonyms and subsidiaries do not',
+    () {
+      bool matches(String title) => NewsCompanyMatcher.matches(
+        name: '미코',
+        title: title,
+        excerpt: '',
+        stockCode: '059090',
+        ceoName: '전선규',
+      );
+      expect(matches("전선규 미코그룹 회장, 세라믹 기술 발전 메달 수상"), isTrue);
+      expect(matches("미코 엄마 김지연, 딸과 데이트"), isFalse);
+      expect(matches("미코파워 생산설비 증설"), isFalse);
+      expect(matches("미코 주가 상승"), isTrue);
+    },
+  );
   test('excludes materials and name substrings', () {
     expect(acryl('아크릴 소재 수요 증가, 플라스틱 기업 매출 확대'), isFalse);
     expect(acryl('아크릴 물감으로 그린 인공지능 시대'), isFalse);

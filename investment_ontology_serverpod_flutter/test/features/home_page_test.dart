@@ -322,33 +322,41 @@ void main() {
     });
   }
 
-  testWidgets('소개에서 질문 선택 후 해당 의도를 가진 홈으로 이동한다', (tester) async {
-    final router = GoRouter(
-      initialLocation: '/about',
-      routes: [
-        GoRoute(
-          path: '/about',
-          builder: (_, _) => AboutPage(
-            previewLoad: () async => [],
-            loadScope: () async =>
-                Overview(totalListed: 2759, byMarket: [], bySection: []),
+  for (final entry in [
+    ('기업 찾기에서 시작', '/screen'),
+    ('기업 분석 시작하기', '/companies'),
+    ('관심기업 등록하기', '/watchlist'),
+  ]) {
+    testWidgets('소개 ${entry.$1} → ${entry.$2}', (tester) async {
+      final router = GoRouter(
+        initialLocation: '/about',
+        routes: [
+          GoRoute(
+            path: '/about',
+            builder: (_, _) => AboutPage(
+              previewLoad: () async => [],
+              loadScope: () async =>
+                  Overview(totalListed: 2759, byMarket: [], bySection: []),
+            ),
           ),
-        ),
-        GoRoute(
-          path: '/home',
-          builder: (_, state) => Scaffold(body: Text(state.uri.toString())),
-        ),
-      ],
-    );
-    addTearDown(router.dispose);
-    await tester.pumpWidget(
-      shadTestHost(MaterialApp.router(theme: theme, routerConfig: router)),
-    );
-    await tester.pumpAndSettle();
-    final start = find.text('재무 추이에서 시작');
-    await tester.scrollUntilVisible(start, 400);
-    await tester.tap(start);
-    await tester.pumpAndSettle();
-    expect(find.text('/home?intent=financials'), findsOneWidget);
-  });
+          for (final path in ['/screen', '/companies', '/watchlist'])
+            GoRoute(
+              path: path,
+              builder: (_, state) => Scaffold(body: Text(state.uri.toString())),
+            ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        shadTestHost(MaterialApp.router(theme: theme, routerConfig: router)),
+      );
+      await tester.pumpAndSettle();
+      final button = find.text(entry.$1);
+      await tester.scrollUntilVisible(button, 400);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      expect(find.text(entry.$2), findsOneWidget);
+      expect(router.routeInformationProvider.value.uri.path, entry.$2);
+    });
+  }
 }

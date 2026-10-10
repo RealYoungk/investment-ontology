@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:serverpod/protocol.dart' as sp;
 
 import '../../generated/protocol.dart';
+import '../peers/industry_catalog_hooks.dart';
 
 /// 수집 작업(IngestJob) 공통 처리.
 ///
@@ -276,26 +277,29 @@ abstract final class IngestJobs {
   /// 진행 상황 저장. 그 사이 들어온 취소 요청은 덮어쓰지 않는다.
   ///
   /// 행을 잠그고 읽은 뒤 쓰므로, 읽기와 쓰기 사이에 커밋된 취소도 덮어쓰지 않는다.
-  static Future<IngestJob> save(Session session, IngestJob job) =>
-      session.db.transaction((tx) async {
-        var next = job;
-        {
-          final current = await IngestJob.db.findById(
-            session,
-            next.id!,
-            transaction: tx,
-            lockMode: LockMode.forUpdate,
+  static Future<IngestJob> save(Session session, IngestJob job) async {
+    final saved = await session.db.transaction((tx) async {
+      var next = job;
+      {
+        final current = await IngestJob.db.findById(
+          session,
+          next.id!,
+          transaction: tx,
+          lockMode: LockMode.forUpdate,
+        );
+        if (current?.status == IngestStatus.cancelled) {
+          next = next.copyWith(
+            status: IngestStatus.cancelled,
+            finishedAt: current!.finishedAt,
+            message: current.message,
           );
-          if (current?.status == IngestStatus.cancelled) {
-            next = next.copyWith(
-              status: IngestStatus.cancelled,
-              finishedAt: current!.finishedAt,
-              message: current.message,
-            );
-          }
         }
-        return IngestJob.db.updateRow(session, next, transaction: tx);
-      });
+      }
+      return IngestJob.db.updateRow(session, next, transaction: tx);
+    });
+    IndustryCatalogHooks.onSaved(saved.kind, saved.status.name);
+    return saved;
+  }
 
   /// 작업을 실패로 끝낸다.
   static Future<void> fail(

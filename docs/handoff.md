@@ -906,6 +906,10 @@ Official FRED macro indicators, beginner definitions and read-only bounded retri
 
 프런트엔드는 이미 Cloudflare Pages `alfinder-web`으로 이전되어 있으며, Vercel 조회 404를 서버/데이터 장애로 해석하지 않는다. `scripts/release.py`의 status/deploy/rollback을 Pages 경로로 맞췄다. 성공한 최신 main·봉인 산출물·동일 커밋 깨끗한 준비·미리보기 SHA4/API/401·운영 상태/백엔드 변경 차단·production 이전 기록·실제운영 재검증은 유지한다. Pages는 preview를 promote하지 않으므로 동일 패키지를 production에 재업로드하고, rollback은 이전 production만 허용한다. 구현 테스트와 실제 배포는 구분하며 이번 스크립트 변경 자체는 배포하지 않았다. [운영 절차](cloudflare-pages.md) 참조.
 
+## 2026-10-05 서비스 소개·작성자 투자 관점
+
+세 축 소개와 단일 멤버십 콘텐츠 기반을 로컬 구현했다. `/insights` 목록·상세, 기업별 글 연결, Serverpod investmentNotes의 관리자 import/preview/승인 digest publish, 무료 소개·회원 본문의 서버 접근 제어, 공개 원글 보존 및 후속 글 알림을 제공한다. 기존 ResearchArticle/ResearchRevision과 관심기업·멤버십 원장을 재사용하며 새 마이그레이션은 없다. Flutter 관련 34개 및 서버 격리 DB/단위/생성 등록 9개 테스트 통과. 실제 공개 목록 모바일 확인, 회원 시나리오는 격리 테스트로 검증했다. 아크릴 초안은 로컬 파일에만 있으며 등급·본문 승인과 공개는 미완료. 뉴스·매출·수주 자동 알림과 운영 배포도 미완료. [상세와 검증](service-membership-plan-2026-10-05.md). 다른 채팅의 dirty 변경을 포함해 커밋하거나 배포하지 않았다.
+
 
 ## 2026-10-06 서버 원문 캐시 검증 속도 개선
 
@@ -919,3 +923,39 @@ Official FRED macro indicators, beginner definitions and read-only bounded retri
 - 이전 격리 snapshot 기준 full server gate: 472개 파일·19묶음·10,208 통과·기존 skip2, 11분38초. 이전24분31초 대비12분53초(52.5%) 단축, 단일 실행 비교.
 - 격리 snapshot 전체 분석 통과. 원래 dirty checkout의 다른 변경/생성 코드 호환성 문제는 포함하지 않음. 배포는 수행하지 않음.
 - 근거: `docs/server-test-performance-2026-10-06.md`, `output/server-test-virtual-clock/`.
+
+
+### 2026-10-09 기업찾기 업종 첫 로딩·로고
+
+- `/industries` 업종 디렉터리는 서버 호출 없이 즉시 표시한다. 업종 선택 후 해당 분야만 `industry.browse(industry:)`로 읽는다. 기존 무인자 API는 전체 응답을 유지한다. 공시 분류가 다른 업종에 있는 기업의 등록 fallback 제외 규칙은 서버에서 전체 집합으로 적용한다.
+- 서버 시작 시(조회 전용 모드 포함) 전체 분류를 별도 세션으로 미리 준비하고 5분마다 갱신한다. 마지막 정상 snapshot은 갱신 중에도 제공한다. 최신 문서 ID/본문 해시·기업 분류 정보·현재 연도가 같으면 본문 규칙 재실행을 생략한다. 최초 startup 준비 중 상세 업종 요청은 기다릴 수 있다. 디스크 영속 snapshot은 이번 범위에 없다.
+- 앱은 업종/수집 dataVersion별 요청을 공유하고 5분간 재사용한다. 실패는 재시도 가능. 결과 기업명 앞에 기존 CompanyLogo를 표시한다. 여러 업종을 오갈 때 이미 조회한 기업 이름을 비교 선택 표시용으로 유지한다.
+- 로컬 변경 전 cold API 17.138s/4,372,968bytes. 변경 후 warm 반도체 API 0.021949s/173,384bytes(256 activity/194회사). 서버 재시작 직후 준비 중에는 10.283s를 측정했으므로 cold startup까지 22ms라고 주장하지 않는다. 39분야 API projection을 기존 전체 응답과 대조하여 활동·근거 동일 확인(중앙값7ms, 최대207ms). 분류 의미 정확성 새 전수검사를 뜻하지 않는다.
+- 대상 analyze/format/diff check 정상, Flutter14 tests 통과(320~1920px, 첫 화면0요청/캐시 공유·재시도/필터·비교·로고). 웹 release build 성공. 생성 등록 unit3 통과. 서버 integration은 기존 generated test helper의 ephemeralDatabase 인자와 설치 serverpod_test4.0.0 불일치로 load 실패; generated 파일 수동 수정하지 않았다.
+- MCP restart/자동 생성/로그 확인, DTD 연결·health 정상. driver tap 응답 timeout이 있었지만 실제 URL 및 결과 변화와 데스크톱/390px 모바일 로고 배치를 확인했다. driver frame sync 임시 변경은 true로 복원했다. 운영 배포 없음. GBrain callable 도구가 없어 이번 상태는 이 handoff에 기록했다.
+
+
+### 2026-10-09 기업 분류 DB 사전 저장 — 앞선 warm cache 후속 대체
+
+사용자가 페이지 진입 분류를 거부하고 서버 사전 분류를 요구했다. `docs/industry-classification-storage-2026-10-09.md`가 현재 구조다. IndustryCatalogSnapshot 신규 table에 분류/근거/원천 fingerprint/버전/시각을 영구 저장하고 browse/discover의 계산 fallback을 제거했다. startup은 저장 row를 먼저 복원하고, source 변경 확인과 계산은 background에서만 수행한다. 수집 완료 신호+5분 안전 확인; production 조회 전용 process는 작성하지 않는다. 수동 rebuild는 admin필수. 개발에서 수행하는 파생 snapshot 준비는 원천 수집이나 로컬 인증 우회가 아니다.
+
+MCP migration 생성/적용 및 restart 확인. 저장 전체 활동6749/회사2759이 기존 응답과 동일, restart 후 computedAt도 그대로이고 반도체15.6ms. source table 조회 불가 상태에서도 snapshot RPC 읽기 정상인 통합 검사와 admin 경계/버전 갱신 검사 포함 server4tests+Flutter14통과, targeted analyze 정상. 기존 helper 호환 오류는 generated수정/의존성 변경 없이 전용 harness로 해결해 이 범위의 integration검사가 완료됐다. 로고와 업종별 응답 경량화 유지. 운영 배포 없음. GBrain callable도구가 없어 결정은 이 문서로 인계하며 자동 memory저장을 주장하지 않는다.
+
+## 2026-10-09 업종별 기업찾기 UI 정리 (로컬)
+
+- 업종 진입 화면은 분야별 묶음 카드와 간결한 탐색 행으로 변경했다. 기본 화면은 기존처럼 API 요청 없이 표시한다.
+- PC 사업 필터는 좌측 목록, 기업 결과는 구분선이 있는 한 목록으로 정리했다. 기업 로고·이름·사업·상장시장과 근거/비교 액션을 정렬했다. 표시 이름만 회사명 접두사를 정리하며 원본과 분류 근거는 유지한다.
+- 모바일 사업 필터는 기본 접힘이며 선택 후 다시 접혀 결과가 먼저 보인다. URL 조건, 비교 선택/돌아가기, 미분류 기업 표시 계약을 유지한다.
+- 분석 오류 없음, Flutter 관련 테스트 16개 통과(320/640/900/1280/1920px). 실제 브라우저 1440px/390px에서 화면, 모바일 사업 선택/자동 접힘, 비교 선택, DART 분류 근거 열기를 확인했다. 자동 hot reload 시간 초과 이력은 MCP hot restart 성공으로 복구했다. 운영 배포는 하지 않았다.
+
+- 글자 잘림 후속 수정: ShadButton의 `height: null`은 기본 고정 높이로 적용되므로 업종·사업·기업명 버튼을 공식 API의 `height: 0`(내용 기반 높이)으로 수정했다. 두 줄/말줄임 제한을 제거하고 긴 기업명과 사업명이 2배 글자 크기에서도 전체 표시되는 회귀 테스트를 추가했다. 관련 Flutter 18개 테스트와 분석 통과.
+
+- 기업 결과 공간 활용 후속 수정: 결과 패널 내부 폭 720px 이상에서 순서가 유지되는 2열, 좁으면 1열로 표시한다. 사업·상장시장 정보는 한 줄로 묶고 로고/행 여백을 줄였다. 처음 20개와 20개 단위 추가 표시로 변경했다. 글자 줄바꿈과 자연 높이는 유지한다. 관련 테스트 18개 통과(2열/1열 위치 및 확대 글자 포함). 1440px 제약 목록의 오른쪽 열 비교 선택과 해당 회사 근거 열기를 실제 확인했다. 로컬 변경이며 운영 배포는 별도다.
+
+- 사용자의 그리드 요청에 따라 기업 결과를 독립 DataPanel 카드 그리드로 변경했다. 본문 폭은 공통 1280px로 넓혔고 결과 폭 960px 이상 3열, 720px 이상 2열, 그 이하는 1열이다. 고정 높이/비율 없이 글자와 사업 정보에 따라 높이가 늘어난다. 독립 카드 경계와 1/2열 위치, 긴 글자 회귀 테스트 포함 18개 통과. 실제 1440px에서 제약 기업 3열 표시를 확인했다.
+
+- 기업 카드 근거/비교 액션은 사용자 요청에 따라 아이콘 버튼으로 축약했다. 문서 아이콘은 근거 보기, +는 비교 추가, 체크는 선택된 비교 항목 해제이다. ShadTooltip과 동작 가능한 Semantics를 명시하고 비교 최대 4개 및 비활성 상태를 유지한다. 모바일 실제 아이콘 탭으로 선택 URL과 해당 회사 근거 열기를 확인했고, 화면 테스트는 표시 텍스트 대신 접근성 이름으로 탭해 18개 통과했다.
+
+## 2026-10-10 기업 카드 가로 배치
+
+사용자 요청대로 카드 내부를 로고/기업 정보/근거·비교 아이콘의 가로 Row로 변경했다. 기업명과 사업·시장 정보는 각각 최대 2줄이며 초과 시 말줄임한다. 버튼은 오른쪽에 고정하고 글자 크기에 따라 자연 높이를 유지한다. 테스트 18개(동일 가로선에 놓인 아이콘, 확대 글자의 높이와 2줄 제한 포함) 통과. hot reload 연결 종료 후 MCP hot restart 요청은 완료로 반환됐으나 localhost:8100은 연결 거부여서 현재 실제 화면 검증은 미완료다. 서버/앱을 직접 시작하지 않았다.

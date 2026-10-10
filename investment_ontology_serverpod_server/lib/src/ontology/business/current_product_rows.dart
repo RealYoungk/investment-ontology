@@ -15,7 +15,7 @@ abstract final class CurrentProductRows {
       value.replaceAll(RegExp(r'\s+'), '').toLowerCase();
 
   static List<BusinessProduct> parse(String text) {
-    final products = <BusinessProduct>[];
+    final products = _enumeratedProducts(text);
     var active = false;
     var blocked = false;
     List<String>? header;
@@ -50,18 +50,40 @@ abstract final class CurrentProductRows {
       final cells = raw.split('|').map((c) => c.trim()).toList();
       final names = cells.map(normalize).toList();
       final index = names.indexWhere((c) => _name.hasMatch(c));
-      if (index >= 0) {
+      if (index >= 0 && (header == null || index == nameColumn)) {
         header = cells;
         nameColumn = index;
         detailColumn = names.indexWhere(
           (c) => c == '세부제품' || c == '세부상품' || c == '세부서비스',
         );
         descriptionColumn = names.indexWhere(
-          (c) => c == '설명' || c == '제품설명' || c == '서비스설명',
+          (c) => const {
+            '설명',
+            '제품설명',
+            '서비스설명',
+            '주요용도',
+            '구체적용도',
+            '용도',
+            '기능',
+            '제품특성',
+            '특징',
+          }.contains(c),
         );
         blocked = blocked || _notCurrent.hasMatch(raw);
         group = '';
         continue;
+      }
+      // Filings often put two amount/share subcolumns beneath each period.
+      // Keep product/purpose positions from the first header, expand only years.
+      if (header != null &&
+          names.every((c) => const {'매출액', '비율', '금액', '비중'}.contains(c))) {
+        final periods = header.reversed
+            .takeWhile((c) => RegExp(r'\d.*(기|년)|20\d{2}').hasMatch(c))
+            .length;
+        if (periods > 0 && cells.length == periods * 2) {
+          header = [...header.take(header.length - periods), ...cells];
+          continue;
+        }
       }
       if (blocked ||
           header == null ||
@@ -96,7 +118,8 @@ abstract final class CurrentProductRows {
       final identity = normalize(label);
       if (identity.isEmpty ||
           label.length > 90 ||
-          RegExp(r'합계|총계|기타|구분|매출액|매출비중|^[-\d,.%\s]+$').hasMatch(label)) {
+          RegExp(r'합계|총계|기타|구분|매출액|매출비중|내부거래|연결조정|^[-\d,.%\s]+$')
+              .hasMatch(label)) {
         continue;
       }
       if (products.any((p) => normalize(p.name) == identity)) continue;
@@ -115,5 +138,72 @@ abstract final class CurrentProductRows {
       );
     }
     return products;
+  }
+
+  /// Some filings embed their product diagram as an image but also enumerate
+  /// the same current offerings in prose. Keep only explicitly attributed names.
+  static List<BusinessProduct> _enumeratedProducts(String text) {
+    final result = <BusinessProduct>[];
+    var active = false;
+    for (final line in text.split('\n')) {
+      if (line.startsWith('##')) {
+        active = RegExp(r'사업의\s*개요|주요\s*(제품|상품|서비스)').hasMatch(line);
+        continue;
+      }
+      if (!active || line.contains('|')) continue;
+      // Older filings enumerate product examples beneath explicitly owned types.
+      if (RegExp(r'당사가\s*생산하는|당사의\s*주요제품으로는').hasMatch(line) &&
+          !_notCurrent.hasMatch(line)) {
+        for (final examples in RegExp(
+          r'(?:Solid|Indexable)\s*Type으로는\s+([^。.!?\n]{2,120}?)\s*등(?:이|이\s*)',
+          caseSensitive: false,
+        ).allMatches(line)) {
+          for (final raw in examples.group(1)!.split(RegExp(r'[,，]|\s+및\s+'))) {
+            final name = raw.trim();
+            if (name.isEmpty ||
+                name.length > 40 ||
+                result.any((p) => normalize(p.name) == normalize(name))) {
+              continue;
+            }
+            result.add(
+              BusinessProduct(
+                key: 'product/current/${normalize(name)}',
+                name: name,
+                role: '',
+                process: '',
+                benefit: '',
+                evidence: line,
+                explanationKind: 'source_only',
+              ),
+            );
+          }
+        }
+      }
+      for (final match in RegExp(
+        r'당사(?:의)?\s*제품은\s+([^。.!?\n]{2,180}?)로\s*구분(?:되|됩)',
+      ).allMatches(line)) {
+        final evidence = match.group(0)!;
+        if (_notCurrent.hasMatch(evidence)) continue;
+        final names = match.group(1)!.split(RegExp(r'[,，]|\s+및\s+'));
+        if (names.length < 2 || names.length > 10) continue;
+        for (final raw in names) {
+          final name = raw.trim();
+          if (name.isEmpty || name.length > 40) continue;
+          if (result.any((p) => normalize(p.name) == normalize(name))) continue;
+          result.add(
+            BusinessProduct(
+              key: 'product/current/${normalize(name)}',
+              name: name,
+              role: '',
+              process: '',
+              benefit: '',
+              evidence: evidence,
+              explanationKind: 'source_only',
+            ),
+          );
+        }
+      }
+    }
+    return result;
   }
 }

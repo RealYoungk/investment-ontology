@@ -9,3 +9,15 @@ fields:
   stockTotalYear: int?
   stockTotals: List<StockTotalRow>
   sources: List<Source>
+  ### 최신 중간보고서 배당 행. 연간 배당 추이에 합치지 않는다.
+  interimDividends: List<DividendEntry>?
+  interimReportName: String?
+  treasuryReportName: String?
+  stockTotalReportName: String?
+  latestReportName: String?
+  latestYear: int?
+  annualEndYear: int?
+  availableYears: List<int>?
+  latestDividendStatus: String?
+  latestTreasuryStatus: String?
+  latestStockTotalStatus: String?

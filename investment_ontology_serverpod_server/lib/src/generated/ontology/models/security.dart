@@ -28,6 +28,8 @@ abstract class Security
     this.companyId,
     this.linkBasis,
     required this.lastSeenDate,
+    this.firstObservedDate,
+    this.firstObservedSourceId,
     this.sourceId,
   });
 
@@ -42,6 +44,8 @@ abstract class Security
     int? companyId,
     _ipb681z0.SecurityLinkBasis? linkBasis,
     required DateTime lastSeenDate,
+    DateTime? firstObservedDate,
+    int? firstObservedSourceId,
     int? sourceId,
   }) = _SecurityImpl;
 
@@ -65,6 +69,12 @@ abstract class Security
       lastSeenDate: _is.DateTimeJsonExtension.fromJson(
         jsonSerialization['lastSeenDate'],
       ),
+      firstObservedDate: jsonSerialization['firstObservedDate'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(
+              jsonSerialization['firstObservedDate'],
+            ),
+      firstObservedSourceId: jsonSerialization['firstObservedSourceId'] as int?,
       sourceId: jsonSerialization['sourceId'] as int?,
     );
   }
@@ -99,6 +109,11 @@ abstract class Security
   /// 시세나 상장종목 목록에서 마지막으로 확인한 기준일 (UTC 자정)
   DateTime lastSeenDate;
 
+  /// 정상 수집에서 새 종목을 처음 확인한 기준일. 공식 상장일이 아니며 초기/복구 수집은 null.
+  DateTime? firstObservedDate;
+
+  int? firstObservedSourceId;
+
   /// 종목 정보(이름·시장·법인)의 마지막 출처
   int? sourceId;
 
@@ -119,6 +134,8 @@ abstract class Security
     int? companyId,
     _ipb681z0.SecurityLinkBasis? linkBasis,
     DateTime? lastSeenDate,
+    DateTime? firstObservedDate,
+    int? firstObservedSourceId,
     int? sourceId,
   });
   @override
@@ -135,6 +152,10 @@ abstract class Security
       if (companyId != null) 'companyId': companyId,
       if (linkBasis != null) 'linkBasis': linkBasis?.toJson(),
       'lastSeenDate': lastSeenDate.toJson(),
+      if (firstObservedDate != null)
+        'firstObservedDate': firstObservedDate?.toJson(),
+      if (firstObservedSourceId != null)
+        'firstObservedSourceId': firstObservedSourceId,
       if (sourceId != null) 'sourceId': sourceId,
     };
   }
@@ -153,6 +174,10 @@ abstract class Security
       if (companyId != null) 'companyId': companyId,
       if (linkBasis != null) 'linkBasis': linkBasis?.toJson(),
       'lastSeenDate': lastSeenDate.toJson(),
+      if (firstObservedDate != null)
+        'firstObservedDate': firstObservedDate?.toJson(),
+      if (firstObservedSourceId != null)
+        'firstObservedSourceId': firstObservedSourceId,
       if (sourceId != null) 'sourceId': sourceId,
     };
   }
@@ -199,6 +224,8 @@ class _SecurityImpl extends Security {
     int? companyId,
     _ipb681z0.SecurityLinkBasis? linkBasis,
     required DateTime lastSeenDate,
+    DateTime? firstObservedDate,
+    int? firstObservedSourceId,
     int? sourceId,
   }) : super._(
          id: id,
@@ -211,6 +238,8 @@ class _SecurityImpl extends Security {
          companyId: companyId,
          linkBasis: linkBasis,
          lastSeenDate: lastSeenDate,
+         firstObservedDate: firstObservedDate,
+         firstObservedSourceId: firstObservedSourceId,
          sourceId: sourceId,
        );
 
@@ -229,6 +258,8 @@ class _SecurityImpl extends Security {
     Object? companyId = _Undefined,
     Object? linkBasis = _Undefined,
     DateTime? lastSeenDate,
+    Object? firstObservedDate = _Undefined,
+    Object? firstObservedSourceId = _Undefined,
     Object? sourceId = _Undefined,
   }) {
     return Security(
@@ -244,6 +275,12 @@ class _SecurityImpl extends Security {
           ? linkBasis
           : this.linkBasis,
       lastSeenDate: lastSeenDate ?? this.lastSeenDate,
+      firstObservedDate: firstObservedDate is DateTime?
+          ? firstObservedDate
+          : this.firstObservedDate,
+      firstObservedSourceId: firstObservedSourceId is int?
+          ? firstObservedSourceId
+          : this.firstObservedSourceId,
       sourceId: sourceId is int? ? sourceId : this.sourceId,
     );
   }
@@ -301,6 +338,18 @@ class SecurityUpdateTable extends _is.UpdateTable<SecurityTable> {
         value,
       );
 
+  _is.ColumnValue<DateTime, DateTime> firstObservedDate(DateTime? value) =>
+      _is.ColumnValue(
+        table.firstObservedDate,
+        value,
+      );
+
+  _is.ColumnValue<int, int> firstObservedSourceId(int? value) =>
+      _is.ColumnValue(
+        table.firstObservedSourceId,
+        value,
+      );
+
   _is.ColumnValue<int, int> sourceId(int? value) => _is.ColumnValue(
     table.sourceId,
     value,
@@ -348,6 +397,14 @@ class SecurityTable extends _is.Table<int?> {
       'lastSeenDate',
       this,
     );
+    firstObservedDate = _is.ColumnDateTime(
+      'firstObservedDate',
+      this,
+    );
+    firstObservedSourceId = _is.ColumnInt(
+      'firstObservedSourceId',
+      this,
+    );
     sourceId = _is.ColumnInt(
       'sourceId',
       this,
@@ -379,6 +436,11 @@ class SecurityTable extends _is.Table<int?> {
   /// 시세나 상장종목 목록에서 마지막으로 확인한 기준일 (UTC 자정)
   late final _is.ColumnDateTime lastSeenDate;
 
+  /// 정상 수집에서 새 종목을 처음 확인한 기준일. 공식 상장일이 아니며 초기/복구 수집은 null.
+  late final _is.ColumnDateTime firstObservedDate;
+
+  late final _is.ColumnInt firstObservedSourceId;
+
   /// 종목 정보(이름·시장·법인)의 마지막 출처
   late final _is.ColumnInt sourceId;
 
@@ -394,6 +456,8 @@ class SecurityTable extends _is.Table<int?> {
     companyId,
     linkBasis,
     lastSeenDate,
+    firstObservedDate,
+    firstObservedSourceId,
     sourceId,
   ];
 }

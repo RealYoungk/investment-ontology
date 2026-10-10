@@ -15,46 +15,20 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/bill
     as _iw7zbyvm;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/account_view.dart'
     as _ig2zry29;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_digest_section.dart'
-    as _izmct7si;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_document_ref.dart'
     as _i9fapywb;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_fact_period.dart'
-    as _inzxvyu7;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_group.dart'
     as _i4udlom4;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_market_cap.dart'
-    as _i8ke3qsu;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/dart_disclosure.dart'
-    as _iogwdcx0;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/disclosure_section_info.dart'
-    as _itpltonf;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/document_fact.dart'
-    as _ihq2wng4;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/facet_count.dart'
-    as _iee4t190;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/filing_feed_item.dart'
-    as _iwgt3edw;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_job.dart'
     as _idt86amb;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_schedule_entry.dart'
     as _irm0258u;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
-    as _in6y0ur2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/macro_series_view.dart'
     as _ikb4l1o7;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market_cap_point.dart'
-    as _ihep8lzy;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ownership_snapshot.dart'
-    as _io4p8qqw;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_hit.dart'
-    as _iqw74hrd;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_check.dart'
     as _iwp9ei5l;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_item.dart'
     as _ip1s5ejx;
-import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/theme_summary.dart'
-    as _iy65bs9o;
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
@@ -98,6 +72,9 @@ import 'ontology/models/business_fact_period.dart' as _i1cpvxoo;
 import 'ontology/models/business_product.dart' as _i3peg7yx;
 import 'ontology/models/business_profile.dart' as _iegef18i;
 import 'ontology/models/business_section.dart' as _inylkhjt;
+import 'ontology/models/business_table_insight.dart' as _i0vnq5ds;
+import 'ontology/models/business_table_measure.dart' as _ia821tg8;
+import 'ontology/models/business_table_record.dart' as _i5mz554b;
 import 'ontology/models/business_understanding.dart' as _iwkhf8pb;
 import 'ontology/models/company.dart' as _ipen255x;
 import 'ontology/models/company_change.dart' as _isfozywu;
@@ -155,6 +132,7 @@ import 'ontology/models/index_history.dart' as _iocwvagy;
 import 'ontology/models/index_point.dart' as _it75qdkc;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
 import 'ontology/models/industry_activity.dart' as _if5qperq;
+import 'ontology/models/industry_catalog_snapshot.dart' as _itl62zkj;
 import 'ontology/models/industry_discovery.dart' as _ixuxxo68;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_coverage.dart' as _il0sbv1h;
@@ -172,6 +150,7 @@ import 'ontology/models/market_index_day.dart' as _ihawso0m;
 import 'ontology/models/market_index_snapshot.dart' as _i9c8jqc3;
 import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
+import 'ontology/models/new_company_view.dart' as _ivtwhw6z;
 import 'ontology/models/ontology_relation.dart' as _iejnlir1;
 import 'ontology/models/overview.dart' as _iz31wbgv;
 import 'ontology/models/ownership_snapshot.dart' as _ilc2cd4p;
@@ -246,6 +225,9 @@ export 'ontology/models/business_fact_period.dart';
 export 'ontology/models/business_product.dart';
 export 'ontology/models/business_profile.dart';
 export 'ontology/models/business_section.dart';
+export 'ontology/models/business_table_insight.dart';
+export 'ontology/models/business_table_measure.dart';
+export 'ontology/models/business_table_record.dart';
 export 'ontology/models/business_understanding.dart';
 export 'ontology/models/company.dart';
 export 'ontology/models/company_change.dart';
@@ -303,6 +285,7 @@ export 'ontology/models/index_history.dart';
 export 'ontology/models/index_point.dart';
 export 'ontology/models/industry.dart';
 export 'ontology/models/industry_activity.dart';
+export 'ontology/models/industry_catalog_snapshot.dart';
 export 'ontology/models/industry_discovery.dart';
 export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_coverage.dart';
@@ -320,6 +303,7 @@ export 'ontology/models/market_index_day.dart';
 export 'ontology/models/market_index_snapshot.dart';
 export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
+export 'ontology/models/new_company_view.dart';
 export 'ontology/models/ontology_relation.dart';
 export 'ontology/models/overview.dart';
 export 'ontology/models/ownership_snapshot.dart';
@@ -3393,6 +3377,74 @@ class Protocol extends _is.DatabaseSerializationManager {
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'industry_catalog_snapshot',
+      dartName: 'IndustryCatalogSnapshot',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'snapshotKey',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceFingerprint',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'builderVersion',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'catalog',
+          columnType: _isp.ColumnType.json,
+          isNullable: false,
+          dartType: 'protocol:IndustryDiscovery',
+        ),
+        _isp.ColumnDefinition(
+          name: 'pilot',
+          columnType: _isp.ColumnType.json,
+          isNullable: false,
+          dartType: 'protocol:IndustryDiscovery',
+        ),
+        _isp.ColumnDefinition(
+          name: 'computedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'industry_catalog_snapshot_key_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'snapshotKey',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'ingest_job',
       dartName: 'IngestJob',
       schema: 'public',
@@ -5096,6 +5148,18 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'DateTime',
         ),
         _isp.ColumnDefinition(
+          name: 'firstObservedDate',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'firstObservedSourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
           name: 'sourceId',
           columnType: _isp.ColumnType.bigint,
           isNullable: true,
@@ -5115,6 +5179,16 @@ class Protocol extends _is.DatabaseSerializationManager {
         ),
         _isp.ForeignKeyDefinition(
           constraintName: 'security_fk_1',
+          columns: ['firstObservedSourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'security_fk_2',
           columns: ['sourceId'],
           referenceTable: 'source',
           referenceTableSchema: 'public',
@@ -6289,6 +6363,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _inylkhjt.BusinessSection) {
       return _inylkhjt.BusinessSection.fromJson(data) as T;
     }
+    if (t == _i0vnq5ds.BusinessTableInsight) {
+      return _i0vnq5ds.BusinessTableInsight.fromJson(data) as T;
+    }
+    if (t == _ia821tg8.BusinessTableMeasure) {
+      return _ia821tg8.BusinessTableMeasure.fromJson(data) as T;
+    }
+    if (t == _i5mz554b.BusinessTableRecord) {
+      return _i5mz554b.BusinessTableRecord.fromJson(data) as T;
+    }
     if (t == _iwkhf8pb.BusinessUnderstanding) {
       return _iwkhf8pb.BusinessUnderstanding.fromJson(data) as T;
     }
@@ -6460,6 +6543,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _if5qperq.IndustryActivity) {
       return _if5qperq.IndustryActivity.fromJson(data) as T;
     }
+    if (t == _itl62zkj.IndustryCatalogSnapshot) {
+      return _itl62zkj.IndustryCatalogSnapshot.fromJson(data) as T;
+    }
     if (t == _ixuxxo68.IndustryDiscovery) {
       return _ixuxxo68.IndustryDiscovery.fromJson(data) as T;
     }
@@ -6510,6 +6596,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _i3renazk.MarketSnapshotDay) {
       return _i3renazk.MarketSnapshotDay.fromJson(data) as T;
+    }
+    if (t == _ivtwhw6z.NewCompanyView) {
+      return _ivtwhw6z.NewCompanyView.fromJson(data) as T;
     }
     if (t == _iejnlir1.OntologyRelation) {
       return _iejnlir1.OntologyRelation.fromJson(data) as T;
@@ -6807,6 +6896,24 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _inylkhjt.BusinessSection.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_i0vnq5ds.BusinessTableInsight?>()) {
+      return (data != null
+              ? _i0vnq5ds.BusinessTableInsight.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_ia821tg8.BusinessTableMeasure?>()) {
+      return (data != null
+              ? _ia821tg8.BusinessTableMeasure.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_i5mz554b.BusinessTableRecord?>()) {
+      return (data != null
+              ? _i5mz554b.BusinessTableRecord.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _is.getType<_iwkhf8pb.BusinessUnderstanding?>()) {
       return (data != null
               ? _iwkhf8pb.BusinessUnderstanding.fromJson(data)
@@ -7028,6 +7135,12 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _if5qperq.IndustryActivity.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_itl62zkj.IndustryCatalogSnapshot?>()) {
+      return (data != null
+              ? _itl62zkj.IndustryCatalogSnapshot.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _is.getType<_ixuxxo68.IndustryDiscovery?>()) {
       return (data != null ? _ixuxxo68.IndustryDiscovery.fromJson(data) : null)
           as T;
@@ -7097,6 +7210,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_i3renazk.MarketSnapshotDay?>()) {
       return (data != null ? _i3renazk.MarketSnapshotDay.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_ivtwhw6z.NewCompanyView?>()) {
+      return (data != null ? _ivtwhw6z.NewCompanyView.fromJson(data) : null)
           as T;
     }
     if (t == _is.getType<_iejnlir1.OntologyRelation?>()) {
@@ -7316,9 +7433,35 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
+    if (t == List<_i0vnq5ds.BusinessTableInsight>) {
+      return (data as List)
+              .map((e) => deserialize<_i0vnq5ds.BusinessTableInsight>(e))
+              .toList()
+          as T;
+    }
+    if (t == _is.getType<List<_i0vnq5ds.BusinessTableInsight>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_i0vnq5ds.BusinessTableInsight>(e))
+                    .toList()
+              : null)
+          as T;
+    }
     if (t == List<_i3peg7yx.BusinessProduct>) {
       return (data as List)
               .map((e) => deserialize<_i3peg7yx.BusinessProduct>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i5mz554b.BusinessTableRecord>) {
+      return (data as List)
+              .map((e) => deserialize<_i5mz554b.BusinessTableRecord>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ia821tg8.BusinessTableMeasure>) {
+      return (data as List)
+              .map((e) => deserialize<_ia821tg8.BusinessTableMeasure>(e))
               .toList()
           as T;
     }
@@ -7342,6 +7485,20 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data as List)
               .map((e) => deserialize<_itz8g04g.FinancialPeriod>(e))
               .toList()
+          as T;
+    }
+    if (t == List<_icm1zoh2.Source>) {
+      return (data as List)
+              .map((e) => deserialize<_icm1zoh2.Source>(e))
+              .toList()
+          as T;
+    }
+    if (t == _is.getType<List<_icm1zoh2.Source>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_icm1zoh2.Source>(e))
+                    .toList()
+              : null)
           as T;
     }
     if (t == List<_itljah4k.ShareholderEntry>) {
@@ -7377,12 +7534,6 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<_i9gy9ys0.Person>) {
       return (data as List)
               .map((e) => deserialize<_i9gy9ys0.Person>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_icm1zoh2.Source>) {
-      return (data as List)
-              .map((e) => deserialize<_icm1zoh2.Source>(e))
               .toList()
           as T;
     }
@@ -7566,6 +7717,20 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == _is.getType<List<_ith4ion6.DividendEntry>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_ith4ion6.DividendEntry>(e))
+                    .toList()
+              : null)
+          as T;
+    }
+    if (t == _is.getType<List<int>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<int>(e)).toList()
+              : null)
+          as T;
+    }
     if (t == List<_irah5hi6.ThemeMemberView>) {
       return (data as List)
               .map((e) => deserialize<_irah5hi6.ThemeMemberView>(e))
@@ -7596,60 +7761,6 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_iee4t190.FacetCount>) {
-      return (data as List)
-              .map((e) => deserialize<_iee4t190.FacetCount>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_itpltonf.DisclosureSectionInfo>) {
-      return (data as List)
-              .map((e) => deserialize<_itpltonf.DisclosureSectionInfo>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_ihq2wng4.DocumentFact>) {
-      return (data as List)
-              .map((e) => deserialize<_ihq2wng4.DocumentFact>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_inzxvyu7.BusinessFactPeriod>) {
-      return (data as List)
-              .map((e) => deserialize<_inzxvyu7.BusinessFactPeriod>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_iogwdcx0.DartDisclosure>) {
-      return (data as List)
-              .map((e) => deserialize<_iogwdcx0.DartDisclosure>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_izmct7si.BusinessDigestSection>) {
-      return (data as List)
-              .map((e) => deserialize<_izmct7si.BusinessDigestSection>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_iwgt3edw.FilingFeedItem>) {
-      return (data as List)
-              .map((e) => deserialize<_iwgt3edw.FilingFeedItem>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_io4p8qqw.OwnershipSnapshot>) {
-      return (data as List)
-              .map((e) => deserialize<_io4p8qqw.OwnershipSnapshot>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_iqw74hrd.PersonHit>) {
-      return (data as List)
-              .map((e) => deserialize<_iqw74hrd.PersonHit>(e))
-              .toList()
-          as T;
-    }
     if (t == List<_i4udlom4.CompanyGroup>) {
       return (data as List)
               .map((e) => deserialize<_i4udlom4.CompanyGroup>(e))
@@ -7677,18 +7788,6 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_i8ke3qsu.CompanyMarketCap>) {
-      return (data as List)
-              .map((e) => deserialize<_i8ke3qsu.CompanyMarketCap>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_ihep8lzy.MarketCapPoint>) {
-      return (data as List)
-              .map((e) => deserialize<_ihep8lzy.MarketCapPoint>(e))
-              .toList()
-          as T;
-    }
     if (t == List<_iw7zbyvm.BillingPaymentView>) {
       return (data as List)
               .map((e) => deserialize<_iw7zbyvm.BillingPaymentView>(e))
@@ -7707,24 +7806,6 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<_ip1s5ejx.ReviewItem>) {
       return (data as List)
               .map((e) => deserialize<_ip1s5ejx.ReviewItem>(e))
-              .toList()
-          as T;
-    }
-    if (t == _is.getType<List<String>?>()) {
-      return (data != null
-              ? (data as List).map((e) => deserialize<String>(e)).toList()
-              : null)
-          as T;
-    }
-    if (t == List<_iy65bs9o.ThemeSummary>) {
-      return (data as List)
-              .map((e) => deserialize<_iy65bs9o.ThemeSummary>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_in6y0ur2.InvestmentTheme>) {
-      return (data as List)
-              .map((e) => deserialize<_in6y0ur2.InvestmentTheme>(e))
               .toList()
           as T;
     }
@@ -7778,6 +7859,9 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i3peg7yx.BusinessProduct => 'BusinessProduct',
       _iegef18i.BusinessProfile => 'BusinessProfile',
       _inylkhjt.BusinessSection => 'BusinessSection',
+      _i0vnq5ds.BusinessTableInsight => 'BusinessTableInsight',
+      _ia821tg8.BusinessTableMeasure => 'BusinessTableMeasure',
+      _i5mz554b.BusinessTableRecord => 'BusinessTableRecord',
       _iwkhf8pb.BusinessUnderstanding => 'BusinessUnderstanding',
       _ipen255x.Company => 'Company',
       _isfozywu.CompanyChange => 'CompanyChange',
@@ -7835,6 +7919,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _it75qdkc.IndexPoint => 'IndexPoint',
       _i3hzx3f1.Industry => 'Industry',
       _if5qperq.IndustryActivity => 'IndustryActivity',
+      _itl62zkj.IndustryCatalogSnapshot => 'IndustryCatalogSnapshot',
       _ixuxxo68.IndustryDiscovery => 'IndustryDiscovery',
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _il0sbv1h.IngestCoverage => 'IngestCoverage',
@@ -7852,6 +7937,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i9c8jqc3.MarketIndexSnapshot => 'MarketIndexSnapshot',
       _ibhowe7d.MarketSnapshot => 'MarketSnapshot',
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
+      _ivtwhw6z.NewCompanyView => 'NewCompanyView',
       _iejnlir1.OntologyRelation => 'OntologyRelation',
       _iz31wbgv.Overview => 'Overview',
       _ilc2cd4p.OwnershipSnapshot => 'OwnershipSnapshot',
@@ -7980,6 +8066,12 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'BusinessProfile';
       case _inylkhjt.BusinessSection():
         return 'BusinessSection';
+      case _i0vnq5ds.BusinessTableInsight():
+        return 'BusinessTableInsight';
+      case _ia821tg8.BusinessTableMeasure():
+        return 'BusinessTableMeasure';
+      case _i5mz554b.BusinessTableRecord():
+        return 'BusinessTableRecord';
       case _iwkhf8pb.BusinessUnderstanding():
         return 'BusinessUnderstanding';
       case _ipen255x.Company():
@@ -8094,6 +8186,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'Industry';
       case _if5qperq.IndustryActivity():
         return 'IndustryActivity';
+      case _itl62zkj.IndustryCatalogSnapshot():
+        return 'IndustryCatalogSnapshot';
       case _ixuxxo68.IndustryDiscovery():
         return 'IndustryDiscovery';
       case _i25uuckt.IndustryRevisionCheck():
@@ -8128,6 +8222,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'MarketSnapshot';
       case _i3renazk.MarketSnapshotDay():
         return 'MarketSnapshotDay';
+      case _ivtwhw6z.NewCompanyView():
+        return 'NewCompanyView';
       case _iejnlir1.OntologyRelation():
         return 'OntologyRelation';
       case _iz31wbgv.Overview():
@@ -8361,6 +8457,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'BusinessSection') {
       return deserialize<_inylkhjt.BusinessSection>(data['data']);
     }
+    if (dataClassName == 'BusinessTableInsight') {
+      return deserialize<_i0vnq5ds.BusinessTableInsight>(data['data']);
+    }
+    if (dataClassName == 'BusinessTableMeasure') {
+      return deserialize<_ia821tg8.BusinessTableMeasure>(data['data']);
+    }
+    if (dataClassName == 'BusinessTableRecord') {
+      return deserialize<_i5mz554b.BusinessTableRecord>(data['data']);
+    }
     if (dataClassName == 'BusinessUnderstanding') {
       return deserialize<_iwkhf8pb.BusinessUnderstanding>(data['data']);
     }
@@ -8532,6 +8637,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'IndustryActivity') {
       return deserialize<_if5qperq.IndustryActivity>(data['data']);
     }
+    if (dataClassName == 'IndustryCatalogSnapshot') {
+      return deserialize<_itl62zkj.IndustryCatalogSnapshot>(data['data']);
+    }
     if (dataClassName == 'IndustryDiscovery') {
       return deserialize<_ixuxxo68.IndustryDiscovery>(data['data']);
     }
@@ -8582,6 +8690,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'MarketSnapshotDay') {
       return deserialize<_i3renazk.MarketSnapshotDay>(data['data']);
+    }
+    if (dataClassName == 'NewCompanyView') {
+      return deserialize<_ivtwhw6z.NewCompanyView>(data['data']);
     }
     if (dataClassName == 'OntologyRelation') {
       return deserialize<_iejnlir1.OntologyRelation>(data['data']);
@@ -8837,6 +8948,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _i1qwjg2x.FinancialReport.t;
       case _i3hzx3f1.Industry:
         return _i3hzx3f1.Industry.t;
+      case _itl62zkj.IndustryCatalogSnapshot:
+        return _itl62zkj.IndustryCatalogSnapshot.t;
       case _iay1heal.IngestJob:
         return _iay1heal.IngestJob.t;
       case _i9p8kpm7.InvestmentEntry:

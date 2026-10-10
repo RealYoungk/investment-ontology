@@ -14,12 +14,12 @@ class GovernanceGraph extends StatelessWidget {
     required this.onTap,
     this.leftTitle = '주주',
     this.rightTitle = '출자',
-    this.maxPerSide = 10,
+    this.maxPerSide,
   });
   final String center, leftTitle, rightTitle;
   final List<GovernanceNode> left, right;
   final ValueChanged<GovernanceNode> onTap;
-  final int maxPerSide;
+  final int? maxPerSide;
   RelationshipDiagramNode<GovernanceNode> _node(GovernanceNode n) =>
       RelationshipDiagramNode(
         value: n,

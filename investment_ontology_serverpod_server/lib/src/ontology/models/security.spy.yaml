@@ -16,6 +16,9 @@ fields:
   linkBasis: SecurityLinkBasis?
   ### 시세나 상장종목 목록에서 마지막으로 확인한 기준일 (UTC 자정)
   lastSeenDate: DateTime
+  ### 정상 수집에서 새 종목을 처음 확인한 기준일. 공식 상장일이 아니며 초기/복구 수집은 null.
+  firstObservedDate: DateTime?
+  firstObservedSourceId: int?, relation(parent=source, onDelete=SetNull)
   ### 종목 정보(이름·시장·법인)의 마지막 출처
   sourceId: int?, relation(parent=source, onDelete=SetNull)
 indexes:

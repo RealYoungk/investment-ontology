@@ -416,6 +416,23 @@ abstract final class FinancialAccounts {
         }
       }
     }
+    final ownership = [
+      bs['equity'],
+      bs['equityOwners'],
+      bs['noncontrollingInterest'],
+    ];
+    if (ownership.every((l) => l?.amount != null) &&
+        ownership.map((l) => l!.currency ?? 'KRW').toSet().length == 1) {
+      final total = ownership[0]!.amount!;
+      final tolerance = total.abs() ~/ BigInt.from(1000000);
+      final allowed = tolerance > BigInt.from(1000)
+          ? tolerance
+          : BigInt.from(1000);
+      if ((total - ownership[1]!.amount! - ownership[2]!.amount!).abs() >
+          allowed) {
+        ownership[1]!.unavailableReason = '지배주주·비지배주주 자본 합계 불일치 · 원천 공시 확인 필요';
+      }
+    }
     return lines;
   }
 }

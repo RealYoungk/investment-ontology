@@ -107,7 +107,11 @@ void main() {
       final list = await endpoints.theme.list(sessionBuilder);
       expect(list.single.memberCount, 2);
       expect(list.single.marketCap, BigInt.from(40000000000));
-      expect(list.single.topNames, ['(주)배터리', '(주)소재']);
+      expect(list.single.topNames, ['배터리', '소재']);
+      expect(
+        (await Company.db.findById(session, ids['00000001']!))!.name,
+        '(주)배터리',
+      );
 
       expect(
         [

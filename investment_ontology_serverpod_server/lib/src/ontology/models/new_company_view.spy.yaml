@@ -1,0 +1,8 @@
+class: NewCompanyView
+fields:
+  corpCode: String
+  name: String
+  stockCode: String?
+  market: Market?
+  observedDate: DateTime
+  source: Source

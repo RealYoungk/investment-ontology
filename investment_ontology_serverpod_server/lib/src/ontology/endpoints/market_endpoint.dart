@@ -1,3 +1,4 @@
+import '../presentation/company_presentation.dart';
 import '../market/comparison_date.dart';
 import '../market/company_cap_history.dart';
 
@@ -10,6 +11,70 @@ import '../ingest/ksic_revision.dart';
 class MarketEndpoint extends Endpoint {
   @override
   bool get requireLogin => false;
+
+  /// First observed companies, not official IPO dates. Reads stored data only.
+  Future<List<NewCompanyView>> newCompanies(Session session) async {
+    final candidates = await Security.db.find(
+      session,
+      where: (t) => t.firstObservedDate.notEquals(null),
+      orderBy: (t) => t.firstObservedDate.desc(),
+      limit: 200,
+    );
+    final ids = candidates.map((s) => s.companyId).whereType<int>().toSet();
+    if (ids.isEmpty) return [];
+    final siblings = await Security.db.find(
+      session,
+      where: (t) => t.companyId.inSet(ids),
+    );
+    final companies = await Company.db.find(
+      session,
+      where: (t) =>
+          t.id.inSet(ids) &
+          t.market.inSet({Market.kospi, Market.kosdaq, Market.konex}),
+    );
+    final sources = await Source.db.find(
+      session,
+      where: (t) => t.id.inSet(
+        candidates.map((s) => s.firstObservedSourceId).whereType<int>().toSet(),
+      ),
+    );
+    final result = <NewCompanyView>[];
+    final seen = <int>{};
+    for (final security in candidates) {
+      final company = companies
+          .where((c) => c.id == security.companyId)
+          .firstOrNull;
+      final source = sources
+          .where((s) => s.id == security.firstObservedSourceId)
+          .firstOrNull;
+      final date = security.firstObservedDate!;
+      if (company == null || source == null || seen.contains(company.id)) {
+        continue;
+      }
+      // Existing share classes make this a new security, not a new company.
+      if (siblings.any(
+        (s) =>
+            s.companyId == company.id &&
+            (s.firstObservedDate == null ||
+                s.firstObservedDate!.isBefore(date)),
+      )) {
+        continue;
+      }
+      seen.add(company.id!);
+      result.add(
+        NewCompanyView(
+          corpCode: company.corpCode,
+          name: company.displayName,
+          stockCode: company.stockCode,
+          market: company.market,
+          observedDate: date,
+          source: source,
+        ),
+      );
+      if (result.length == 8) break;
+    }
+    return result;
+  }
 
   /// Monthly raw company capitalization, bounded to five years.
   /// All observed share classes are included; a missing quote leaves a gap.
@@ -441,7 +506,7 @@ class MarketEndpoint extends Endpoint {
   static MarketCapNode _companyNode(Company company, BigInt cap) =>
       MarketCapNode(
         code: company.corpCode,
-        name: company.name,
+        name: company.displayName,
         marketCap: cap,
         companyCount: 1,
         market: company.market,

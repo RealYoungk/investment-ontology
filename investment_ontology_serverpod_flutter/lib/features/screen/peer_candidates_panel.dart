@@ -141,7 +141,7 @@ class _PeerCandidatesPanelState extends State<PeerCandidatesPanel> {
                   for (final candidate in data.items)
                     SizedBox(
                       width: width,
-                      child: CompanyDataCard(
+                      child: DataPanel(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -174,7 +174,7 @@ class _PeerCandidatesPanelState extends State<PeerCandidatesPanel> {
                                           candidate,
                                         ),
                                         icon: Icon(
-                                          Icons.info_outline,
+                                          LucideIcons.info,
                                           size: 16,
                                         ),
                                       ),
@@ -203,8 +203,8 @@ class _PeerCandidatesPanelState extends State<PeerCandidatesPanel> {
                                   variant: ShadButtonVariant.outline,
                                   leading: Icon(
                                     widget.codes.contains(candidate.corpCode)
-                                        ? Icons.check
-                                        : Icons.add,
+                                        ? LucideIcons.check
+                                        : LucideIcons.plus,
                                     size: 16,
                                   ),
                                   child: Flexible(
@@ -312,7 +312,7 @@ void _showReason(
                     width: 20,
                     height: 20,
                     padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.close, size: 16),
+                    icon: const Icon(LucideIcons.x, size: 16),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -332,20 +332,6 @@ void _showReason(
                         children: [
                           Expanded(
                             child: Text('왜 비교하나요?', style: t.display(24)),
-                          ),
-                          Semantics(
-                            container: true,
-                            label: '닫기',
-                            button: true,
-                            enabled: true,
-                            onTap: () => Navigator.pop(context),
-                            child: ExcludeSemantics(
-                              child: ShadIconButton.ghost(
-                                onPressed: () => Navigator.pop(context),
-                                icon: const Icon(Icons.close),
-                                semanticLabel: '닫기',
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -474,7 +460,7 @@ class _Evidence extends StatelessWidget {
             Uri.https('dart.fss.or.kr', '/dsaf001/main.do', {'rcpNo': receipt}),
           ),
           variant: ShadButtonVariant.outline,
-          leading: Icon(Icons.open_in_new, size: 16),
+          leading: Icon(LucideIcons.externalLink, size: 16),
           child: Flexible(child: Text('공시 원문')),
         ),
       ),

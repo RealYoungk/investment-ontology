@@ -1,3 +1,4 @@
+import '../design/components/company_logo.dart';
 import '../features/search/search_catalog.dart';
 import '../design/components/navigation_menu.dart';
 
@@ -44,6 +45,7 @@ const _destinations = [
   _Destination('기업 비교', '/compare'),
   _Destination('관계망', '/graph'),
   _Destination('관심종목', '/watchlist', matches: ['/notifications']),
+  _Destination('투자 관점', '/insights'),
 ];
 
 /// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 데이터) + 본문.
@@ -62,6 +64,9 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
+  bool _readingDown = false;
+  double _directionTravel = 0;
+
   /// 기업 목록으로 돌아갈 때 쓰던 필터를 그대로 되살리기 위한 마지막 목록 주소.
   String _companiesLocation = '/companies';
 
@@ -75,6 +80,7 @@ class _AppShellState extends State<AppShell> {
   void didUpdateWidget(covariant AppShell oldWidget) {
     super.didUpdateWidget(oldWidget);
     _remember();
+    if (oldWidget.location.path != widget.location.path) _readingDown = false;
   }
 
   void _remember() {
@@ -143,44 +149,69 @@ class _AppShellState extends State<AppShell> {
           backgroundColor: c.background,
           // Paint navigation after the nested route: its BlockSemantics must
           // not hide the persistent header/sidebar from assistive technology.
-          body: FocusTraversalGroup(
-            policy: OrderedTraversalPolicy(),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  left: 0,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        top: 64,
-                        child: FocusTraversalOrder(
-                          order: const NumericFocusOrder(2),
-                          child: PageFrameLeadScope(
-                            leading:
-                                const {'/market', '/companies'}.contains(path)
-                                ? const AdBanner()
-                                : null,
-                            child: widget.child,
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (desktop ||
+                  notification.depth != 0 ||
+                  notification is! ScrollUpdateNotification) {
+                return false;
+              }
+              final delta = notification.scrollDelta ?? 0;
+              if (delta == 0) return false;
+              if (_directionTravel.sign != delta.sign) _directionTravel = 0;
+              _directionTravel += delta;
+              if (notification.metrics.pixels > 48 &&
+                  _directionTravel.abs() < 16)
+                return false;
+              final hide =
+                  _directionTravel > 0 && notification.metrics.pixels > 48;
+              if (_readingDown != hide) setState(() => _readingDown = hide);
+              return false;
+            },
+            child: FocusTraversalGroup(
+              policy: OrderedTraversalPolicy(),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    left: 0,
+                    child: Stack(
+                      children: [
+                        AnimatedPositioned(
+                          duration: AppMotion.normal,
+                          top: !desktop && _readingDown ? 0 : 64,
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: FocusTraversalOrder(
+                            order: const NumericFocusOrder(2),
+                            child: PageFrameLeadScope(
+                              leading:
+                                  const {'/market', '/companies'}.contains(path)
+                                  ? const AdBanner()
+                                  : null,
+                              child: widget.child,
+                            ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: FocusTraversalOrder(
-                          order: const NumericFocusOrder(1),
-                          child: _TopBar(
-                            destinations: destinations,
-                            desktop: desktop,
-                            onMenu: () => _openMenu(context, destinations),
+                        AnimatedPositioned(
+                          duration: AppMotion.normal,
+                          top: !desktop && _readingDown ? -64 : 0,
+                          left: 0,
+                          right: 0,
+                          child: FocusTraversalOrder(
+                            order: const NumericFocusOrder(1),
+                            child: _TopBar(
+                              destinations: destinations,
+                              desktop: desktop,
+                              onMenu: () => _openMenu(context, destinations),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -208,6 +239,7 @@ class _DeskNavigationState extends State<_DeskNavigation> {
     LucideIcons.arrowLeftRight,
     LucideIcons.network,
     LucideIcons.star,
+    LucideIcons.bookOpen,
   ];
   @override
   void dispose() {
@@ -452,7 +484,7 @@ class _Account extends StatelessWidget {
           child: ExcludeSemantics(
             child: ShadIconButton.ghost(
               icon: Icon(
-                LucideIcons.circleUserRound,
+                LucideIcons.userRound,
                 color: context.colors.textSecondary,
                 size: 24,
               ),
@@ -626,6 +658,13 @@ class _HitList extends StatelessWidget {
           row(
             onTap: () => onCompany(item),
             children: [
+              CompanyLogo(
+                name: item.name,
+                stockCode: item.stockCode,
+                corpCode: item.corpCode,
+                size: 28,
+              ),
+              const SizedBox(width: AppSpace.sm),
               SizedBox(
                 width: 64,
                 child: Text(
@@ -978,6 +1017,8 @@ class _GlobalSearchState extends State<_GlobalSearch> with _SearchKeyboard {
         width: 260,
         height: 36,
         child: Focus(
+          canRequestFocus: false,
+          skipTraversal: true,
           onKeyEvent: _onSearchKey,
           child: ShadInput(
             placeholder: Text('기업 · 인물 · 메뉴 검색'),
@@ -1119,6 +1160,10 @@ class _SearchDialog extends StatefulWidget {
 
 class _SearchDialogState extends State<_SearchDialog> with _SearchKeyboard {
   final _focus = FocusNode(canRequestFocus: false, skipTraversal: true);
+  final _scope = FocusScopeNode(
+    debugLabel: 'Global search dialog',
+    traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
+  );
 
   void activateSearch() {
     _focus
@@ -1163,6 +1208,7 @@ class _SearchDialogState extends State<_SearchDialog> with _SearchKeyboard {
     _debounce?.cancel();
     _controller.dispose();
     _focus.dispose();
+    _scope.dispose();
     super.dispose();
   }
 
@@ -1206,65 +1252,70 @@ class _SearchDialogState extends State<_SearchDialog> with _SearchKeyboard {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    return ShadDialog(
-      closeIcon: Builder(
-        builder: (context) => Semantics(
-          container: true,
-          label: '닫기',
-          button: true,
-          onTap: () => Navigator.of(context).pop(),
-          child: ExcludeSemantics(
-            child: ShadIconButton.ghost(
-              width: 20,
-              height: 20,
-              padding: EdgeInsets.zero,
-              icon: const Icon(LucideIcons.x, size: 16),
-              onPressed: () => Navigator.of(context).pop(),
+    return FocusScope(
+      node: _scope,
+      child: ShadDialog(
+        closeIcon: Builder(
+          builder: (context) => Semantics(
+            container: true,
+            label: '닫기',
+            button: true,
+            onTap: widget.onClose,
+            child: ExcludeSemantics(
+              child: ShadIconButton.ghost(
+                width: 20,
+                height: 20,
+                padding: EdgeInsets.zero,
+                icon: const Icon(LucideIcons.x, size: 16),
+                onPressed: widget.onClose,
+              ),
             ),
           ),
         ),
-      ),
-      alignment: Alignment.topCenter,
-      backgroundColor: c.surface,
-      child: Material(
-        type: MaterialType.transparency,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpace.md),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Focus(
-                onKeyEvent: _onSearchKey,
-                child: ShadInput(
-                  placeholder: Text('기업 · 인물 · 메뉴 검색'),
-                  leading: Icon(LucideIcons.search, color: c.textSecondary),
-                  controller: _controller,
-                  focusNode: _focus,
-                  textInputAction: TextInputAction.search,
-                  onChanged: _search,
-                  onSubmitted: (_) => _submitSelected(),
-                  style: t.body(16),
-                ),
-              ),
-              const SizedBox(height: AppSpace.xs),
-              if (_controller.text.trim().isNotEmpty)
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: _SearchResults(
-                      loading: _loading,
-                      failed: _failed,
-                      hits: _hits,
-                      selectedIndex: _selectedIndex,
-                      selectedKey: _selectedKey,
-                      onCompany: (item) =>
-                          _go(AppRoutes.company(item.corpCode)),
-                      onPerson: (p) => _go(AppRoutes.person(p.personId)),
-                      onLocation: _go,
-                    ),
+        alignment: Alignment.topCenter,
+        backgroundColor: c.surface,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpace.md),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Focus(
+                  canRequestFocus: false,
+                  skipTraversal: true,
+                  onKeyEvent: _onSearchKey,
+                  child: ShadInput(
+                    placeholder: Text('기업 · 인물 · 메뉴 검색'),
+                    leading: Icon(LucideIcons.search, color: c.textSecondary),
+                    controller: _controller,
+                    focusNode: _focus,
+                    textInputAction: TextInputAction.search,
+                    onChanged: _search,
+                    onSubmitted: (_) => _submitSelected(),
+                    style: t.body(16),
                   ),
                 ),
-            ],
+                const SizedBox(height: AppSpace.xs),
+                if (_controller.text.trim().isNotEmpty)
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: _SearchResults(
+                        loading: _loading,
+                        failed: _failed,
+                        hits: _hits,
+                        selectedIndex: _selectedIndex,
+                        selectedKey: _selectedKey,
+                        onCompany: (item) =>
+                            _go(AppRoutes.company(item.corpCode)),
+                        onPerson: (p) => _go(AppRoutes.person(p.personId)),
+                        onLocation: _go,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

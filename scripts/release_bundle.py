@@ -58,6 +58,13 @@ def seal(directory):
         'mainJsSha256': sha256(static / 'main.dart.js'),
         'component': 'web',
     }
+    validation = ROOT / 'output/validation-results.json'
+    if validation.exists():
+        records = json.loads(validation.read_text())
+        public['validationCache'] = {
+            'executed': sum(row['origin'] == 'executed' for row in records),
+            'reused': sum(row['origin'] == 'reused' for row in records),
+        }
     (static / 'release.json').write_text(json.dumps(public, indent=2) + '\n')
     manifest = dict(public, files=inventory(output))
     (directory / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')

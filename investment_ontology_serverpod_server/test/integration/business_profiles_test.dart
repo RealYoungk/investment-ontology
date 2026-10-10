@@ -257,7 +257,10 @@ void main() {
           discoveredAt: DateTime.now().toUtc(),
         ),
       );
-      expect(await endpoint.businessContent(session, '00000008'), isNull);
+      final fallback = await endpoint.businessContent(session, '00000008');
+      expect(fallback!.rceptNo, half.rceptNo);
+      expect(fallback.title, contains('이전 저장 보고서'));
+      expect(fallback.title, contains('$y.09'));
       expect(
         await endpoint.businessContent(session, '00000008', bsnsYear: y),
         isNull,
@@ -269,6 +272,59 @@ void main() {
           bsnsYear: y - 1,
         ))?.rceptNo,
         annual.rceptNo,
+      );
+    });
+    test('첨부정정은 같은 회사·실제기간 원본문을 보존하고 기재정정은 대체하지 않는다', () async {
+      final annual = await document(
+        '01999992',
+        product,
+        year: 2025,
+        reportName: '사업보고서 (2025.12)',
+      );
+      Future<void> filing(String receipt, String name) => DartFiling.db
+          .insertRow(
+            session,
+            DartFiling(
+              companyId: annual.companyId,
+              corpCode: '01999992',
+              rceptNo: receipt,
+              reportName: name,
+              bsnsYear: 2025,
+              reportCode: FinancialReportCode.annual,
+              consolidatedStatus: FilingFetchStatus.pending,
+              separateStatus: FilingFetchStatus.pending,
+              discoveredAt: DateTime.now().toUtc(),
+            ),
+          )
+          .then((_) {});
+      await filing('20260323001139', '[첨부정정]사업보고서 (2025.12)');
+      final endpoint = DisclosureEndpoint();
+      final result = await endpoint.businessContent(
+        session,
+        '01999992',
+        bsnsYear: 2025,
+      );
+      expect(result!.rceptNo, annual.rceptNo);
+      expect(result.title, contains('첨부정정의 동일 보고기간 원본문'));
+      await filing('20260324001139', '[첨부정정]사업보고서 (2025.09)');
+      // The December filing still wins by actual reporting period.
+      expect(
+        (await endpoint.businessContent(
+          session,
+          '01999992',
+          bsnsYear: 2025,
+        ))!.rceptNo,
+        annual.rceptNo,
+      );
+      await filing('20260325001139', '[기재정정]사업보고서 (2025.12)');
+      expect(
+        await endpoint.businessContent(session, '01999992', bsnsYear: 2025),
+        isNull,
+      );
+      await filing('20260326001139', '[첨부정정]사업보고서 (2025.12)');
+      expect(
+        await endpoint.businessContent(session, '01999992', bsnsYear: 2025),
+        isNull,
       );
     });
     test(
@@ -292,5 +348,45 @@ void main() {
         );
       },
     );
+
+    test('missing latest body returns explicitly labelled stored source; requested year stays strict', () async {
+      final doc = await document(
+        '01999991',
+        product,
+        year: 2025,
+        reportName: '사업보고서 (2025.12)',
+      );
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          companyId: doc.companyId,
+          corpCode: '01999991',
+          rceptNo: '20260814009999',
+          reportName: '반기보고서 (2026.06)',
+          bsnsYear: 2026,
+          reportCode: FinancialReportCode.halfYear,
+          consolidatedStatus: FilingFetchStatus.pending,
+          separateStatus: FilingFetchStatus.pending,
+          discoveredAt: DateTime.now().toUtc(),
+        ),
+      );
+      final endpoint = DisclosureEndpoint();
+      final fallback = await endpoint.businessContent(session, '01999991');
+      expect(fallback, isNotNull);
+      expect(fallback!.bsnsYear, 2025);
+      expect(fallback.rceptNo, doc.rceptNo);
+      expect(fallback.title, contains('이전 저장 보고서'));
+      expect(fallback.title, contains('2026.06'));
+      final historical = await endpoint.businessContent(
+        session,
+        '01999991',
+        bsnsYear: 2025,
+      );
+      expect(historical!.title, '사업의 내용');
+      expect(
+        await endpoint.businessContent(session, '01999991', bsnsYear: 2026),
+        isNull,
+      );
+    });
   });
 }

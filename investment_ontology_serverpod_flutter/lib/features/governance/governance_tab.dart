@@ -501,20 +501,44 @@ class _InvestmentTable extends StatefulWidget {
 
 class _InvestmentTableState extends State<_InvestmentTable> {
   int _shown = 20;
+  InvestmentSort _sort = InvestmentSort.bookValue;
   @override
   Widget build(BuildContext context) {
     final view = widget.view;
     final onOpen = widget.onOpen;
     final c = context.colors;
     final t = context.typo;
-    final rows = view.data.investments;
+    final rows = sortedInvestments(view.data.investments, _sort);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SectionLabel('타법인 출자 · 타법인 출자현황'),
+        const SizedBox(height: AppSpace.sm),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: AppSelect<InvestmentSort>(
+            options: const {
+              InvestmentSort.bookValue: '투자 규모 큰 순 · 기말 장부가',
+              InvestmentSort.profit: '대상 순이익 큰 순',
+              InvestmentSort.loss: '대상 순손실 큰 순',
+              InvestmentSort.incomeMagnitude: '대상 순손익 절대금액 큰 순',
+            },
+            value: _sort,
+            placeholder: '정렬 기준',
+            allowClear: false,
+            onChanged: (sort) {
+              if (sort == null) return;
+              setState(() {
+                _sort = sort;
+                _shown = 20;
+              });
+            },
+          ),
+        ),
+
         const SizedBox(height: AppSpace.xs),
         Text(
-          '금액은 원 단위 (DART가 보고서의 백만원 값을 원으로 바꿔 준다). 대상의 총자산·순손익은 그 법인의 최근 사업연도.',
+          '금액은 원 단위 (DART가 보고서의 백만원 값을 원으로 바꿔 준다). 대상의 총자산·순손익은 그 법인의 최근 사업연도이며, 이 회사가 인식한 투자손익은 아닙니다. 미공시 금액과 합계는 아래에 표시합니다.',
           style: t.body(12, color: c.textMuted),
         ),
         const SizedBox(height: AppSpace.sm),
