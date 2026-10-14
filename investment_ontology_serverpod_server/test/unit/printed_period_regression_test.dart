@@ -84,7 +84,14 @@ void main() {
       25,
       1,
     ]);
-    expect(OrderFacts.parse(text), isEmpty);
+    final verifiedComponents = OrderFacts.parse(text);
+    expect(verifiedComponents.map((r) => (r.total, r.delivered, r.backlog)), [
+      (10256.0, 6095.0, 4161.0),
+    ]);
+    expect(
+      verifiedComponents.any((r) => r.evidence.startsWith('합 계 |')),
+      isFalse,
+    );
     expect(tables.where((t) => t.topic == 'productionSource'), hasLength(2));
     final production = tables
         .where((t) => t.topic == 'productionSource')
@@ -104,6 +111,28 @@ void main() {
       RndFacts.parse(text, bsnsYear: 2026)!.totals.single.values.first,
       1130222,
     );
+  });
+
+  test('a verified order component cannot hide an unverified printed total', () {
+    const source =
+        '(단위 : 백만원)\n품목 | 수주총액 | 기납품액 | 수주잔고\n제품 | 10 | 3 | 7\n합계 | 100 | 30 | 90';
+    final raw = BusinessTableInsights.parse(source, reportPeriod: '2026 반기');
+    final order = raw.singleWhere((t) => t.topic == 'orderSource');
+    expect(order.evidence, contains('합계 | 100 | 30 | 90'));
+    expect(order.measures.map((m) => m.value), [100, 30, 90]);
+    expect(OrderFacts.parse(source).single.backlog, 7);
+    final reconciled = source.replaceFirst(
+      '합계 | 100 | 30 | 90',
+      '합계 | 100 | 30 | 70',
+    );
+    expect(
+      BusinessTableInsights.parse(
+        reconciled,
+        reportPeriod: '2026 반기',
+      ).where((t) => t.topic == 'orderSource'),
+      isEmpty,
+    );
+    expect(OrderFacts.parse(reconciled).single.backlog, 70);
   });
   for (final year in [2022, 2023, 2024, 2025]) {
     test('삼기 $year 실제 저장 본문 표가 현재 기간과 섞이지 않는다', () {

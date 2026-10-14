@@ -234,8 +234,24 @@ abstract final class BusinessSourceTables {
       final evidence = lines.sublist(start, end).join('\n');
       // A verified total already appears in operating trends; raw evidence is
       // retained there. Keep this fallback only for unverified source tables.
-      if (topic == 'orderSource' && OrderFacts.parse(evidence).isNotEmpty) {
-        continue;
+      if (topic == 'orderSource') {
+        final verifiedOrders = OrderFacts.parse(evidence);
+        final printedTotals = rows.where(
+          (row) => RegExp(
+            r'^(?:합계|총계|총합계|계|소계|누계)(?:\(\d+\))?$',
+          ).hasMatch(row.split('|').first.replaceAll(' ', '')),
+        );
+        // A valid component is not proof of the printed aggregate. Preserve
+        // unmatched totals as raw observations, including contradictory totals.
+        if (verifiedOrders.isNotEmpty &&
+            (printedTotals.isEmpty ||
+                printedTotals.every(
+                  (total) => verifiedOrders.any(
+                    (r) => r.evidence.trim() == total.trim(),
+                  ),
+                ))) {
+          continue;
+        }
       }
       final verified = topic == 'productionSource'
           ? ProductionFacts.parse(evidence)
