@@ -43,3 +43,7 @@ build/
 skills/
 .gstack/
 .playwright-mcp/
+
+# Test fixtures and test helpers are verified before release, never compiled
+# into the production server. Keep their large source copies out of image layers.
+investment_ontology_serverpod_server/test/

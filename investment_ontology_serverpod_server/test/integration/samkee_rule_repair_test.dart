@@ -10,6 +10,8 @@ import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/pro
 
 import '../support/storage_test_server.dart';
 
+import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/stored_rnd_facts.dart';
+
 void main() {
   withStorageServerpod('Samkee source repair', (builder, _) {
     test('admin replay retracts wrong years, preserves human facts, and validates interim R&D against separate revenue', () async {
@@ -32,6 +34,7 @@ void main() {
         session,
         Source(
           kind: SourceKind.dartReport,
+          reference: '20260813000643',
           title: '반기보고서 (2026.06)',
           retrievedAt: DateTime.now().toUtc(),
         ),
@@ -98,10 +101,24 @@ void main() {
           fsDiv: FsDiv.separate,
           bsnsYear: 2026,
           reportCode: FinancialReportCode.halfYear,
-          reportName: '반기',
+          reportName: '반기보고서 (2026.06)',
           factCount: 1,
           sourceId: source.id!,
           fetchedAt: DateTime.now().toUtc(),
+        ),
+      );
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: report.rceptNo,
+          corpCode: company.corpCode,
+          companyId: company.id,
+          reportName: '반기보고서 (2026.06)',
+          bsnsYear: 2026,
+          reportCode: FinancialReportCode.halfYear,
+          consolidatedStatus: FilingFetchStatus.noData,
+          separateStatus: FilingFetchStatus.stored,
+          discoveredAt: DateTime.now().toUtc(),
         ),
       );
       await FinancialFact.db.insertRow(
@@ -120,6 +137,24 @@ void main() {
           currency: 'KRW',
           sourceId: source.id!,
         ),
+      );
+      // Missing receipt provenance must not authorize a financial denominator.
+      await Source.db.updateRow(
+        session,
+        source.copyWith(reference: 'wrong-receipt'),
+      );
+      expect(await StoredRndFacts.read(session, doc, report), isEmpty);
+      await Source.db.updateRow(
+        session,
+        source.copyWith(reference: report.rceptNo),
+      );
+      expect(
+        (await StoredRndFacts.read(
+          session,
+          doc,
+          report,
+        )).where((f) => f.kind == DocumentFactKind.rndExpense).single.value,
+        1130222,
       );
       final endpoint = IngestEndpoint();
       await expectLater(
