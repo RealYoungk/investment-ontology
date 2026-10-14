@@ -14,11 +14,27 @@ final _historyCache = BusinessHistoryCache(
   (code, year) => client.disclosure.businessContent(code, bsnsYear: year),
 );
 
+// Financial coverage can lag behind an already stored business filing. In
+// that case its older period must not truncate the business-source history.
+FinancialPeriod? _historyExpectedReport(
+  BusinessContent latest,
+  FinancialPeriod? financial,
+) {
+  if (financial == null) return null;
+  final pattern = RegExp(r'\((20\d{2}\.\d{2})\)');
+  final source = pattern.firstMatch(latest.source?.title ?? '')?.group(1);
+  final expected = pattern.firstMatch(financial.reportName)?.group(1);
+  return source != null && expected != null && source.compareTo(expected) > 0
+      ? null
+      : financial;
+}
+
 /// The five annual slots survive missing source reports; interim stays separate.
 List<int> businessAnnualYears(
   BusinessContent latest, {
   FinancialPeriod? latestReport,
 }) {
+  latestReport = _historyExpectedReport(latest, latestReport);
   final annual = latestReport != null
       ? latestReport.reportCode == FinancialReportCode.annual
       : latest.source?.title.contains('사업보고서') ?? false;
@@ -31,12 +47,13 @@ List<({int year, BusinessContent? report, String period})> businessHistorySlots(
   List<BusinessContent> reports, {
   FinancialPeriod? latestReport,
 }) {
+  latestReport = _historyExpectedReport(latest, latestReport);
   final years = businessAnnualYears(latest, latestReport: latestReport);
   final interimYear = latestReport?.bsnsYear ?? latest.bsnsYear;
   final interim = latestReport != null
       ? latestReport.reportCode != FinancialReportCode.annual
       : !years.contains(latest.bsnsYear);
-  final interimPeriod = latestReport == null
+  final interimLabel = latestReport == null
       ? latest.source?.title ?? '$interimYear 중간보고서'
       : switch (latestReport.reportCode) {
           FinancialReportCode.halfYear => '$interimYear 상반기',
@@ -49,6 +66,11 @@ List<({int year, BusinessContent? report, String period})> businessHistorySlots(
       : RegExp(r'\((20\d{2}\.\d{2})\)')
             .firstMatch(latestReport.reportName)
             ?.group(1);
+  final interimPeriod =
+      expectedDate != null &&
+          int.parse(expectedDate.substring(0, 4)) != interimYear
+      ? '$expectedDate 보고서 · 회계연도 $interimYear ${interimLabel.replaceFirst('$interimYear ', '')}'
+      : interimLabel;
   final sourceDate = RegExp(r'\((20\d{2}\.\d{2})\)')
       .firstMatch(latest.source?.title ?? '')
       ?.group(1);
@@ -85,6 +107,16 @@ List<({int year, BusinessContent? report, String period})> businessHistorySlots(
 
 /// Compact axis labels; preserve the printed period in source details.
 String businessHistoryAxisLabel(int year, String period) {
+  final fiscal = RegExp(r'회계연도\s+(20\d{2})').firstMatch(period)?.group(1);
+  if (fiscal != null) {
+    final fy = 'FY${fiscal.substring(2)}';
+    final quarter = RegExp(r'([1-4])분기').firstMatch(period)?.group(1);
+    if (quarter != null) {
+      return '$fy.${quarter}Q${period.contains('누적') ? ' 누적' : ''}';
+    }
+    if (period.contains('상반기') || period.contains('반기')) return '$fy.1H';
+    return fy;
+  }
   final printedYear = int.tryParse(
     RegExp(r'(?:19|20)\d{2}').firstMatch(period)?.group(0) ?? '',
   );

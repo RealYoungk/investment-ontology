@@ -2,16 +2,15 @@ import '../../generated/protocol.dart';
 import 'production_facts.dart';
 import 'order_facts.dart';
 import 'facility_book_values.dart';
+import 'literal_table_number.dart';
 
 /// Explicit source tables that must remain readable even when arithmetic or
 /// merged cells prevent verified numeric facts. Chart explicit observations
 /// separately from the persisted, arithmetic-verified facts.
 abstract final class BusinessSourceTables {
   static double? _number(String s) {
-    final value = s.trim().replaceAll(',', '').replaceAll('%', '');
-    return RegExp(r'^\d+(?:\.\d+)?$').hasMatch(value)
-        ? double.tryParse(value)
-        : null;
+    final value = literalTableNumber(s);
+    return value != null && value >= 0 ? value : null;
   }
 
   static List<BusinessTableMeasure> _measures(

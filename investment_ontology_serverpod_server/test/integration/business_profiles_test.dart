@@ -1,5 +1,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/business/business_profiles.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/business/business_product_rules.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/endpoints/disclosure_endpoint.dart';
 import 'package:test/test.dart';
@@ -327,6 +328,40 @@ void main() {
         isNull,
       );
     });
+    test('direct holding declaration with broad industry never inherits cached subsidiary product', () async {
+      final doc = await document(
+        '00000012',
+        '당사는 지주회사로서 자회사 지분을 보유합니다.\n$product',
+        industry: '649',
+      );
+      await BusinessProfile.db.insertRow(
+        session,
+        BusinessProfile(
+          documentId: doc.id!,
+          ruleVersion: BusinessProductRules.version,
+          products: BusinessProductRules.parse(product),
+          computedAt: DateTime.now().toUtc(),
+        ),
+      );
+      final before = await BusinessProfile.db.count(session);
+      final result = await BusinessProfiles.read(session, '00000012');
+      expect(result.status, 'unsupported');
+      expect(result.products, isEmpty);
+      expect(result.rceptNo, doc.rceptNo);
+      expect(await BusinessProfile.db.count(session), before);
+      expect(
+        (await BusinessProfile.db.findFirstRow(
+          session,
+          where: (table) => table.documentId.equals(doc.id!),
+        ))!.products,
+        isNotEmpty,
+      );
+      await BusinessProfiles.store(session, doc);
+      expect(
+        (await BusinessProfiles.read(session, '00000012')).products,
+        isEmpty,
+      );
+    });
     test(
       'holding companies and stale documents cannot inherit subsidiary roles',
       () async {
@@ -334,10 +369,11 @@ void main() {
         final stale = await document('00000004', product, year: 2001);
         await BusinessProfiles.store(session, holding);
         await BusinessProfiles.store(session, stale);
-        expect(
-          (await BusinessProfiles.read(session, '00000003')).products,
-          isEmpty,
-        );
+        final holdingResult = await BusinessProfiles.read(session, '00000003');
+        expect(holdingResult.products, isEmpty);
+        expect(holdingResult.status, 'unsupported');
+        expect(holdingResult.rceptNo, holding.rceptNo);
+        expect(holdingResult.bsnsYear, holding.bsnsYear);
         expect(
           (await BusinessProfiles.read(session, '00000004')).status,
           'stale',

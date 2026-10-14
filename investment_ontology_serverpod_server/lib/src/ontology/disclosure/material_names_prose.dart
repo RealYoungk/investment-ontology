@@ -9,7 +9,33 @@ abstract final class MaterialNamesProse {
         active = RegExp(r'원재료|원자재').hasMatch(line);
         continue;
       }
-      if (!active || !line.startsWith('당사는 ') || line.contains('|')) continue;
+      if (!active || line.contains('|')) continue;
+      final materials = RegExp(
+        r'주요 원재료는 인형 외형을 구성하는 (fabric)과 충진재인 (cotton)이 있으며, (현지 생산법인 등을 통해 매입)하여 생산하고 있습니다',
+      ).firstMatch(line);
+      if (materials != null) {
+        return [
+          BusinessTableInsight(
+            topic: 'materialContext',
+            title: '주요 원재료',
+            columns: ['원재료', '용도', '조달 방법'],
+            rows: [
+              BusinessTableRecord(
+                label: materials.group(1)!,
+                cells: [materials.group(1)!, '인형 외형', materials.group(3)!],
+              ),
+              BusinessTableRecord(
+                label: materials.group(2)!,
+                cells: [materials.group(2)!, '충진재', materials.group(3)!],
+              ),
+            ],
+            measures: [],
+            evidence: line,
+            validation: '본문에 명시한 원재료·용도·조달 방법 · 매입액과 비중은 추정하지 않음',
+          ),
+        ];
+      }
+      if (!line.startsWith('당사는 ')) continue;
       final match = RegExp(
         r'거래업체로부터\s*([A-Z][A-Z0-9-]+)\s*(?:와|과)\s*([A-Z][A-Z0-9-]+)\s*등\s*제품생산에\s*필요한\s*원재료를\s*수입하고\s*있습니다',
       ).firstMatch(line);

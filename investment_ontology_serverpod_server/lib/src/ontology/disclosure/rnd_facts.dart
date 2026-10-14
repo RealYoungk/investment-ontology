@@ -4,6 +4,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import 'segment_revenue.dart';
+import 'stored_rnd_facts.dart';
 
 /// 사업보고서 본문의 "연구개발비용" 표를 규칙으로 읽는다 (AI 없음).
 ///
@@ -101,16 +102,24 @@ abstract final class RndFacts {
         final rc = [for (final c in row.split('|')) c.trim()];
         if (rc.length < 2) break;
         if (_years(rc, bsnsYear) != null) break; // 다음 표
-        final label = rc.first;
+        final mergedTotal =
+            rc.length > 2 &&
+            RegExp(r'^연구개발비(?:용)?$').hasMatch(rc.first.replaceAll(' ', '')) &&
+            RegExp(r'^(계|합계|총계)$').hasMatch(rc[1].replaceAll(' ', ''));
+        final label = mergedTotal ? '${rc.first} ${rc[1]}' : rc.first;
         final values = _values(
-          paired && rc.length == 1 + years.length * 2
+          mergedTotal
+              ? rc.sublist(2)
+              : paired && rc.length == 1 + years.length * 2
               ? rc.sublist(1, 1 + years.length)
               : rc.sublist(1),
           years.length,
         );
         if (values == null) continue;
-        if ((_total.hasMatch(label) ||
-                (explicitCost && RegExp(r'^(합계|총계)$').hasMatch(label))) &&
+        if ((_total.hasMatch(label.replaceAll(' ', '')) ||
+                (explicitCost &&
+                    RegExp(r'^(합계|총계|연구개발비|연구개발비용)$')
+                        .hasMatch(label.replaceAll(' ', '')))) &&
             !label.contains('비율')) {
           totals.add((label: label, values: values, evidence: row));
         } else if (_ratio.hasMatch(label) ||
@@ -154,15 +163,42 @@ abstract final class RndFacts {
         periods.add(int.parse(p.group(1)!));
       }
     }
+    if (found.isEmpty) {
+      final relative = cells
+          .map((c) => c.replaceAll(' ', ''))
+          .where((c) => RegExp(r'^(당기|당반기|당분기|전기|전반기|전분기|전전기)$').hasMatch(c))
+          .toList();
+      if (relative.length < 2 ||
+          relative.length > 3 ||
+          cells.length - relative.length > 2 ||
+          !RegExp(r'^당').hasMatch(relative.first) ||
+          relative[1] != '전기' ||
+          relative.length == 3 && relative[2] != '전전기') {
+        return null;
+      }
+      return [for (var k = 0; k < relative.length; k++) bsnsYear - k];
+    }
     if (found.length < 2 || found.length > 4) return null;
     // 머리글은 연도 칸만으로 거의 채워진다 (과목·비고 칸 정도만 더 있다).
     if (cells.length - found.length > 2) return null;
     if (found.every((y) => y != null)) return found.cast<int>();
-    // 제N기만 있으면 기 번호가 줄어드는 순서일 때만 당기·전기·전전기로 본다.
-    for (var k = 1; k < periods.length; k++) {
-      if (periods[k] != periods[k - 1] - 1) return null;
+    // Repeated terms may explicitly distinguish prior interim and full-year
+    // columns. Interim read projection consumes only the current column.
+    final termCells = cells.where((c) => _period.hasMatch(c)).toList();
+    if (periods.any((p) => p < 0) || termCells.length != periods.length) {
+      return null;
     }
-    return [for (var k = 0; k < found.length; k++) bsnsYear - k];
+    for (var k = 1; k < periods.length; k++) {
+      final difference = periods[k - 1] - periods[k];
+      if (difference < 0 ||
+          difference > 1 ||
+          difference == 0 &&
+              termCells[k - 1].replaceAll(' ', '') ==
+                  termCells[k].replaceAll(' ', '')) {
+        return null;
+      }
+    }
+    return [for (final term in periods) bsnsYear - (periods.first - term)];
   }
 
   /// 값 칸 [count]개 (앞에서부터). 끝의 비고 "-"는 무시한다. 숫자가 아니면 null 칸.
@@ -175,29 +211,34 @@ abstract final class RndFacts {
         continue;
       }
       if (!_number.hasMatch(c)) return null;
-      final neg =
-          c.startsWith('△') ||
-          c.startsWith('▲') ||
-          c.startsWith('-') ||
-          c.startsWith('(');
-      final v = double.tryParse(c.replaceAll(RegExp(r'[△▲,()%\-]'), ''));
-      if (v == null) return null;
-      vals.add(neg ? -v : v);
+      vals.add(number(c));
     }
     if (vals.length != count) return null;
     return vals;
   }
 
-  static const _wonPerUnit = {
-    '원': 1.0,
-    '천원': 1e3,
-    '백만원': 1e6,
-    '억원': 1e8,
-    '십억원': 1e9,
-    '조원': 1e12,
-  };
+  /// Comma decimal is allowed only on an explicitly printed percent.
+  static double? number(String raw) {
+    var text = raw.trim();
+    final negative =
+        text.startsWith('△') ||
+        text.startsWith('▲') ||
+        text.startsWith('-') ||
+        text.startsWith('(');
+    final percent = text.endsWith('%');
+    text = text.replaceAll(RegExp(r'[△▲()%\-]'), '');
+    if (!RegExp(r'^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$').hasMatch(text)) {
+      if (!percent || !RegExp(r'^\d+,\d{1,2}$').hasMatch(text)) return null;
+      text = text.replaceAll(',', '.');
+    } else {
+      text = text.replaceAll(',', '');
+    }
+    final value = double.tryParse(text);
+    return value == null || !value.isFinite
+        ? null
+        : (negative ? -value : value);
+  }
 
-  /// 한 문서에서 읽어 저장한다. 비율과 맞는 계 줄이 없으면 아무것도 넣지 않는다.
   static Future<int> store(Session session, BusinessDocument doc) =>
       RuleDocumentStore.run(
         session,
@@ -229,52 +270,16 @@ abstract final class RndFacts {
             DocumentFactKind.rndRatio,
           }),
     );
-    final table = parse(doc.text, bsnsYear: doc.bsnsYear);
-    if (table == null) return 0;
-    final won = _wonPerUnit[table.unit];
-    if (won == null) return 0;
-    final year0 = table.years.first;
-    // 당기 매출액: 표의 줄, 없으면 재무제표 (연결 → 별도).
-    final revenues = <double>[];
-    if (table.revenue?.first case final r? when r > 0) revenues.add(r);
-    if (revenues.isEmpty) {
-      for (final fs in [
-        FsDiv.consolidated,
-        if (!table.consolidatedOnly) FsDiv.separate,
-      ]) {
-        final f = await FinancialFact.db.findFirstRow(
-          session,
-          transaction: tx,
-          where: (t) =>
-              t.companyId.equals(doc.companyId) &
-              t.bsnsYear.equals(year0) &
-              t.reportCode.equals(FinancialReportCode.annual) &
-              t.fsDiv.equals(fs) &
-              t.accountId.equals('ifrs-full_Revenue') &
-              t.supersededById.equals(null),
-        );
-        if (f?.amount case final a? when a > BigInt.zero) {
-          revenues.add(a.toDouble() / won);
-        }
-      }
-    }
-    if (revenues.isEmpty) return 0;
-    final printed = table.ratio!.values.first;
-    if (printed == null) return 0;
-    ({String label, List<double?> values, String evidence})? chosen;
-    for (final t in table.totals) {
-      final v = t.values.first;
-      if (v == null || v <= 0) continue;
-      if (revenues.any((r) => (printed - 100 * v / r).abs() <= tolerance)) {
-        chosen = t;
-        break;
-      }
-    }
-    if (chosen == null) return 0;
-
     final report = await DisclosureReport.db.findById(
       session,
       doc.reportId,
+      transaction: tx,
+    );
+    if (report == null) return 0;
+    final candidates = await StoredRndFacts.read(
+      session,
+      doc,
+      report,
       transaction: tx,
     );
     final existing = {
@@ -290,50 +295,9 @@ abstract final class RndFacts {
       ))
         '${f.kind.name}|${f.asOf?.year}',
     };
-    final now = DateTime.now().toUtc();
-    final facts = <DocumentFact>[];
-    for (var k = 0; k < table.years.length; k++) {
-      final year = table.years[k];
-      for (final (kind, label, value, unit, evidence) in [
-        (
-          DocumentFactKind.rndExpense,
-          expenseLabel,
-          chosen.values[k],
-          table.unit,
-          chosen.evidence,
-        ),
-        (
-          DocumentFactKind.rndRatio,
-          ratioLabel,
-          table.ratio!.values[k],
-          '%',
-          table.ratio!.evidence,
-        ),
-      ]) {
-        if (value == null || value < 0) continue;
-        if (!existing.add('${kind.name}|$year')) continue;
-        facts.add(
-          DocumentFact(
-            companyId: doc.companyId,
-            documentId: doc.id!,
-            bsnsYear: doc.bsnsYear,
-            kind: kind,
-            label: label,
-            value: value,
-            unit: unit,
-            asOf: DateTime.utc(year, 12, 31),
-            evidence: evidence,
-            sourceId: report?.sourceId,
-            extractedBy: RelationOrigin.api,
-            extractorModel: '표 규칙',
-            status: RelationStatus.verified,
-            reviewedAt: now,
-            reviewedBy: model,
-            createdAt: now,
-          ),
-        );
-      }
-    }
+    final facts = candidates
+        .where((f) => existing.add('${f.kind.name}|${f.asOf?.year}'))
+        .toList();
     if (facts.isEmpty) return 0;
     await DocumentFact.db.insert(session, facts, transaction: tx);
     return facts.length;

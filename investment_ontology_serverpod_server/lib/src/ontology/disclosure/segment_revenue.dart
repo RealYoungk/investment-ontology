@@ -1,3 +1,4 @@
+import 'literal_table_number.dart';
 import 'printed_period_columns.dart';
 import 'revenue_type_rows.dart';
 
@@ -31,12 +32,42 @@ abstract final class SegmentRevenue {
   static final _amountExact = RegExp(r'매출액|금액');
   static final _ratioHeader = RegExp(r'비중|비율');
 
+  static bool _splitRevenueHeader(List<String> cells) {
+    final keys = cells.map((c) => c.replaceAll(RegExp(r'\s+'), '')).toList();
+    return keys.take(2).join('|') == '매출유형|품목' ||
+        keys.contains('사업부문') && keys.any((c) => c == '주요제품' || c == '품목');
+  }
+
+  /// Recently supported stored shapes can be recovered without an ingest write.
+  static bool supportsStoredRecovery(String text) {
+    final lines = text.split('\n');
+    for (var i = 1; i < lines.length; i++) {
+      final cells = lines[i].split('|').map((c) => c.trim()).toList();
+      if (cells.length == 2 &&
+          _amountExact.hasMatch(cells.first) &&
+          _ratioHeader.hasMatch(cells.last) &&
+          _splitRevenueHeader(lines[i - 1].split('|'))) {
+        return true;
+      }
+    }
+    return RegExp(
+      r'^(?:단순\s*합계|합\s*계\s*\(연결\s*조정\s*(?:전|후)\))\s*\|',
+      multiLine: true,
+    ).hasMatch(text);
+  }
+
+  static bool isTotalLabel(String label) => _isTotal(label);
+
+  static bool _isTotal(String label) =>
+      _totalLabels.contains(label.replaceAll(' ', '')) ||
+      RegExp(r'^합계\(연결\s*조정\s*(?:전|후)\)$').hasMatch(label.replaceAll(' ', ''));
+
   /// "매출액(비율)"·"당기매출액(비율)"처럼 금액과 비율을 한 칸에 적는 머리글.
   static final _combinedHeader = RegExp(r'매출액\s*\(\s*(비율|비중)\s*\)');
 
   /// 그 한 칸의 값: "312,776,938 (79.4%)".
   static final _combinedCell = RegExp(
-    r'^([△▲\-]?[\d,]+(?:\.\d+)?)\s*\(\s*([\d.]+)\s*%\s*\)$',
+    r'^([△▲\-]?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?)\s*\(\s*(\d+(?:\.\d+)?)\s*%\s*\)$',
   );
 
   /// 부문별 재무 표에는 매출액 줄 사이에 영업이익·자산 줄이 있다 — 매출이 아니다.
@@ -45,10 +76,13 @@ abstract final class SegmentRevenue {
   /// 이름 칸에서 뺄 낱말 ("IT서비스 | 매출액 | …"의 매출액).
   static final _revenueWord = RegExp(r'^(매출액|매출|매출실적|당기매출액)$');
   static final _unitLine = RegExp(r'단위\s*[:：]\s*([^)\]]+)');
-  static final _number = RegExp(r'^[△▲\-]?[\d,]+(?:\.\d+)?$');
+  static final _number = RegExp(
+    r'^[△▲\-]?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$',
+  );
   static const _totalLabels = {
     '계',
     '합계',
+    '단순합계',
     '소계',
     '총계',
     '총합계',
@@ -58,6 +92,7 @@ abstract final class SegmentRevenue {
     '순매출액',
     '총매출액',
     '매출액계',
+    '영업수익',
     '누계',
   };
 
@@ -97,6 +132,7 @@ abstract final class SegmentRevenue {
     // 금액과 비율이 한 칸("312,776,938 (79.4%)")인 표.
     var combined = false;
     var combinedPeriod = 0;
+    var productLabels = false;
     var rows = <({String label, double amount, double ratio, String line})>[];
     double? total;
 
@@ -133,6 +169,7 @@ abstract final class SegmentRevenue {
       combinedPeriod = 0;
       unit = '';
       basis = '';
+      productLabels = false;
     }
 
     final lines = text.split('\n');
@@ -190,14 +227,20 @@ abstract final class SegmentRevenue {
           if (_amountExact.hasMatch(cells[k])) k,
       ];
       final a = (exact.isNotEmpty ? exact : before).lastOrNull ?? -1;
-      if (a >= 0 && r > a && cells.length >= 3 && !combined) {
+      if (a >= 0 &&
+          r > a &&
+          (cells.length >= 3 ||
+              cells.length == 2 &&
+                  i > 0 &&
+                  _splitRevenueHeader(lines[i - 1].split('|'))) &&
+          !combined) {
         // "금액 | 비중"만 있는 둘째 머리글은 매출 표라는 말이 앞뒤 3줄 안에 있어야 한다
         // (원재료 매입 표도 같은 머리글을 쓴다).
         if (!line.contains('매출')) {
           var near = false;
           for (var j = i - 3; j <= i + 3 && !near; j++) {
             if (j >= 0 && j < lines.length && j != i) {
-              near = lines[j].contains('매출');
+              near = RegExp(r'매출|영업수익').hasMatch(lines[j]);
             }
           }
           if (!near) continue;
@@ -212,6 +255,14 @@ abstract final class SegmentRevenue {
         amountAt = a;
         ratioAt = r;
         columns = cells.length;
+        productLabels =
+            i > 0 &&
+            lines[i - 1]
+                    .split('|')
+                    .map((c) => c.replaceAll(' ', ''))
+                    .take(2)
+                    .join('|') ==
+                '매출유형|품목';
         // 단위는 이 표 바로 앞에 적힌 것만, 한 번만 쓴다 (앞 표의 단위가 새지 않게).
         unit = i - lastUnitAt <= unitDistance ? pickUnit(lastUnit) : '';
         lastUnit = null;
@@ -262,9 +313,12 @@ abstract final class SegmentRevenue {
         ratio = _num(_cell(cells, columns - ratioAt));
       }
       if (amount == null) continue;
-      final name = labels.isEmpty ? '' : labels.first;
-      if (labels.isNotEmpty &&
-          _totalLabels.contains(name.replaceAll(' ', ''))) {
+      final name = labels.isEmpty
+          ? ''
+          : productLabels
+          ? labels.last
+          : labels.first;
+      if (labels.isNotEmpty && _isTotal(name)) {
         total = amount.abs();
         continue;
       }
@@ -372,11 +426,5 @@ abstract final class SegmentRevenue {
   }
 
   /// "△301,146"(음수), "56.3%" → 수. 아니면 null.
-  static double? _num(String s) {
-    final t = s.replaceAll('%', '').trim();
-    if (!_number.hasMatch(t)) return null;
-    final negative = t.startsWith('△') || t.startsWith('▲');
-    final v = double.tryParse(t.replaceAll(RegExp(r'[△▲,]'), ''));
-    return v == null ? null : (negative ? -v : v);
-  }
+  static double? _num(String s) => literalTableNumber(s.replaceAll('▲', '△'));
 }

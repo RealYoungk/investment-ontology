@@ -1,11 +1,33 @@
 import 'segment_revenue.dart';
+import 'literal_table_number.dart';
+
+typedef OrderFactSourceRow = ({
+  String label,
+  double total,
+  double delivered,
+  double backlog,
+  String unit,
+  String evidence,
+});
+
+typedef OrderFactPrintedValues = ({
+  String label,
+  double? total,
+  double? delivered,
+  double? backlog,
+  String unit,
+  String totalHeader,
+  String deliveredHeader,
+  String backlogHeader,
+});
 
 /// 사업보고서 본문의 "수주상황" 표를 규칙으로 읽는다 (AI 없음).
 ///
 /// 기업공시서식이 정한 꼴 — 머리글에 수주총액·기납품액·수주잔고가 같이 있는 표 — 만 받고,
 /// 한 줄의 숫자 가운데 **수주총액 − 기납품액 = 수주잔고**가 맞는 세 칸만 값으로 쓴다.
 /// 수량·금액 칸이 번갈아 있는 표에서는 수량끼리도 같은 식이 맞으므로, 맞는 조합이
-/// 여럿이면 가장 큰 쪽(금액)을 고른다. 식이 맞는 조합이 없으면 그 줄은 버린다.
+/// 여럿이면 명시 금액 하위열을 먼저 고르고 그 열에서만 검산한다. 수주잔고 부호는 유지한다.
+/// 금액 열 식이 틀리면 수량 열로 대신하지 않는다.
 ///
 /// 단위는 표 바로 앞(3줄 안)의 "(단위 : 백만원)"만 쓰고 한 번 쓰면 잊는다 — 앞 표의
 /// 단위가 새지 않게. 통화가 여럿인 표(천 USD, 백만 KRW …)는 어느 줄이 어느 통화인지
@@ -44,7 +66,13 @@ abstract final class OrderFacts {
       String evidence,
     })
   >
-  parse(String text) {
+  parse(
+    String text, {
+    Set<String>? rejectedEvidence,
+    List<OrderFactSourceRow>? verifiedRows,
+    Map<String, OrderFactPrintedValues>? printedValues,
+    Set<String>? ambiguousEvidence,
+  }) {
     final out =
         <
           ({
@@ -60,6 +88,14 @@ abstract final class OrderFacts {
     var lastUnitAt = -1000;
     var inTable = false;
     var flow = false;
+    List<int>? amountOffsets;
+    var numericWidth = 0;
+    List<String> financialHeaders = [];
+    var headerCellCount = 0;
+    var namedTrailingColumns = 0;
+    var flatMoneySubheader = false;
+    var mixedUnits = false;
+    var headerCurrency = false;
     var unit = '';
     var rows =
         <
@@ -139,6 +175,8 @@ abstract final class OrderFacts {
       if (line.startsWith('## ') || RegExp(r'^\[[^\]]+\]$').hasMatch(line)) {
         flush();
         currentScope = null;
+        lastUnit = null;
+        lastUnitAt = -1000;
       }
       // Explicit company/segment heading, never the table's position number.
       if (!line.contains('|') && RegExp(r'회사명\s*[:：]').hasMatch(line)) {
@@ -162,7 +200,38 @@ abstract final class OrderFacts {
         inTable = true;
         tableScope = currentScope;
         flow = header == _HeaderKind.flow;
+        amountOffsets = null;
+        flatMoneySubheader = false;
+        namedTrailingColumns = 0;
+        numericWidth = 0;
+        final headers = line
+            .split('|')
+            .map((c) => c.replaceAll(' ', ''))
+            .toList();
+        headerCellCount = headers.length;
+        final firstMetric = headers.indexWhere(
+          (h) => RegExp(r'기초|이월|전기말|20\d{2}년말|수주총액|당기수주|기본도급|도급액').hasMatch(h),
+        );
+        final lastMetric = headers.lastIndexWhere(
+          (h) => RegExp(r'수주잔고|계약잔액|기말잔고').hasMatch(h),
+        );
+        financialHeaders = firstMetric >= 0 && lastMetric >= firstMetric
+            ? headers.sublist(firstMetric, lastMetric + 1)
+            : [];
+        if (lastMetric >= 0 &&
+            lastMetric < headers.length - 1 &&
+            headers
+                .sublist(lastMetric + 1)
+                .every((h) => {'거래처명', '비고'}.contains(h))) {
+          namedTrailingColumns = headers.length - lastMetric - 1;
+        }
         unit = i - lastUnitAt <= unitDistance ? _pickUnit(lastUnit) : '';
+        mixedUnits =
+            lastUnit != null &&
+            RegExp(r'수량|톤|Ton|TON|MT|T\b|천개|천㎡|대|건|세트').hasMatch(lastUnit);
+        headerCurrency = financialHeaders.every(
+          (h) => RegExp(r'금액|백만원|천원|억원|원\)').hasMatch(h),
+        );
         lastUnit = null;
         continue;
       }
@@ -183,36 +252,159 @@ abstract final class OrderFacts {
       }
       // 두 번째 머리글 줄 ("수량 | 금액 | 수량 | 금액 …")은 값이 아니다.
       // "(10,322,942)"처럼 괄호로 적은 기납품액은 뺀 금액이다 — 크기만 쓴다 (식으로 검산된다).
+      if (cells.any((c) => c.replaceAll(' ', '') == '금액') &&
+          cells.every(
+            (c) => {'수량', '금액', ''}.contains(c.replaceAll(' ', '')),
+          )) {
+        numericWidth = cells.length;
+        flatMoneySubheader =
+            cells.every((c) => c.replaceAll(' ', '') == '금액') &&
+            cells.length == financialHeaders.length;
+        amountOffsets = [
+          for (var k = 0; k < cells.length; k++)
+            if (cells[k].replaceAll(' ', '') == '금액') k,
+        ];
+        continue;
+      }
       final numbers = <double>[];
       // 괄호 수는 뺀 금액이다. 흐름형에서는 기초·신규 사이의 "계약금액 변경 (1,353,700)"처럼
       // 부호가 뜻을 가지므로 따로 기억한다.
       final signed = <double>[];
+      final literals = <double?>[];
       var invalidNumber = false;
-      for (final c in cells) {
-        final paren = _parens.hasMatch(c);
-        final bare = paren ? c.substring(1, c.length - 1) : c;
-        if (c == '-' || c == '—') {
+      final selected =
+          flatMoneySubheader &&
+              namedTrailingColumns > 0 &&
+              cells.length >= numericWidth + namedTrailingColumns + 1
+          ? cells.sublist(
+              cells.length - namedTrailingColumns - numericWidth,
+              cells.length - namedTrailingColumns,
+            )
+          : amountOffsets != null && cells.length >= numericWidth
+          ? [
+              for (final k in amountOffsets)
+                cells[cells.length - numericWidth + k],
+            ]
+          : financialHeaders.length >= 3 &&
+                cells.length <= headerCellCount &&
+                cells.length >= financialHeaders.length
+          ? cells.sublist(cells.length - financialHeaders.length)
+          : cells;
+      for (final c in selected) {
+        if (c == '-' ||
+            c == '—' ||
+            (c.isEmpty && !identical(selected, cells))) {
           numbers.add(0);
           signed.add(0);
-        } else if (_number.hasMatch(bare)) {
-          final v = _num(bare);
-          if (v == null || !v.isFinite) {
+          literals.add(null);
+        } else {
+          final v = _num(
+            unit == r'$' && c.startsWith(r'$') ? c.substring(1).trim() : c,
+          );
+          if (v != null) {
+            numbers.add(v);
+            signed.add(v);
+            literals.add(v);
+          } else if ((unit == r'$' && c.startsWith(r'$')) ||
+              _number.hasMatch(c) ||
+              _parens.hasMatch(c) ||
+              RegExp(r'^[△▲+−\-]?[\d,]+(?:\.\d+)?$').hasMatch(c)) {
             invalidNumber = true;
             break;
           }
-          numbers.add(v.abs());
-          signed.add(paren ? -v.abs() : v);
         }
       }
-      if (invalidNumber || numbers.length < 3) continue;
-      final triple = flow ? _flowTriple(signed) : _triple(numbers);
-      if (triple == null) continue;
+      if (invalidNumber || numbers.length < 3) {
+        if (invalidNumber && unit.isNotEmpty) rejectedEvidence?.add(line);
+        continue;
+      }
+      if (amountOffsets == null &&
+          (financialHeaders.isEmpty ||
+              numbers.length != financialHeaders.length ||
+              (mixedUnits && !headerCurrency))) {
+        if (unit.isNotEmpty) ambiguousEvidence?.add(line);
+        continue;
+      }
+      // Retain unambiguous literal monetary observations even when the balance
+      // equation fails. They are source-only observations, never arithmetic facts.
+      if (unit.isNotEmpty) {
+        final direct =
+            numbers.length == financialHeaders.length &&
+            financialHeaders.length >= 3;
+        final deliveredIndex = flow && direct
+            ? financialHeaders.indexWhere(
+                (h) => RegExp(r'기납품|납품액|완성공사|매출계상|매출인식|당기수익|수익인식').hasMatch(h),
+              )
+            : !flow && numbers.length == 3
+            ? 1
+            : -1;
+        final backlogIndex = flow && direct
+            ? financialHeaders.length - 1
+            : !flow && numbers.length == 3
+            ? 2
+            : -1;
+        if (deliveredIndex >= 0 &&
+            backlogIndex >= 0 &&
+            (direct || amountOffsets != null)) {
+          printedValues?[line] = (
+            label: tableScope == null
+                ? cells.first
+                : '$tableScope · ${cells.first}',
+            total: flow ? null : literals.first,
+            delivered: literals[deliveredIndex],
+            backlog: literals[backlogIndex],
+            unit: unit,
+            totalHeader: financialHeaders.isEmpty
+                ? '수주총액'
+                : financialHeaders.first,
+            deliveredHeader: financialHeaders.length > deliveredIndex
+                ? financialHeaders[deliveredIndex]
+                : '기납품액',
+            backlogHeader: financialHeaders.length > backlogIndex
+                ? financialHeaders[backlogIndex]
+                : '수주잔고',
+          );
+        }
+      }
+      // Missing markers may be arithmetic placeholders, never disclosed zeros.
+      if ((!flow && literals.contains(null)) ||
+          (flow &&
+              financialHeaders.length == literals.length &&
+              [
+                for (var k = 0; k < financialHeaders.length; k++)
+                  if (RegExp(r'기납품|납품액|완성공사|매출계상|매출인식|당기수익|수익인식|기말|수주잔고|계약잔액')
+                          .hasMatch(financialHeaders[k]) &&
+                      k > 0)
+                    literals[k],
+              ].contains(null))) {
+        if (unit.isNotEmpty) rejectedEvidence?.add(line);
+        if (cells.first.isNotEmpty &&
+            cells.first != '-' &&
+            _num(cells.first) == null &&
+            !_dateLike.hasMatch(cells.first)) {
+          lastLabel = cells.first;
+          continuation = 1;
+        }
+        continue;
+      }
+      final triple = flow
+          ? _flowTriple(
+              signed,
+              amountOnly: amountOffsets != null,
+              headers: financialHeaders,
+            )
+          : _triple(numbers);
+      if (triple == null) {
+        if (unit.isNotEmpty && (amountOffsets != null || numbers.length == 3)) {
+          rejectedEvidence?.add(line);
+        }
+        continue;
+      }
       final labels = [
         for (final c in cells)
           if (c.isNotEmpty &&
               c != '-' &&
-              !_number.hasMatch(c) &&
-              !_parens.hasMatch(c) &&
+              _num(c) == null &&
               !_dateLike.hasMatch(c))
             c,
       ];
@@ -234,6 +426,16 @@ abstract final class OrderFacts {
         backlog: triple.$3,
         line: line,
       );
+      if (unit.isNotEmpty) {
+        verifiedRows?.add((
+          label: row.label,
+          total: row.total,
+          delivered: row.delivered,
+          backlog: row.backlog,
+          unit: unit,
+          evidence: line,
+        ));
+      }
       if (_totalLabels.contains(name.replaceAll(' ', ''))) {
         total = row;
       } else {
@@ -260,7 +462,7 @@ abstract final class OrderFacts {
     if (!closing) return null;
     // 기초·이월(전기 잔고)이나 신규·증감 칸이 있으면 흐름형이다 — "수주총액"이 함께 있어도
     // (LG CNS: 기초계약잔액 | 수주총액 | 기납품액 | 수주잔고) 그 수주총액은 당기 신규분이다.
-    final opening = RegExp(r'기초|이월|전기말').hasMatch(line);
+    final opening = RegExp(r'기초|이월|전기말|20\d{2}\s*년말').hasMatch(line);
     final added =
         line.contains('신규') || line.contains('산규') || line.contains('증감');
     if (opening || added) return _HeaderKind.flow;
@@ -279,16 +481,43 @@ abstract final class OrderFacts {
 
   /// 흐름형 줄: 마지막 두 수가 (기납품, 잔고)이고 나머지(기초·사업결합·신규)를 더한 것이 총액.
   /// 수량 칸("-")의 0은 빼고 센다. 식이 안 맞으면(수량이 섞인 줄) 버린다.
-  static (double, double, double)? _flowTriple(List<double> numbers) {
+  static (double, double, double)? _flowTriple(
+    List<double> numbers, {
+    bool amountOnly = false,
+    List<String> headers = const [],
+  }) {
+    if (headers.length == numbers.length && headers.isNotEmpty) {
+      final deliveredIndex = headers.indexWhere(
+        (h) => RegExp(r'기납품|납품액|완성공사|매출계상|매출인식|당기수익|수익인식').hasMatch(h),
+      );
+      final closingIndex = headers.lastIndexWhere(
+        (h) => RegExp(r'수주잔고|계약잔액|기말잔고').hasMatch(h),
+      );
+      if (deliveredIndex >= 0 &&
+          closingIndex >= 0 &&
+          deliveredIndex != closingIndex) {
+        final delivered = numbers[deliveredIndex].abs();
+        final backlog = numbers[closingIndex];
+        var total = 0.0;
+        for (var i = 0; i < numbers.length; i++) {
+          if (i != deliveredIndex && i != closingIndex) total += numbers[i];
+        }
+        return total > 0 &&
+                (total - delivered - backlog).abs() <=
+                    (total * tolerance).clamp(1, double.infinity)
+            ? (total, delivered, backlog)
+            : null;
+      }
+    }
     final n = [
       for (final v in numbers)
-        if (v != 0) v,
+        if (amountOnly || v != 0) v,
     ];
     // 수량 칸이 "-"가 아니라 숫자면 금액과 번갈아 온다 (24 | 2,251,142 | 6 | 691,323 …).
     // 전체, 홀수 자리, 짝수 자리 가운데 식이 맞는 쪽을 쓴다 (금액이 커서 총액이 큰 쪽).
     final candidates = [
       n,
-      if (n.length >= 6 && n.length.isEven) ...[
+      if (!amountOnly && n.length >= 6 && n.length.isEven) ...[
         [for (var i = 1; i < n.length; i += 2) n[i]],
         [for (var i = 0; i < n.length; i += 2) n[i]],
       ],
@@ -297,7 +526,7 @@ abstract final class OrderFacts {
     for (final c in candidates) {
       if (c.length < 3) continue;
       // 기납품과 잔고는 크기만 (괄호로 적기도 한다). 기초·변경·신규는 부호대로 더한다.
-      final backlog = c.last.abs();
+      final backlog = c.last;
       final delivered = c[c.length - 2].abs();
       final total = c.sublist(0, c.length - 2).fold(0.0, (a, b) => a + b);
       if (total <= 0) continue;
@@ -316,8 +545,8 @@ abstract final class OrderFacts {
     for (var i = 0; i < n.length; i++) {
       for (var j = i + 1; j < n.length; j++) {
         for (var k = j + 1; k < n.length; k++) {
-          final a = n[i], b = n[j], c = n[k];
-          if (a <= 0 || b < 0 || c < 0) continue;
+          final a = n[i], b = n[j].abs(), c = n[k];
+          if (a <= 0) continue;
           if ((a - b - c).abs() > (a * tolerance).clamp(1, double.infinity)) {
             continue;
           }
@@ -332,14 +561,8 @@ abstract final class OrderFacts {
   /// 어느 통화인지 모른다) '' — 그 표는 받지 않는다. [SegmentRevenue.pickUnit]과 같은 규칙.
   static String _pickUnit(String? raw) => SegmentRevenue.pickUnit(raw);
 
-  static double? _num(String s) {
-    final t = s.trim();
-    if (!_number.hasMatch(t)) return null;
-    final negative =
-        t.startsWith('△') || t.startsWith('▲') || t.startsWith('-');
-    final v = double.tryParse(t.replaceAll(RegExp(r'[△▲,\-]'), ''));
-    return v == null ? null : (negative ? -v : v);
-  }
+  static double? _num(String s) =>
+      s.contains('%') ? null : literalTableNumber(s.replaceAll('▲', '-'));
 }
 
 enum _HeaderKind { standard, flow }

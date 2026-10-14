@@ -1,3 +1,8 @@
+import 'complex_revenue_source_tables.dart';
+import 'literal_table_number.dart';
+import 'unvalidated_operating_source_tables.dart';
+import 'activity_utilization_tables.dart';
+import 'operating_source_context.dart';
 import 'material_names_prose.dart';
 import 'customer_share_prose.dart';
 import 'investment_execution_prose.dart';
@@ -10,7 +15,6 @@ abstract final class BusinessTableInsights {
   static String _key(String s) => s.replaceAll(RegExp(r'\s+'), '');
   static final _year = RegExp(r'20\d{2}|제\d+기');
   static final _unit = RegExp(r'단위\s*[:：]\s*([^\)\]）]+)');
-  static final _numeric = RegExp(r'^[+-]?\d[\d,]*(?:\.\d+)?%?$');
   static final _total = RegExp(r'^(합계|총합계|총계|계|.*소계)(?:\([^)]*\))?$');
 
   static bool _validUnit(String value) =>
@@ -23,15 +27,7 @@ abstract final class BusinessTableInsights {
               .length <=
           1;
 
-  static double? number(String text) {
-    var s = text.trim().replaceAll('△', '-').replaceAll('−', '-');
-    if (RegExp(r'^\([\d,.]+\)$').hasMatch(s)) {
-      s = '-${s.substring(1, s.length - 1)}';
-    }
-    if (!_numeric.hasMatch(s)) return null;
-    final value = double.tryParse(s.replaceAll(',', '').replaceAll('%', ''));
-    return value != null && value.isFinite ? value : null;
-  }
+  static double? number(String text) => literalTableNumber(text);
 
   // Accept only a literal number with an explicit currency/quantity suffix.
   // Never interpret amounts embedded in contract or research prose.
@@ -42,12 +38,14 @@ abstract final class BusinessTableInsights {
       r'^([+-]?\d[\d,]*(?:\.\d+)?)\s*\((\d+(?:\.\d+)?)%\)$',
     ).firstMatch(text.trim());
     if (amountShare != null) {
-      return (number(amountShare.group(1)!)!, null);
+      final value = number(amountShare.group(1)!);
+      return value == null ? null : (value, null);
     }
     final suffixed = RegExp(r'^([+-]?\d[\d,]*(?:\.\d+)?)\s*(백만원|천원|억원|원)$')
         .firstMatch(text.trim());
     if (suffixed != null) {
-      return (number(suffixed.group(1)!)!, suffixed.group(2)!);
+      final value = number(suffixed.group(1)!);
+      return value == null ? null : (value, suffixed.group(2)!);
     }
     final match = RegExp(
       r'^(USD|EUR|JPY|CNY|CHF|THB|SGD|KRW|GBP|AUD|HKD|US\$|\$|\\|₩)?\s*([+-]?\d[\d,]*(?:\.\d+)?)\s*(백만|천)?(?:/(톤|kg|ton|kWh|m|㎥))?$',
@@ -404,6 +402,8 @@ abstract final class BusinessTableInsights {
       ...InvestmentExecutionProse.parse(text, reportPeriod),
       ...CustomerShareProse.parse(text, reportPeriod),
       ...MaterialNamesProse.parse(text),
+      ...OperatingSourceContext.parse(text, reportPeriod),
+      ...ActivityUtilizationTables.parse(text, reportPeriod),
       ...BusinessSourceTables.parse(text, reportPeriod: reportPeriod),
     ];
     final seen = <String>{};
@@ -960,6 +960,27 @@ abstract final class BusinessTableInsights {
         ),
       );
       i = j - 1;
+    }
+    // Prefer an existing structured table when every literal fallback row is
+    // already represented. Source observations never become verified facts.
+    final supplemental = [
+      ...UnvalidatedOperatingSourceTables.parse(text, reportPeriod),
+      ...ComplexRevenueSourceTables.parse(text, reportPeriod: reportPeriod),
+    ];
+    for (final candidate in supplemental) {
+      final rowKeys = candidate.rows
+          .map((row) => row.cells.map(_key).join('|'))
+          .where((key) => key.isNotEmpty)
+          .toSet();
+      final duplicate =
+          rowKeys.isNotEmpty &&
+          out.any((existing) {
+            final existingKeys = existing.rows
+                .map((row) => row.cells.map(_key).join('|'))
+                .toSet();
+            return rowKeys.every(existingKeys.contains);
+          });
+      if (!duplicate) out.add(candidate);
     }
     return out;
   }

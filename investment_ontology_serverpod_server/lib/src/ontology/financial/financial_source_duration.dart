@@ -282,17 +282,61 @@ class FinancialSourceDuration {
         blockedReportIds: <int>{},
       );
     }
+    // Narrow the source metadata before loading its JSON titles. Those titles
+    // contain full provenance and can total several megabytes across the
+    // universe; a company request needs only its annual report receipts.
+    final scopedReports = companyIds == null
+        ? null
+        : await FinancialReport.db.find(
+            session,
+            where: (t) =>
+                t.companyId.inSet(companyIds.toSet()) &
+                t.reportCode.equals(FinancialReportCode.annual),
+          );
+    final scopedReceipts = scopedReports?.map((r) => r.rceptNo).toSet();
+    if (scopedReceipts?.isEmpty ?? false) {
+      return (
+        ranges: <int, FinancialSourceDuration>{},
+        blockedReportIds: <int>{},
+      );
+    }
     final audits = await Source.db.find(
       session,
       where: (t) =>
           t.kind.equals(SourceKind.dartReport) &
-          t.reference.like('financial-api-noData-source:%'),
+          t.reference.like('financial-api-noData-source:%') &
+          (scopedReceipts == null
+              ? t.id.notEquals(null)
+              : t.reference.inSet({
+                  for (final receipt in scopedReceipts)
+                    for (final basis in FsDiv.values)
+                      'financial-api-noData-source:$receipt:${basis.name}',
+                })),
     );
+    Set<int>? scopedAnchorIds;
+    if (scopedReceipts != null) {
+      final parameters = <String, Object?>{};
+      final placeholders = <String>[];
+      for (final (index, receipt) in scopedReceipts.indexed) {
+        parameters['receipt$index'] = receipt;
+        placeholders.add('@receipt$index');
+      }
+      final rows = await session.db.unsafeQuery(
+        "SELECT id FROM source WHERE kind='dartReport' "
+        "AND reference LIKE 'financial-source-period-anchor:%' "
+        "AND split_part(reference, ':', 2) IN (${placeholders.join(',')})",
+        parameters: QueryParameters.named(parameters),
+      );
+      scopedAnchorIds = {for (final row in rows) row.first as int};
+    }
     final anchors = await Source.db.find(
       session,
       where: (t) =>
           t.kind.equals(SourceKind.dartReport) &
-          t.reference.like('financial-source-period-anchor:%'),
+          t.reference.like('financial-source-period-anchor:%') &
+          (scopedAnchorIds == null
+              ? t.id.notEquals(null)
+              : t.id.inSet(scopedAnchorIds)),
     );
     final anchorsByReceipt = <String, List<Source>>{};
     final anchorReceipts = <String>{};
@@ -320,7 +364,10 @@ class FinancialSourceDuration {
       where: (t) =>
           t.kind.equals(SourceKind.dartReport) &
           (t.title.like('DART 원문 HTML 부분 핵심계정(%') |
-              t.title.like('DART 원문 XBRL 핵심계정 ·%')),
+              t.title.like('DART 원문 XBRL 핵심계정 ·%')) &
+          (scopedReceipts == null
+              ? t.id.notEquals(null)
+              : t.reference.inSet(scopedReceipts)),
     );
     final byReceipt = <String, List<Source>>{};
     for (final audit in audits) {

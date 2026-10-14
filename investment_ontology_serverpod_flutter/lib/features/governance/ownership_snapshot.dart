@@ -266,24 +266,26 @@ class _OwnershipComposition extends StatelessWidget {
       children: [
         SizedBox(
           height: 24,
-          child: LayoutBuilder(
-            builder: (context, box) => Row(
-              children: [
-                for (final (i, s) in segments.indexed)
-                  ShadTooltip(
+          child: Row(
+            children: [
+              for (final (i, s) in segments.indexed)
+                // Printed shares may differ from their printed total by
+                // rounding. Flex fits the bar while retaining source values.
+                Expanded(
+                  flex: (s.$2 * 10000).round().clamp(1, 1000000),
+                  child: ShadTooltip(
                     builder: (_) => Text('${s.$1} · ${formatRatio(s.$2)}'),
                     child: Semantics(
                       label: '${s.$1} ${formatRatio(s.$2)}',
                       child: Container(
-                        width: box.maxWidth * s.$2 / 100,
                         color: s.$1 == '그 외 주주'
                             ? c.chartGrid
                             : palette[i % palette.length],
                       ),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
         const SizedBox(height: AppSpace.sm),

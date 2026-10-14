@@ -30,6 +30,44 @@ DocumentFact fact({
 
 void main() {
   test(
+    'bare share values need verified revenue-rule provenance and a unique pair',
+    () {
+      final row = DocumentFact(
+        companyId: 1,
+        documentId: 1,
+        bsnsYear: 2026,
+        kind: DocumentFactKind.segmentRevenue,
+        label: '네이버 플랫폼',
+        value: 3741951,
+        unit: '백만원',
+        asOf: DateTime.utc(2026, 6, 30),
+        evidence: '- 네이버 플랫폼 | 3,741,951 | 56.5 | 3,297,800 | 57.8',
+        extractedBy: RelationOrigin.api,
+        status: RelationStatus.verified,
+        reviewedBy: '표 규칙 (비중 = 매출액 ÷ 합계 확인)',
+        createdAt: DateTime.utc(2026),
+      );
+      expect(revenuePresentation(row).share, 56.5);
+      expect(
+        revenuePresentation(row.copyWith(reviewedBy: '다른 검증')).share,
+        isNull,
+      );
+      expect(
+        revenuePresentation(row.copyWith(status: RelationStatus.draft)).share,
+        isNull,
+      );
+      expect(
+        revenuePresentation(
+          row.copyWith(
+            evidence: '네이버 플랫폼 | 3,741,951 | 56.5 | 3,741,951 | 57.8',
+          ),
+        ).share,
+        isNull,
+      );
+    },
+  );
+
+  test(
     'combined amount and ratio retains the disclosed single segment share',
     () {
       final combined = fact(

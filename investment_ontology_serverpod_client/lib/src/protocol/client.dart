@@ -912,8 +912,6 @@ class EndpointDisclosure extends _isc.EndpointRef {
         {'corpCode': corpCode},
       );
 
-  /// 승인된 값 전부 (연도별 흐름을 보려고). 오래된 해부터.
-  ///
   /// 같은 항목이 해마다 있으면 화면이 막대 차트로 그린다 — 표만 있으면 흐름이 안 보인다.
   _ida.Future<List<_irhba4h9.BusinessFactPeriod>> factPeriods(
     String corpCode,

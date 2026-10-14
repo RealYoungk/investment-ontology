@@ -125,7 +125,27 @@ abstract final class MarketShareFacts {
           _ => 12,
         };
       }
-      if (found.length >= 2 && found.length == found.values.toSet().length) {
+      // Bare two-digit percentages in a competitor row are not year headers.
+      final explicitYearHeader = found.keys.every(
+        (c) => RegExp(r"(?:19|20)\d{2}|^'?[0-9]{2}\s*년").hasMatch(cells[c]),
+      );
+      final shortYearHeader =
+          {
+            '구분',
+            '품목',
+            '제품',
+            '회사명',
+            '업체',
+            '제조사',
+            '연도',
+            '년도',
+            '회사',
+            '사업부문',
+          }.contains(cells.first.replaceAll(RegExp(r'\s+'), '')) &&
+          found.length == cells.length - 1;
+      if (found.length >= 2 &&
+          found.length == found.values.toSet().length &&
+          (explicitYearHeader || shortYearHeader)) {
         endTable();
         // "점유율"은 표 위 제목이나 표 아래 주석("※ 시장점유율은 … 자료")에 있다.
         var shareNear = i - lastShareAt <= contextLines;

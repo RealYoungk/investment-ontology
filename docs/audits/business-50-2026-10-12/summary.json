@@ -1,0 +1,36 @@
+{
+  "companies": 50,
+  "storedDocuments": 100,
+  "primaryBodiesRetrieved": 99,
+  "businessPagesLoaded": 50,
+  "parserChangedCompanies": 13,
+  "changedCompanyNames": [
+    "한화에어로스페이스",
+    "HD현대중공업",
+    "DL이앤씨",
+    "현대제철",
+    "LG에너지솔루션",
+    "LG전자",
+    "두산에너빌리티",
+    "한일단조",
+    "기가비스",
+    "농심",
+    "NAVER",
+    "엘에스일렉트릭",
+    "삼성에스디에스"
+  ],
+  "latestReturnPendingCompanies": 50,
+  "candidateSignalsBefore": {
+    "revenue": 20,
+    "utilization": 17,
+    "rnd": 13
+  },
+  "candidateSignalsAfter": {
+    "revenue": 14,
+    "utilization": 12,
+    "rnd": 6
+  },
+  "backendTests": 66,
+  "flutterTests": 26,
+  "productionDeployed": false
+}

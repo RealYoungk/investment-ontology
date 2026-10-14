@@ -6,7 +6,7 @@ import 'segment_revenue.dart';
 /// arithmetic disagreements are flagged, never corrected, the unit must be monetary, and dates must be actual.
 abstract final class InvestmentFacts {
   static final _unit = RegExp(r'단위\s*[:：]\s*([^)\]]+)');
-  static final _number = RegExp(r'^\d[\d,]*(?:\.\d+)?$');
+  static final _number = RegExp(r'^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$');
   static final _period = RegExp(
     r'(20\d{2})[./](\d{1,2})\s*[~∼〜～-]\s*(20\d{2})[./](\d{1,2})',
   );

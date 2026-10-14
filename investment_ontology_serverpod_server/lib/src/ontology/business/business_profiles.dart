@@ -3,10 +3,13 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import 'latest_business_report.dart';
 import 'business_product_rules.dart';
+import '../disclosure/holding_source_scope.dart';
 
 abstract final class BusinessProfiles {
   static Future<void> store(Session session, BusinessDocument doc) async {
-    final products = BusinessProductRules.parse(doc.text);
+    final products = HoldingSourceScope.declaresHolding(doc.text)
+        ? <BusinessProduct>[]
+        : BusinessProductRules.parse(doc.text);
     await session.db.transaction((tx) async {
       await session.db.unsafeQuery(
         'SELECT id FROM business_document WHERE id=@id FOR UPDATE',
@@ -63,17 +66,27 @@ abstract final class BusinessProfiles {
       throw ArgumentError('기업 코드 형식 오류');
     }
     final rows = await session.db.unsafeQuery('''
-      SELECT latest."bsnsYear", coalesce(latest."sourceReceipt", latest."rceptNo"), p.products, p."ruleVersion", p."computedAt", latest."reportCode", latest."reportName"
+      SELECT latest."bsnsYear", coalesce(latest."sourceReceipt", latest."rceptNo"), p.products, p."ruleVersion", p."computedAt", latest."reportCode", latest."reportName", c."industryCode", latest."documentId", substring(d.text from 1 for 4000)
       FROM (${LatestBusinessReport.sql}) latest
       JOIN company c ON c.id=latest."companyId"
       LEFT JOIN business_profile p ON p."documentId"=latest."documentId"
+      LEFT JOIN business_document d ON d.id=latest."documentId"
       WHERE c."corpCode"=@code
-        AND (c."industryCode" IS NULL OR c."industryCode" <> '64992')
     ''', parameters: QueryParameters.named({'code': corpCode}));
     final row = rows.firstOrNull;
+    // Holding-company documents exist, but subsidiary product rules are not
+    // applied to the parent's business profile. Preserve the filing identity
+    // and distinguish unsupported extraction from a missing original.
+    final holding =
+        row != null &&
+        (row[7] == '64992' ||
+            HoldingSourceScope.declaresHolding(row[9] as String? ?? ''));
     final stale = row != null && (row[0] as int) < DateTime.now().year - 2;
     final ready =
-        row != null && row[3] == BusinessProductRules.version && !stale;
+        row != null &&
+        !holding &&
+        row[3] == BusinessProductRules.version &&
+        !stale;
     final products = ready
         ? (row[2] as List)
               .map(
@@ -86,6 +99,8 @@ abstract final class BusinessProfiles {
     return BusinessUnderstanding(
       status: row == null
           ? 'no_document'
+          : holding && row[8] != null
+          ? 'unsupported'
           : stale
           ? 'stale'
           : !ready

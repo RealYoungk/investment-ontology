@@ -1,3 +1,13 @@
+import '../business/business_report_period.dart';
+import '../disclosure/financial_business_source_tables.dart';
+import '../disclosure/stored_segment_revenue.dart';
+import '../disclosure/stored_rnd_facts.dart';
+import '../disclosure/stored_segment_number_guard.dart';
+import '../disclosure/stored_market_share_projection.dart';
+import '../disclosure/recovered_market_share_facts.dart';
+import '../financial/financial_basis.dart';
+import '../disclosure/scoped_order_fact_projection.dart';
+import '../disclosure/order_unreconciled_source_tables.dart';
 import '../presentation/company_presentation.dart';
 
 import 'dart:convert';
@@ -14,7 +24,6 @@ import '../dart/dart_values.dart';
 import '../disclosure/business_text.dart';
 import '../disclosure/business_table_insights.dart';
 import '../disclosure/investment_facts.dart';
-import '../disclosure/order_facts.dart';
 import '../disclosure/interim_rnd_facts.dart';
 import '../disclosure/disclosure_values.dart';
 
@@ -170,6 +179,12 @@ class DisclosureEndpoint extends Endpoint {
       orderByList: (t) => [t.bsnsYear.desc(), t.rceptNo.desc()],
     );
     if (doc == null || report == null) return null;
+    final reportPeriod = businessReportPeriod(report, doc.bsnsYear);
+    final financialTables = FinancialBusinessSourceTables.parse(
+      doc.text,
+      reportPeriod,
+      industryCode: company.industryCode,
+    );
     return BusinessContent(
       bsnsYear: doc.bsnsYear,
       rceptNo: doc.rceptNo,
@@ -185,16 +200,28 @@ class DisclosureEndpoint extends Endpoint {
       charCount: doc.charCount,
       years: {for (final r in reports) r.bsnsYear}.toList(),
       source: await Source.db.findById(session, report.sourceId),
-      tableInsights: BusinessTableInsights.parse(
-        doc.text,
-        reportPeriod:
-            '${doc.bsnsYear} ${switch (report.reportCode) {
-              FinancialReportCode.annual => '연간',
-              FinancialReportCode.halfYear => '반기',
-              FinancialReportCode.q1 => '1분기',
-              FinancialReportCode.q3 => '3분기 누적',
-            }}',
-      ),
+      tableInsights: [
+        ...financialTables,
+        ...OrderUnreconciledSourceTables.parse(doc.text, reportPeriod),
+        ...BusinessTableInsights.parse(
+          doc.text,
+          reportPeriod: reportPeriod,
+        ).where((table) {
+          if (table.topic != 'complexRevenueSource' || table.rows.isEmpty) {
+            return true;
+          }
+          final rawRows = table.rows
+              .map((row) => row.cells.join('|').replaceAll(RegExp(r'\s+'), ''))
+              .toSet();
+          return !financialTables.any((financial) {
+            final financialLines = financial.evidence
+                .split('\n')
+                .map((line) => line.replaceAll(RegExp(r'\s+'), ''))
+                .toSet();
+            return rawRows.every(financialLines.contains);
+          });
+        }),
+      ],
     );
   }
 
@@ -445,28 +472,58 @@ class DisclosureEndpoint extends Endpoint {
   ///
   /// 가장 최근 사업연도만. 화면은 이 값을 출처·근거와 함께 보여 준다.
   Future<List<DocumentFact>> facts(Session session, String corpCode) async {
-    final company = await Company.db.findFirstRow(
-      session,
-      where: (t) => t.corpCode.equals(corpCode),
-    );
-    if (company == null) return const [];
-    final all = await DocumentFact.db.find(
-      session,
-      where: (t) =>
-          t.companyId.equals(company.id!) &
-          t.status.equals(RelationStatus.verified),
-      orderByList: (t) => [t.bsnsYear.desc(), t.kind.asc(), t.id.asc()],
-    );
+    final all = await factTrends(session, corpCode);
     if (all.isEmpty) return all;
-    final year = all.first.bsnsYear;
+    final year = all.map((f) => f.bsnsYear).reduce((a, b) => a > b ? a : b);
     return [
-      for (final f in all)
-        if (f.bsnsYear == year) f,
+      for (final fact in all)
+        if (fact.bsnsYear == year) fact,
     ];
   }
 
   /// 승인된 값 전부 (연도별 흐름을 보려고). 오래된 해부터.
   ///
+  static Future<List<SegmentFinancialRevenueReference>>
+  _segmentRevenueReferences(
+    Session session,
+    BusinessDocument doc,
+    DisclosureReport report,
+  ) async {
+    final eligible = FinancialBasis.eligibleReportsCte.replaceFirst(
+      'WHERE CASE WHEN',
+      'WHERE r."companyId"=${doc.companyId} AND CASE WHEN',
+    );
+    final rows = await session.db.unsafeQuery(
+      'WITH $eligible SELECT r."companyId",r."bsnsYear",r."reportCode",r."fsDiv",r."rceptNo", '
+      'CASE WHEN r."reportCode"=\'annual\' THEN f.amount ELSE coalesce(f."cumulativeAmount",f.amount) END '
+      'FROM eligible_reports r JOIN financial_fact f ON f."reportId"=r.id '
+      'WHERE r."rceptNo"=@receipt AND r."bsnsYear"=@year AND r."reportCode"=@period '
+      'AND r."supersededById" IS NULL AND f."supersededById" IS NULL '
+      'AND f."companyId"=r."companyId" AND f."sourceId"=r."sourceId" '
+      'AND f."bsnsYear"=r."bsnsYear" AND f."reportCode"=r."reportCode" AND f."fsDiv"=r."fsDiv" '
+      'AND f."accountId"=\'ifrs-full_Revenue\' AND f."accountDetail" IS NULL '
+      'AND f.statement IN (\'incomeStatement\',\'comprehensiveIncome\') '
+      'AND coalesce(f.currency,\'KRW\')=\'KRW\'',
+      parameters: QueryParameters.named({
+        'receipt': doc.rceptNo,
+        'year': doc.bsnsYear,
+        'period': report.reportCode.name,
+      }),
+    );
+    return [
+      for (final row in rows)
+        if (BigInt.tryParse('${row[5]}') case final value?)
+          (
+            companyId: row[0] as int,
+            bsnsYear: row[1] as int,
+            reportCode: FinancialReportCode.values.byName('${row[2]}'),
+            fsDiv: FsDiv.values.byName('${row[3]}'),
+            rceptNo: row[4] as String,
+            revenueWon: value,
+          ),
+    ];
+  }
+
   /// 같은 항목이 해마다 있으면 화면이 막대 차트로 그린다 — 표만 있으면 흐름이 안 보인다.
   Future<List<BusinessFactPeriod>> factPeriods(
     Session session,
@@ -540,24 +597,96 @@ class DisclosureEndpoint extends Endpoint {
       for (final d in documents)
         if (active.contains(d.reportId)) d.id!: d,
     };
-    final orderLabels = {
-      for (final doc in byDocument.values) doc.id!: OrderFacts.parse(doc.text),
+    final activeReports = {
+      for (final report in reports)
+        if (report.supersededById == null) report.id!: report,
     };
-    final valid = all.where((f) => byDocument.containsKey(f.documentId)).map((
-      f,
-    ) {
-      if (!{
-        DocumentFactKind.orderTotal,
-        DocumentFactKind.orderDelivered,
-        DocumentFactKind.orderBacklog,
-      }.contains(f.kind)) {
-        return f;
-      }
-      final matches = orderLabels[f.documentId]!
-          .where((r) => r.evidence == f.evidence)
+    final valid = <DocumentFact>[];
+    for (final doc in byDocument.values) {
+      final stored = all
+          .where(
+            (fact) =>
+                fact.documentId == doc.id &&
+                fact.companyId == doc.companyId &&
+                fact.bsnsYear == doc.bsnsYear &&
+                fact.sourceId == activeReports[doc.reportId]?.sourceId &&
+                !(fact.kind == DocumentFactKind.segmentRevenue &&
+                    fact.extractedBy == RelationOrigin.api &&
+                    RegExp(r'^(?:단순합계|합계\(연결조정(?:전|후)\))$')
+                        .hasMatch(fact.label.replaceAll(' ', ''))),
+          )
           .toList();
-      return matches.length == 1 ? f.copyWith(label: matches.single.label) : f;
-    }).toList();
+      final orderChecked = ScopedOrderFactProjection.revalidate(
+        stored,
+        doc.text,
+        companyName: company.name,
+      );
+      valid.addAll(
+        stored.any((fact) => fact.kind == DocumentFactKind.marketShare)
+            ? StoredMarketShareProjection.project(
+                orderChecked,
+                doc,
+                owner: company.name,
+                industryCode: company.industryCode,
+              )
+            : orderChecked,
+      );
+    }
+    for (final doc in byDocument.values) {
+      final report = activeReports[doc.reportId];
+      if (report == null) continue;
+      valid.addAll(
+        RecoveredMarketShareFacts.project(
+          doc,
+          report,
+          valid,
+          owner: company.name,
+          industryCode: company.industryCode,
+        ),
+      );
+      final candidates = valid
+          .where(
+            (fact) =>
+                fact.documentId == doc.id &&
+                StoredSegmentNumberGuard.isCandidate(fact),
+          )
+          .toList();
+      if (candidates.isNotEmpty) {
+        final references = await _segmentRevenueReferences(
+          session,
+          doc,
+          report,
+        );
+        valid.removeWhere(
+          (fact) =>
+              fact.documentId == doc.id &&
+              !StoredSegmentNumberGuard.assess(
+                fact,
+                doc,
+                report,
+                financialRevenues: references,
+              ).keep,
+        );
+      }
+      if (report.reportCode == FinancialReportCode.annual) {
+        valid.removeWhere(
+          (fact) => StoredRndFacts.isLegacyRuleFact(fact, doc.id!),
+        );
+        valid.addAll(await StoredRndFacts.read(session, doc, report));
+      }
+      for (final projected in StoredSegmentRevenue.project(doc, report)) {
+        if (!valid.any(
+          (f) =>
+              f.documentId == doc.id &&
+              f.kind == projected.kind &&
+              f.label == projected.label &&
+              f.unit == projected.unit &&
+              f.asOf == projected.asOf,
+        )) {
+          valid.add(projected);
+        }
+      }
+    }
     // 같은 항목·같은 해의 값이 여러 보고서에 있으면(표가 당기·전기·전전기를 나란히 적고,
     // 회사는 재작성한다) 그 해의 보고서 값을 쓴다 — 없으면 가장 가까운 해의 보고서.
     final best = <String, DocumentFact>{};
@@ -584,10 +713,6 @@ class DisclosureEndpoint extends Endpoint {
     }
     // Interim R&D is validated from stored source without DB mutations.
     final interim = <DocumentFact>[];
-    final activeReports = {
-      for (final r in reports)
-        if (r.supersededById == null) r.id!: r,
-    };
     final newest = byDocument.values.toList()
       ..sort((a, b) => b.rceptNo.compareTo(a.rceptNo));
     if (newest.isNotEmpty) {
@@ -608,12 +733,9 @@ class DisclosureEndpoint extends Endpoint {
         );
       }
     }
-    final keep = {for (final f in best.values) f.id};
     return [
-      for (final f in valid)
-        if (keep.contains(f.id) &&
-            !InvestmentFacts.redundantRoundedTotal(f, valid))
-          f,
+      for (final f in best.values)
+        if (!InvestmentFacts.redundantRoundedTotal(f, valid)) f,
       ...interim,
     ];
   }

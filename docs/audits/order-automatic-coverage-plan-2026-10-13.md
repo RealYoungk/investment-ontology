@@ -1,0 +1,69 @@
+# Automatic order coverage: implemented87, remaining60
+
+Current final evidence (FIFTH): all2,745 companies have21,960 successful fresh API snapshots (21,962 attempts; the original2 failures recovered by200 retries), with final API/source checks0. Native Flutter business-table rendering completed2,745 companies/13,738 tables at1440px with0 errors and no missing/duplicate companies or table-count mismatches. Numeric audit covers107,373 unique facts. Actual browser interaction/visual QA remains in progress with2 workers;112/2,745 companies passed at this update. API and native completion do not imply full browser QA completion.
+
+The original150 source-reviewed facts now have84 automatic equivalent-source confirmations,6 automatic equation confirmations (3 newly supported PKC components plus3 previously corrected dollar/quantity components), and60 retained source-shape limitations. Thus87 of the original147 retained correct-cash facts gained automatic revalidation. Their printed amounts stay unchanged; explicit other-company scope is annotated on54 facts. The remaining60 monetary values were separately checked against the stored original in this audit, but generic future unit/header extraction remains unsupported. No paid AI, new manual facts submission or database mutation was used.
+
+Three additional existing Skonec facts were recovered from doc13117's explicit three monetary subheaders and shortened total before a trailing note:7,069−5,356=1,713 백만원 at printed2021.12.31. Each total also closes independently over its original rows. They explain the final unique-fact count rising from107,370 to107,373; they are existing stored records, not newly submitted facts. The final strict-literal screen is104,303 matches,3,065 without an evidence literal and5 malformed comma glyphs independently validated by source arithmetic. This is not a claim of100% economic/source-column accuracy.
+
+Proofs: `tmp/business-universe-audit-2026-10-13/FINAL_API_MANIFEST.json`, `render-fifth-final-manifest.json`, `order150-fifth-final-source-comparison.json`, `fifth-three-recovered-order-source-proof.json`, `final-fact-number-audit-interpretation.json`, and `final-number-audit-source-manifest-fifth.json`. The current parser was actually replayed over3,154 original documents, yielding18,028 verified rows in `order-number-source-proofs-fifth.json`; previous proof hashes were not simply replaced.
+
+## Initial read-only assessment (historical baseline)
+
+This assessment does not change source libraries, stored facts, or the current API/UI revision. The input is the 147 historical facts whose printed monetary-column values were confirmed by the separate 150-fact source audit, after correcting the three dollar/quantity errors. Printed value correctness is not equivalent to automatic parser support, accounting accuracy, or issuer-own scope.
+
+The actual current parser was replayed against all 31 source documents. `tmp/business-universe-audit-2026-10-13/order147-parser-match-diagnostics.json` records row and component match counts, unique numeric triples, rejection/ambiguity flags, and exact evidence. **84 facts already have two supported source rows with one identical monetary triple; 63 have no parsed row.** The former are duplicate-equivalence limitations in the read projection, not a missing table grammar.
+
+| Facts | Concrete shape | Current failure | Feasibility / safe rule |
+| ---: | --- | --- | --- |
+| 18 | Repeated summary/detail totals | Two identical row matches | High: collapse equivalent source proofs for revalidation only |
+| 24 | Product versus end-user tables with identical totals | Two identical row matches | High: same rule; preserve original labels, never add the totals |
+| 6 | Repeated summary/detail source totals | Two identical row matches | High: same rule |
+| 36 | Repeated IT-service subsidiary totals | Two identical row matches | High: same rule plus existing explicit subsidiary scope annotation |
+| 3 | Three monetary columns followed by counterparty and note | Right-edge offset enters trailing nonfinancial cells | High: select header-defined monetary span before trailing columns; support shortened aggregate rows only with explicit shape proof |
+| 21 | Two quantity/amount pairs, one backlog column, trailing note | Second header only contains four subcells; current right-edge parser misaligns all cash fields | Conditional: original header geometry or an explicit backlog monetary designation needed before generic support |
+| 3 | Final amount subheader is empty after quantity header | Final cash offset not declared | Conditional: original header geometry / repeated group structure needs source confirmation, rather than silently completing a missing amount label |
+| 18 | Own wood-pellet rows: quantity suffixes, note, two currencies | Two-currency unit rejected; suffix/note also changes right-edge alignment | Partial: header span can recover numeric columns, but assign currency only when row/header/footnote explicitly declares it |
+| 18 | Same wood-pellet shape inside a subsidiary source scope | Same currency/shape limitation plus source scope | Same partial rule; retain named scope and do not infer issuer total |
+
+## Reviewed implementation sequence (steps1–2 implemented;3–4 remain conditional)
+
+1. **Equivalent-proof revalidation (84 facts).** In the scoped read projection, derive a candidate identity from exact evidence + total/delivered/backlog/unit + normalized explicit source scope and document/report period. When every supported match has the same identity, accept its existing numeric proof. Preserve the stored series label instead of choosing the first table's generated label. Two source rows with different values, units, periods, or scopes remain unresolved. This change needs no new extraction, no relaxed tolerance, and no new numerical policy.
+2. **Header-span parsing (3 facts, plus generalizable infrastructure).** Parse named leading and trailing header fields, then map metric subcolumns inside that span. Never locate monetary cells by the last N cells when there are named counterparty/note fields. Verify all scalar tokens with the existing strict grammar, preserve signs and missing markers, and apply the existing equation tolerance. A shortened aggregate row must match an explicit aggregate structure; no arbitrary largest-number fallback.
+3. **Conditional source-shape support (24 facts).** Inspect an already-cached original HTML/XML header when available; do not fetch new originals. If the printed geometry identifies a monetary backlog cell, flatten that geometry deterministically and preserve it as source proof. Otherwise keep raw observations and explicitly mark the missing monetary-column mapping. Completing an empty subheader solely because adjacent patterns repeat is insufficient evidence for a generic financial fact.
+4. **Mixed-currency rows (36 facts).** Unit selection must come from a row currency prefix, a monetary subheader, or an explicit scoped footnote. A table listing two currencies is not enough to decide which currency belongs to an unprefixed row. Numerical balance alone cannot prove currency. Header alignment and suffix-aware quantity skipping can be implemented without promoting these rows to verified monetary facts; unresolved unit mapping remains visible.
+
+## Meaningful source fixtures and counterexamples
+
+Use complete source table fragments, not implementation-shaped single lines:
+
+- Repeated summary/detail table with the same cash triple must revalidate once and keep the historical label. A second table with the same evidence glyphs but different scoped currency/period must remain unresolved; a different cash triple must not pass equivalence.
+- Product/end-user duplicate totals are both source presentations of the same total and must not be added. Existing subsidiary headings must remain attached after equivalence.
+- The three-cash-column table followed by 거래처명/비고 must map `382,000 / 9,442 / 372,557` before the note. Its printed residual is 1 백만원 and must be disclosed as tolerance, not exact equality. Append a numeric date and an amount in the note to prove they are not cash inputs.
+- A two-pair-plus-backlog table must distinguish quantity from money and ignore trailing `-` notes. Without explicit monetary backlog geometry, it must remain raw-only; a quantity triple that also balances must not authorize monetary selection.
+- A truncated final subheader must remain unsupported unless preserved original header evidence resolves it. Explicit numeric zero remains zero; blank and `-` remain missing.
+- Mixed-currency wood-pellet rows include `456 만톤` and trailing prose. Confirm numerical cash columns separately from units. A foreign-currency-prefixed row does not automatically assign a default currency to neighboring unprefixed rows. Add section/table boundaries and two-currency prefix conflicts.
+- For every automatic match, retain the source document's own report period, unit evidence, exact row quote, equation residual and named business scope. Do not recover a scalar by searching another company's/year's source.
+
+The implemented safe improvement removed **84 duplicate-equivalent revalidation limitations** without changing numbers. Header-span support addressed **3 additional PKC facts**. The remaining **60 facts need stronger original-header or per-row currency evidence** before automatic verified extraction. This is a concrete future coverage gap, not a claim that those 60 printed cash amounts are wrong. No hardcoded company names or source values belong in the generic parser.
+
+## Implemented safe subset and measured result
+
+The user authorized the safe subset after reviewing the read-only assessment. The source remains unchanged in meaning: there is no monetary value hardcoding, company-specific branch, new extraction submission or database mutation.
+
+Equivalent revalidation requires an exact source row quote; equal total/delivered/backlog/unit; equal parser-named scope; equal explicit source-company scope at every occurrence; and the same approved report period (asOf must be present and its year match the report fiscal year). The endpoint's existing source-document/company/report provenance checks supply the report context. Any nearby explicit table 기준일/기말 date or year must agree with that period. A conflicting currency, named company or period keeps the value unresolved. Equivalent candidates preserve the historical series label, and are confirmed once rather than added together.
+
+The complete PKC table explicitly has three monetary subheaders and named 거래처명/비고 trailing columns. The parser now selects that declared monetary span before the trailing cells instead of treating the final three cells as amounts. Strict grammar, signed cash values and missing-marker rules remain unchanged. Its residual1 백만원 is recorded under the existing0.5% tolerance, not claimed to be exact arithmetic.
+
+The pre-FIFTH replay of9,171 API order facts yielded9,027 source-equation confirmations,84 equivalent-source confirmations and60 retained unsupported shapes. The preceding current cohort had9,024 automatically supported facts and147 unsupported, so87 facts gained automatic revalidation with unchanged monetary values. The original150 subset independently yields84 equivalent confirmations,3 PKC source-equation confirmations,3 previously corrected dollar values and60 retained unsupported shapes. Complete source-table fixtures and currency/period/company conflict fixtures pass;38 focused and generated-registration tests passed, and targeted analysis reported no issues. A fresh public factTrends check confirmed all87 improvements across5 companies with unchanged values and current validation notes (`order87-fresh-automatic-verification.json`).
+
+The60 remaining generic-parser limitations retain the explicit raw source, historical value and unconfirmed revalidation annotation. Automatic monetary-column/currency proof is not invented to reach100% coverage.
+
+
+## Remaining60: original data availability and future boundary
+
+The60 limitations span15 stored business documents:21 facts with two quantity/amount pairs plus one backlog and note,3 with a truncated final monetary subheader, and36 wood-pellet facts with quantity suffixes/notes and mixed currency. Printed numbers and the business originals are already stored. What is missing from the generic rule is sufficient monetary-column geometry or per-row currency proof, not a declaration that the source has no business data.
+
+The modeled `business_document` table stores flattened text; `source` retains identity/URL metadata. `BusinessText.toText` discards cell `colspan/rowspan`, and read-only cloud-storage inspection found0 cached file rows. The workspace still has structured XML/HTML originals from previous audits. Exact-receipt HTML was located for doc5041/receipt20260814003841, covering3 of the60 fact components. Its header explicitly shows two-column total/delivered groups and row-spanning backlog/note cells. `order60-cached-exact-header-proof.html` preserves that geometry. This is recoverable source evidence for a future geometry-aware change; current generic support is still limited.
+
+For the other14 documents/57 fact components, exact-receipt structured files were not located in the searched workspace. Same-company newer HTML/XML siblings exist but cannot prove earlier periods or row currencies. Do not describe these57 as disclosure absence, silently fill a missing monetary header, infer currency from numerical balance, or replace historical source proof with a different receipt. Keep their original evidence and honest unconfirmed automatic-revalidation annotation until sufficient source-bound geometry/unit proof exists. Detailed receipt/file/provenance and read-only database evidence are in `order60-local-original-feasibility.json`.

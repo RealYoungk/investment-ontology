@@ -87,6 +87,8 @@ void main() {
       annual.replaceAll('억원', '대'),
       annual.replaceAll('| (단위 : 억원)', ''),
       annual.replaceAll('27,970', '-'),
+      annual.replaceAll('27,970', '27,9727,970'),
+      annual.replaceAll('27,970', '27,97'),
       annual.replaceAll('합 계 | 526,511', ''),
       annual.replaceAll('2025.01~2025.12', '2026.01~2026.12'),
       annual.replaceAll('2025.01~2025.12', '2024.01~2025.12'),

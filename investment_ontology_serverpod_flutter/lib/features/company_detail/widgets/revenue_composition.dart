@@ -43,13 +43,28 @@ import 'business_operating_section.dart'
       share: share != null && share <= 100 ? share : null,
     );
   }
+  // Bare numbers are percentages only for the exact server rule that
+  // reconciled a named share column against the filing's revenue total.
+  double? printedRatio(String cell) {
+    final explicit = RegExp(r'^\d+(?:\.\d+)?%$').hasMatch(cell);
+    final validated =
+        fact.kind == DocumentFactKind.segmentRevenue &&
+        fact.status == RelationStatus.verified &&
+        fact.extractedBy == RelationOrigin.api &&
+        fact.reviewedBy == '표 규칙 (비중 = 매출액 ÷ 합계 확인)' &&
+        RegExp(r'^\d+(?:\.\d+)?$').hasMatch(cell);
+    if (!explicit && !validated) return null;
+    final value = double.tryParse(cell.replaceAll('%', ''));
+    return value != null && value >= 0 && value <= 100 ? value : null;
+  }
+
   final firstAmount = cells.indexWhere(
     (s) => RegExp(r'^-?[\d,]+(?:\.\d+)?$').hasMatch(s),
   );
   final matches = [
     for (var i = 0; i + 1 < cells.length; i++)
       if (double.tryParse(cells[i].replaceAll(',', '')) == fact.value &&
-          RegExp(r'^\d+(?:\.\d+)?%$').hasMatch(cells[i + 1]))
+          printedRatio(cells[i + 1]) != null)
         i,
   ];
   if (fact.asOf != null && matches.length > 1) {
@@ -65,10 +80,8 @@ import 'business_operating_section.dart'
     return (label: fact.label, share: null);
   }
   final labels = cells.take(firstAmount).where((s) => s.isNotEmpty).toList();
-  final share =
-      index + 1 < cells.length &&
-          RegExp(r'^\d+(?:\.\d+)?%$').hasMatch(cells[index + 1])
-      ? double.tryParse(cells[index + 1].replaceAll('%', ''))
+  final share = index + 1 < cells.length
+      ? printedRatio(cells[index + 1])
       : null;
   return (
     label: labels.join(' · '),

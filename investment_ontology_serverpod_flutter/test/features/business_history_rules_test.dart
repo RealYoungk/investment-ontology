@@ -10,6 +10,85 @@ BusinessTableMeasure value(String unit) => BusinessTableMeasure(
   unit: unit,
 );
 void main() {
+  test('non-December fiscal quarters retain their actual source month', () {
+    final latest = BusinessContent(
+      bsnsYear: 2027,
+      rceptNo: 'source-2026-06',
+      title: '사업의 내용',
+      sections: [],
+      charCount: 0,
+      years: [2026, 2027],
+      source: Source(
+        kind: SourceKind.dartReport,
+        title: '분기보고서 (2026.06)',
+        retrievedAt: DateTime.utc(2026),
+      ),
+    );
+    final expected = FinancialPeriod(
+      bsnsYear: 2027,
+      reportCode: FinancialReportCode.q1,
+      reportId: 1,
+      rceptNo: latest.rceptNo,
+      reportName: '분기보고서 (2026.06)',
+      supersededCount: 0,
+      lines: [],
+    );
+    final slot = businessHistorySlots(latest, [
+      latest,
+    ], latestReport: expected).last;
+    expect(slot.period, '2026.06 보고서 · 회계연도 2027 1분기');
+    expect(slot.report?.rceptNo, latest.rceptNo);
+    expect(businessHistoryAxisLabel(slot.year, slot.period), 'FY27.1Q');
+  });
+  test(
+    'older financial coverage cannot hide a newer stored business period',
+    () {
+      final latest = BusinessContent(
+        bsnsYear: 2025,
+        rceptNo: '2025-business',
+        title: '사업의 내용',
+        charCount: 0,
+        sections: [],
+        years: [2024, 2025],
+        source: Source(
+          kind: SourceKind.dartReport,
+          title: 'DART 공시 원본 · II. 사업의 내용 · 사업보고서 (2025.12)',
+          retrievedAt: DateTime.utc(2026),
+        ),
+      );
+      final oldFinancial = FinancialPeriod(
+        bsnsYear: 2024,
+        reportCode: FinancialReportCode.annual,
+        reportId: 1,
+        rceptNo: '2024-financial',
+        reportName: '사업보고서 (2024.12)',
+        supersededCount: 0,
+        lines: [],
+      );
+      expect(businessAnnualYears(latest, latestReport: oldFinancial), [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+      ]);
+      final annual = businessHistorySlots(latest, [
+        latest,
+      ], latestReport: oldFinancial);
+      expect(annual.last.report?.rceptNo, latest.rceptNo);
+      final half = latest.copyWith(
+        bsnsYear: 2026,
+        rceptNo: '2026-half',
+        source: latest.source!.copyWith(title: '반기보고서 (2026.06)'),
+      );
+      final slots = businessHistorySlots(half, [
+        latest,
+        half,
+      ], latestReport: oldFinancial);
+      expect(slots.map((s) => s.year), [2021, 2022, 2023, 2024, 2025, 2026]);
+      expect(slots.last.report?.rceptNo, half.rceptNo);
+    },
+  );
   test('missing reports retain five annual slots plus latest interim', () {
     final latest = BusinessContent(
       bsnsYear: 2026,

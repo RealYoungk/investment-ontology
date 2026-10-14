@@ -1,8 +1,40 @@
+import 'dart:io';
+
 import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/order_facts.dart';
 import 'package:test/test.dart';
 
 /// 실제 사업보고서 표 모양으로 확인한다.
 void main() {
+  test('currency unit cannot cross section boundary', () {
+    expect(
+      OrderFacts.parse(
+        '(단위: 백만원)\n## 다음 절\n품목 | 수주총액 | 기납품액 | 수주잔고\n합계 | 100 | 40 | 60',
+      ),
+      isEmpty,
+    );
+  });
+  test('amount header outranks quantity and signed backlog is retained', () {
+    const noroo =
+        '(단위: 백만원, Ton)\n품목 | 수주총액 | 기납품액 | 수주잔고\n수량 | 금액 | 수량 | 금액 | 수량 | 금액\n합 계 | 18,331 | 79,022 | 18,445 | 79,300 | (114) | (278)';
+    final rows = OrderFacts.parse(noroo);
+    expect(rows.single.total, 79022);
+    expect(rows.single.delivered, 79300);
+    expect(rows.single.backlog, -278);
+    const youngpoong =
+        '(단위: MT, 백만원)\n품목 | 수주총액 | 기납품액 | 수주잔고\n수량 | 금액 | 수량 | 금액 | 수량 | 금액\n영풍 | 348,000 | 1,239,960 | 315,682 | 1,507,386 | -32,318 | 267,426';
+    final rejected = <String>{};
+    expect(OrderFacts.parse(youngpoong, rejectedEvidence: rejected), isEmpty);
+    expect(
+      rejected,
+      isNotEmpty,
+      reason: 'money equation contradicts printed backlog; quantity must not be used',
+    );
+  });
+  test('merged comma amount is rejected even if other quantity triples reconcile', () {
+    const source =
+        '(단위: 백만원)\n품목 | 수주총액 | 기납품액 | 수주잔고\n수량 | 금액 | 수량 | 금액 | 수량 | 금액\n합계 | 100 | 1,2345 | 40 | 800 | 60 | 400';
+    expect(OrderFacts.parse(source), isEmpty);
+  });
   test('explicit company scope survives changing table order', () {
     const a =
         '특장차량 부문 (회사명 : 오텍)\n(단위 : 백만원)\n품목 | 수주총액 | 기납품액 | 수주잔고\n합계 | 100 | 40 | 60';
@@ -70,7 +102,7 @@ FPCB | 2025.01.01~2025.12.31 | 2025.01.01~2025.12.31 | 930 | 228,816 | 857 | 211
     expect(rows.single.unit, '백만원');
   });
 
-  test('합계 줄이 없으면 줄마다, 빈 칸(-)은 0 (SK이터닉스)', () {
+  test('합계 줄이 없어도 미공시 칸(-)은 확정 0으로 만들지 않는다 (SK이터닉스)', () {
     const sk = '''
 (기준일 : 2025.12.31) | (단위 : 백만원)
 회사명 | 발주처 | 수주내용 | 수주일자 | 납기 | 수주총액 | 기납품액 | 수주잔고
@@ -79,7 +111,7 @@ SK이터닉스㈜ | 풍백풍력발전㈜ | 풍백풍력발전단지 EPC공사 |
 파주에코그린에너지㈜ | 파주에코그린에너지 연료전지 EPC공사 | 2025.08 | 2026.11 | 141,495 | - | 141,495
 ''';
     final rows = OrderFacts.parse(sk);
-    expect(rows.map((r) => r.backlog), [25205, 0, 141495]);
+    expect(rows.map((r) => r.backlog), [25205]);
     expect(rows.first.label, 'SK이터닉스㈜');
   });
 
@@ -175,6 +207,7 @@ A | 1,000 | 300 | 700
     const t2 = '''
 | (단위 : 억원)
 사업본부 | 품목 | 수주일자 | 납기 | 이월 수주잔액 | 당기 수주금액 | 기납품액 | 수주잔고
+수량 | 금액 | 수량 | 금액 | 수량 | 금액 | 수량 | 금액
 전력 | T&D | ~'25.12 | '25.01~ | - | 32,692 | - | 36,742 | - | 20,532 | - | 48,902
 합 계 | - | 34,477 | - | 37,364 | - | 21,687 | - | 50,154
 [LS ELECTRIC Vietnam]
@@ -217,8 +250,8 @@ ICT설비유지보수 등 | 한국수력원자력(주) | 정보시스템 유지�
 2022.06.2 | 2024.05.8 | 826 | 1,007,182 | 172 | 194,356 | 654 | 812,826
 ''';
     final rows = OrderFacts.parse(t);
-    expect(rows.map((r) => r.label), ['철근', '철근 (2)']);
-    expect(rows[1].backlog, 812826);
+    expect(rows.map((r) => r.label), ['철근 (2)']);
+    expect(rows.single.backlog, 812826);
   });
 
   test('기초·신규 칸이 있으면 수주총액이 있어도 흐름형이고, 매출계상액도 기납품액이다', () {
@@ -275,4 +308,37 @@ ICT설비유지보수 등 | 한국수력원자력(주) | 정보시스템 유지�
     ]);
     expect(rows[1].total, 23807433 - 1353700 + 11510100);
   });
+  test('explicit monetary span excludes trailing counterparty and numeric notes', () {
+    const source =
+        '(단위: 백만원)\n품목 | 수주일자 | 납기기간 | 수주총액 | 기납품액 | 수주잔고 | 거래처명 | 비고\n금액 | 금액 | 금액\n제품 | 2024.01.01~2038.12.31 | 2024.01.01~2024.12.31 | 382,000 | 9,442 | 372,557 | 거래처 | 2023.08.16 공시기간내 3,820억원';
+    final result = OrderFacts.parse(source);
+    expect(result.single.total, 382000);
+    expect(result.single.delivered, 9442);
+    expect(result.single.backlog, 372557);
+    expect(result.single.unit, '백만원');
+    expect(
+      OrderFacts.parse(source.replaceFirst('382,000', '382,0000')),
+      isEmpty,
+    );
+  });
+  test(
+    'complete original cash-span fixture selects amount fields before notes',
+    () {
+      final components = <OrderFactSourceRow>[];
+      OrderFacts.parse(
+        File(
+          'test/fixtures/business_orders/cash_span_with_counterparty_note.txt',
+        ).readAsStringSync(),
+        verifiedRows: components,
+      );
+      final actual = components.singleWhere(
+        (r) => r.evidence.startsWith('가성소다 |'),
+      );
+      expect(
+        (actual.total, actual.delivered, actual.backlog),
+        (382000.0, 9442.0, 372557.0),
+      );
+      expect(actual.unit, '백만원');
+    },
+  );
 }

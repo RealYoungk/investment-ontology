@@ -1,3 +1,5 @@
+import 'holding_source_scope.dart';
+import 'literal_table_number.dart';
 import 'rule_document_store.dart';
 import 'printed_period_columns.dart';
 
@@ -29,7 +31,7 @@ abstract final class ProductionFacts {
   /// 지주회사 (KSIC). 이 업종은 본문이 자회사 이야기라 규칙 추출을 하지 않는다.
   static const holdingCompanyCode = '64992';
 
-  static final _number = RegExp(r'^-?[\d,]+(?:\.\d+)?$');
+  static final _number = RegExp(r'^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$');
 
   /// 표의 한 줄에서 읽은 값.
   static List<
@@ -68,6 +70,8 @@ abstract final class ProductionFacts {
     var otherCompany = false;
     var inTable = false;
     var onlyUtilization = false;
+    var utilizationPercentUnit = false;
+    var activityScope = '';
     var itemHeader = false;
     var utilAsProduction = false;
     var overAt = -1, underAt = -1;
@@ -89,6 +93,8 @@ abstract final class ProductionFacts {
     void resetTable() {
       lastUnit = null;
       lastUnitAt = -1000;
+      activityScope = '';
+      utilizationPercentUnit = false;
       unitFromHeader = '';
       inTable = false;
       itemHeader = false;
@@ -131,6 +137,10 @@ abstract final class ProductionFacts {
         continue;
       }
       if (otherCompany) continue;
+      if (!line.contains('|') &&
+          RegExp(r'(?:^|[-])\s*(국내사업소|해외사업소)$').hasMatch(line)) {
+        activityScope = RegExp(r'(국내사업소|해외사업소)$').firstMatch(line)!.group(1)!;
+      }
       final u = RegExp(r'단위\s*[:：]\s*([^)\]]+)').firstMatch(line);
       if (u != null) {
         lastUnit = u.group(1)!.trim();
@@ -247,6 +257,9 @@ abstract final class ProductionFacts {
         inTable = over >= 0 && under >= 0 && over != under;
         columns = cells.length;
         onlyUtilization = inTable;
+        utilizationPercentUnit =
+            cells.last.contains('%') ||
+            i - lastUnitAt <= 6 && (lastUnit?.contains('%') ?? false);
         itemHeader = false;
         overAt = over;
         underAt = under;
@@ -280,14 +293,17 @@ abstract final class ProductionFacts {
       var labelEnd = cells.length - 1;
       if (onlyUtilization) {
         final last = cells.last;
-        if (!last.endsWith('%')) continue;
+        if (!last.endsWith('%') && !utilizationPercentUnit) continue;
         util = double.tryParse(last.replaceAll(RegExp(r'[%,]'), ''));
         if (util == null) continue;
         final overIdx = cells.length - (columns - overAt);
         final underIdx = cells.length - (columns - underAt);
         if (overIdx < 0 || underIdx < 0) continue;
-        final over = _num(cells[overIdx]), under = _num(cells[underIdx]);
-        if (over == null || under == null || under <= 0) continue;
+        final activity = _activityPair(cells[overIdx], cells[underIdx]);
+        if (activity == null) continue;
+        final (over, under) = activity;
+        if (under <= 0) continue;
+        labelEnd = overIdx < underIdx ? overIdx : underIdx;
         if ((util - 100 * over / under).abs() > tolerance) continue;
         if (utilAsProduction) {
           cap = under;
@@ -326,6 +342,11 @@ abstract final class ProductionFacts {
       final name = [
         // A merged division cell precedes the product beneath one 품목 header.
         // Keep the actual item stable when that division suffix is misspelled.
+        if (onlyUtilization &&
+            labels.length == 1 &&
+            RegExp(r'^(합계|총계)$').hasMatch(labels.single.replaceAll(' ', '')) &&
+            activityScope.isNotEmpty)
+          activityScope,
         for (final l
             in itemHeader &&
                     labels.length == 2 &&
@@ -347,9 +368,21 @@ abstract final class ProductionFacts {
     return out;
   }
 
+  /// Both time/activity cells must use the same printed scale and unit.
+  /// Ratios cancel that common unit; do not turn hours into product capacity.
+  static (double, double)? _activityPair(String numerator, String denominator) {
+    final pattern = RegExp(r'^([\d,]+(?:\.\d+)?)\s*(천M/H|M/H|시간|H)?$');
+    final a = pattern.firstMatch(numerator.trim()),
+        b = pattern.firstMatch(denominator.trim());
+    if (a == null || b == null || a.group(2) != b.group(2)) return null;
+    final over = literalTableNumber(a.group(1)!);
+    final under = literalTableNumber(b.group(1)!);
+    return over == null || under == null ? null : (over, under);
+  }
+
   /// "50%", "50.4 %" → 50, 50.4. 아니면 null.
   static double? _percent(String s) =>
-      double.tryParse(s.replaceAll(RegExp(r'[%,\s]'), ''));
+      literalTableNumber(s.trim().replaceAll(RegExp(r'\s+%$'), '%'));
 
   /// 이름 비교용 (괄호·법인 표기·공백을 떼고 소문자로).
   static String _key(String name) {
@@ -370,8 +403,7 @@ abstract final class ProductionFacts {
     return k;
   }
 
-  static double? _num(String s) =>
-      _number.hasMatch(s) ? double.tryParse(s.replaceAll(',', '')) : null;
+  static double? _num(String s) => literalTableNumber(s);
 
   /// 단위 줄의 첫 단위 ("천㎡, %" → 천㎡). 품목마다 다른 단위("완제의약품-백만정, …")나
   /// 숫자가 섞인 것은 단위로 보지 않는다.
@@ -549,7 +581,10 @@ abstract final class ProductionFacts {
     );
     // 지주회사(KSIC 64992)의 "사업의 내용"은 대부분 자회사·관계기업의 표다.
     // 그 회사 값으로 잘못 넣느니 통째로 건너뛴다.
-    if (company?.industryCode == holdingCompanyCode) return 0;
+    if (company?.industryCode == holdingCompanyCode ||
+        HoldingSourceScope.declaresHolding(doc.text)) {
+      return 0;
+    }
     final others = companyKeys ?? await listedKeys(session, transaction: tx);
     // 가동률 표가 없어도 부문별 매출·수주 표는 있을 수 있다 — 여기서 돌아가지 않는다.
     final rows = parse(doc.text, owner: company?.name, otherCompanies: others);
