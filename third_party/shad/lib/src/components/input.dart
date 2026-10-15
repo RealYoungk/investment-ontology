@@ -25,10 +25,7 @@ import 'package:shad/src/utils/extensions/text_style.dart';
 import 'package:shad/src/utils/separated_iterable.dart';
 import 'package:shad/src/utils/shadow.dart';
 
-String? _localizedLabel(
-  ContextMenuButtonType type,
-  ShadLocalizationsData l,
-) {
+String? _localizedLabel(ContextMenuButtonType type, ShadLocalizationsData l) {
   return switch (type) {
     ContextMenuButtonType.cut => l.input.cut,
     ContextMenuButtonType.copy => l.input.copy,
@@ -866,7 +863,6 @@ class ShadInputState extends State<ShadInput>
     _editableText?.requestKeyboard();
   }
 
-
   bool get isMultiline => widget.maxLines != 1;
 
   @override
@@ -969,15 +965,10 @@ class ShadInputState extends State<ShadInput>
     if (widget.onLineCountChange == null) {
       return;
     }
-    final span = TextSpan(
-      text: text,
-      style: effectiveTextStyle,
-    );
+    final span = TextSpan(text: text, style: effectiveTextStyle);
     final tp = TextPainter(
       text: span,
-      textDirection: Directionality.of(
-        context,
-      ),
+      textDirection: Directionality.of(context),
       textScaler: textScaler,
       maxLines: widget.maxLines,
       textAlign: widget.textAlign,
@@ -988,16 +979,12 @@ class ShadInputState extends State<ShadInput>
     // The default caret gap is 1 pixel, so we need to account for that
     const caretGap = 1;
     // default of TextField constructor
-    tp.layout(
-      maxWidth: constraints.maxWidth - caretGap - effectiveCursorWidth,
-    );
+    tp.layout(maxWidth: constraints.maxWidth - caretGap - effectiveCursorWidth);
     final numLines = tp.computeLineMetrics().length;
     // Only fire callback if line count changed
     if (numLines != _previousLineCount) {
       _previousLineCount = numLines;
-      widget.onLineCountChange!(
-        numLines,
-      );
+      widget.onLineCountChange!(numLines);
     }
   }
 
@@ -1009,20 +996,18 @@ class ShadInputState extends State<ShadInput>
     final textValue = editableTextState.textEditingValue;
     final selection = textValue.selection;
     final hasSelection = selection.isValid && !selection.isCollapsed;
-    final buttonItems = editableTextState.contextMenuButtonItems.where(
-      (item) {
-        if (item.type == ContextMenuButtonType.cut ||
-            item.type == ContextMenuButtonType.copy) {
-          return hasSelection;
-        }
-        if (item.type == ContextMenuButtonType.selectAll) {
-          return !(hasSelection &&
-              selection.start == 0 &&
-              selection.end == textValue.text.length);
-        }
-        return (_localizedLabel(item.type, l) ?? item.label ?? '').isNotEmpty;
-      },
-    ).toList();
+    final buttonItems = editableTextState.contextMenuButtonItems.where((item) {
+      if (item.type == ContextMenuButtonType.cut ||
+          item.type == ContextMenuButtonType.copy) {
+        return hasSelection;
+      }
+      if (item.type == ContextMenuButtonType.selectAll) {
+        return !(hasSelection &&
+            selection.start == 0 &&
+            selection.end == textValue.text.length);
+      }
+      return (_localizedLabel(item.type, l) ?? item.label ?? '').isNotEmpty;
+    }).toList();
     if (buttonItems.isEmpty) return const SizedBox.shrink();
     return FocusScope(
       // Prevent the context menu from stealing focus from the
@@ -1047,9 +1032,7 @@ class ShadInputState extends State<ShadInput>
                       }
                     }
                   : null,
-              child: Text(
-                _localizedLabel(item.type, l) ?? item.label ?? '',
-              ),
+              child: Text(_localizedLabel(item.type, l) ?? item.label ?? ''),
             ),
         ],
         child: const SizedBox.shrink(),
@@ -1061,9 +1044,7 @@ class ShadInputState extends State<ShadInput>
   Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
     final effectiveTextStyle = theme.textTheme.muted
-        .copyWith(
-          color: theme.colorScheme.foreground,
-        )
+        .copyWith(color: theme.colorScheme.foreground)
         .merge(theme.inputTheme.style)
         .merge(widget.style);
 
@@ -1222,9 +1203,7 @@ class ShadInputState extends State<ShadInput>
                         cursorHeight: effectiveCursorHeight,
                         cursorRadius: effectiveCursorRadius,
                         cursorOpacityAnimates: effectiveCursorOpacityAnimates,
-                        backgroundCursorColor: const Color(
-                          0xFF9E9E9E,
-                        ),
+                        backgroundCursorColor: const Color(0xFF9E9E9E),
                         keyboardType: widget.keyboardType,
                         keyboardAppearance:
                             widget.keyboardAppearance ?? theme.brightness,
@@ -1254,13 +1233,8 @@ class ShadInputState extends State<ShadInput>
                         // Disable the internal scrollbars
                         // because there is already a
                         // Scrollbar above.
-                        scrollBehavior:
-                            ScrollConfiguration.of(
-                              context,
-                            ).copyWith(
-                              scrollbars: false,
-                              overscroll: false,
-                            ),
+                        scrollBehavior: ScrollConfiguration.of(context)
+                            .copyWith(scrollbars: false, overscroll: false),
                         autofillHints: widget.autofillHints,
                         clipBehavior: widget.clipBehavior,
                         restorationId: 'editable',
@@ -1288,9 +1262,7 @@ class ShadInputState extends State<ShadInput>
                           /// Fire onLineCountChange after the frame is rendered
                           /// This ensures that the line count is accurate, even for
                           /// resizes that happen outside of text changes.
-                          WidgetsBinding.instance.addPostFrameCallback((
-                            _,
-                          ) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
                             if (mounted) {
                               fireOnLineCountChange(
                                 effectiveController.text,
@@ -1362,8 +1334,16 @@ class ShadInputState extends State<ShadInput>
                                                       child: DefaultTextStyle(
                                                         style:
                                                             effectivePlaceholderStyle,
-                                                        child:
-                                                            widget.placeholder!,
+                                                        // The editor already carries this label.
+                                                        // Removing a separate placeholder semantics
+                                                        // node can detach the focused web input.
+                                                        child: ExcludeSemantics(
+                                                          excluding:
+                                                              widget.placeholder
+                                                                  is Text,
+                                                          child: widget
+                                                              .placeholder!,
+                                                        ),
                                                       ),
                                                     );
                                                   },
@@ -1377,10 +1357,14 @@ class ShadInputState extends State<ShadInput>
                                                   child: Semantics(
                                                     enabled: widget.enabled,
                                                     label: widget.top is Text
-                                                        ? (widget.top as Text).data
-                                                        : widget.placeholder is Text
-                                                            ? (widget.placeholder as Text).data
-                                                            : null,
+                                                        ? (widget.top as Text)
+                                                              .data
+                                                        : widget.placeholder
+                                                              is Text
+                                                        ? (widget.placeholder
+                                                                  as Text)
+                                                              .data
+                                                        : null,
                                                     onTap: widget.enabled
                                                         ? _requestKeyboardFromSemantics
                                                         : null,
@@ -1388,7 +1372,8 @@ class ShadInputState extends State<ShadInput>
                                                         ? _requestKeyboardFromSemantics
                                                         : null,
                                                     child: ExcludeFocus(
-                                                      excluding: !widget.enabled,
+                                                      excluding:
+                                                          !widget.enabled,
                                                       child: editableText,
                                                     ),
                                                   ),
@@ -1422,10 +1407,9 @@ class ShadInputState extends State<ShadInput>
 
 class _InputSelectionGestureDetectorBuilder
     extends TextSelectionGestureDetectorBuilder {
-  _InputSelectionGestureDetectorBuilder({
-    required ShadInputState state,
-  }) : _state = state,
-       super(delegate: state);
+  _InputSelectionGestureDetectorBuilder({required ShadInputState state})
+    : _state = state,
+      super(delegate: state);
 
   final ShadInputState _state;
 

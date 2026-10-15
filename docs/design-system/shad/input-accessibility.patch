@@ -1,17 +1,14 @@
 --- a/lib/src/components/input.dart
 +++ b/lib/src/components/input.dart
-@@ -754,6 +754,7 @@
-   @override
-   void didUpdateWidget(ShadInput oldWidget) {
-     super.didUpdateWidget(oldWidget);
+@@ -28,4 +28 @@
+-String? _localizedLabel(
+-  ContextMenuButtonType type,
+-  ShadLocalizationsData l,
+-) {
++String? _localizedLabel(ContextMenuButtonType type, ShadLocalizationsData l) {
+@@ -756,0 +754 @@
 +    if (!widget.enabled && oldWidget.enabled) effectiveFocusNode.unfocus();
-     if (widget.focusNode != oldWidget.focusNode) {
-       oldWidget.focusNode?.removeListener(onFocusChange);
-       effectiveFocusNode.addListener(onFocusChange);
-@@ -853,6 +854,18 @@
-   String? get restorationId => widget.restorationId;
- 
-   EditableTextState? get _editableText => editableTextKey.currentState;
+@@ -855,0 +854,11 @@
 +
 +  // Match the framework TextField semantics entry point: initialize an invalid
 +  // selection before opening the native editing session.
@@ -23,22 +20,110 @@
 +    }
 +    _editableText?.requestKeyboard();
 +  }
-+
- 
-   bool get isMultiline => widget.maxLines != 1;
- 
-@@ -1361,7 +1374,24 @@
-                                                 bucket: bucket,
-                                                 child: Align(
-                                                   alignment: effectiveAlignemnt,
+@@ -959,4 +968 @@
+-    final span = TextSpan(
+-      text: text,
+-      style: effectiveTextStyle,
+-    );
++    final span = TextSpan(text: text, style: effectiveTextStyle);
+@@ -965,3 +971 @@
+-      textDirection: Directionality.of(
+-        context,
+-      ),
++      textDirection: Directionality.of(context),
+@@ -978,3 +982 @@
+-    tp.layout(
+-      maxWidth: constraints.maxWidth - caretGap - effectiveCursorWidth,
+-    );
++    tp.layout(maxWidth: constraints.maxWidth - caretGap - effectiveCursorWidth);
+@@ -985,3 +987 @@
+-      widget.onLineCountChange!(
+-        numLines,
+-      );
++      widget.onLineCountChange!(numLines);
+@@ -999,14 +999,12 @@
+-    final buttonItems = editableTextState.contextMenuButtonItems.where(
+-      (item) {
+-        if (item.type == ContextMenuButtonType.cut ||
+-            item.type == ContextMenuButtonType.copy) {
+-          return hasSelection;
+-        }
+-        if (item.type == ContextMenuButtonType.selectAll) {
+-          return !(hasSelection &&
+-              selection.start == 0 &&
+-              selection.end == textValue.text.length);
+-        }
+-        return (_localizedLabel(item.type, l) ?? item.label ?? '').isNotEmpty;
+-      },
+-    ).toList();
++    final buttonItems = editableTextState.contextMenuButtonItems.where((item) {
++      if (item.type == ContextMenuButtonType.cut ||
++          item.type == ContextMenuButtonType.copy) {
++        return hasSelection;
++      }
++      if (item.type == ContextMenuButtonType.selectAll) {
++        return !(hasSelection &&
++            selection.start == 0 &&
++            selection.end == textValue.text.length);
++      }
++      return (_localizedLabel(item.type, l) ?? item.label ?? '').isNotEmpty;
++    }).toList();
+@@ -1037,3 +1035 @@
+-              child: Text(
+-                _localizedLabel(item.type, l) ?? item.label ?? '',
+-              ),
++              child: Text(_localizedLabel(item.type, l) ?? item.label ?? ''),
+@@ -1051,3 +1047 @@
+-        .copyWith(
+-          color: theme.colorScheme.foreground,
+-        )
++        .copyWith(color: theme.colorScheme.foreground)
+@@ -1212,3 +1206 @@
+-                        backgroundCursorColor: const Color(
+-                          0xFF9E9E9E,
+-                        ),
++                        backgroundCursorColor: const Color(0xFF9E9E9E),
+@@ -1244,7 +1236,2 @@
+-                        scrollBehavior:
+-                            ScrollConfiguration.of(
+-                              context,
+-                            ).copyWith(
+-                              scrollbars: false,
+-                              overscroll: false,
+-                            ),
++                        scrollBehavior: ScrollConfiguration.of(context)
++                            .copyWith(scrollbars: false, overscroll: false),
+@@ -1278,3 +1265 @@
+-                          WidgetsBinding.instance.addPostFrameCallback((
+-                            _,
+-                          ) {
++                          WidgetsBinding.instance.addPostFrameCallback((_) {
+@@ -1352,2 +1337,10 @@
+-                                                        child:
+-                                                            widget.placeholder!,
++                                                        // The editor already carries this label.
++                                                        // Removing a separate placeholder semantics
++                                                        // node can detach the focused web input.
++                                                        child: ExcludeSemantics(
++                                                          excluding:
++                                                              widget.placeholder
++                                                                  is Text,
++                                                          child: widget
++                                                              .placeholder!,
++                                                        ),
+@@ -1364 +1357,23 @@
 -                                                  child: editableText,
 +                                                  child: Semantics(
 +                                                    enabled: widget.enabled,
 +                                                    label: widget.top is Text
-+                                                        ? (widget.top as Text).data
-+                                                        : widget.placeholder is Text
-+                                                            ? (widget.placeholder as Text).data
-+                                                            : null,
++                                                        ? (widget.top as Text)
++                                                              .data
++                                                        : widget.placeholder
++                                                              is Text
++                                                        ? (widget.placeholder
++                                                                  as Text)
++                                                              .data
++                                                        : null,
 +                                                    onTap: widget.enabled
 +                                                        ? _requestKeyboardFromSemantics
 +                                                        : null,
@@ -46,10 +131,16 @@
 +                                                        ? _requestKeyboardFromSemantics
 +                                                        : null,
 +                                                    child: ExcludeFocus(
-+                                                      excluding: !widget.enabled,
++                                                      excluding:
++                                                          !widget.enabled,
 +                                                      child: editableText,
 +                                                    ),
 +                                                  ),
-                                                 ),
-                                               ),
-                                             ),
+@@ -1395,4 +1410,3 @@
+-  _InputSelectionGestureDetectorBuilder({
+-    required ShadInputState state,
+-  }) : _state = state,
+-       super(delegate: state);
++  _InputSelectionGestureDetectorBuilder({required ShadInputState state})
++    : _state = state,
++      super(delegate: state);

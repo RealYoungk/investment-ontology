@@ -310,7 +310,7 @@
     "lib/src/utils/clipboard/clipboard_service_stub.dart": "e06cc7f82c211630e4e63ebd8503426c0957d197255979ee8633132c42ca76cc"
   },
   "patched_sha256": {
-    "lib/src/components/input.dart": "8f3eaefa6c2a32f044f605b350b081dc73055442d885288e32c503febee7615b"
+    "lib/src/components/input.dart": "48fbe0fd6a7ba3f89ee0e5ae620d2f3ef0561b1672b0363ef748305f1f711878"
   },
   "verified_changed_files": [
     "lib/src/components/input.dart"

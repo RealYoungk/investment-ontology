@@ -24,6 +24,67 @@ final theme = buildAppTheme(
   ),
 );
 void main() {
+  for (final width in [390.0, 1280.0]) {
+    testWidgets('search can be typed, cleared and reopened at $width', (
+      tester,
+    ) async {
+      tester.view.physicalSize = Size(width, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final store = WatchlistStore(
+        fetch: () async => WatchlistView(
+          companies: [],
+          updates: [],
+          limit: 3,
+          paid: false,
+          scanStatus: 'waiting',
+          pushConfigured: false,
+          workerEnabled: false,
+        ),
+        addCompany: (_) async {},
+        removeCompany: (_) async {},
+      );
+      store.setOwner('fixture');
+      await tester.pump();
+      await tester.pumpWidget(
+        shadTestHost(
+          MaterialApp(
+            theme: theme,
+            home: Scaffold(body: WatchlistPage(store: store)),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      if (width < 600) {
+        await tester.tap(find.text('종목 0'));
+        await tester.pumpAndSettle();
+      }
+      for (var attempt = 0; attempt < 2; attempt++) {
+        await tester.tap(find.text('종목 추가').first);
+        await tester.pumpAndSettle();
+        final input = find.byType(EditableText);
+        expect(input, findsOneWidget);
+        expect(tester.widget<EditableText>(input).focusNode.hasFocus, isTrue);
+        for (final text in ['삼', '삼성', '', '005930', '']) {
+          tester.testTextInput.enterText(text);
+          await tester.pump();
+          expect(tester.widget<EditableText>(input).controller.text, text);
+          expect(tester.testTextInput.hasAnyClients, isTrue);
+        }
+        await tester.tap(
+          find.byWidgetPredicate(
+            (w) => w is ShadIconButton && w.semanticLabel == '검색 닫기',
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(EditableText), findsNothing);
+      }
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
   testWidgets(
     'empty watchlist explains limits and unavailable push at mobile width',
     (tester) async {

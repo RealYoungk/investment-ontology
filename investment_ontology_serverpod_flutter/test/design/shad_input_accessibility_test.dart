@@ -24,6 +24,54 @@ SemanticsNode inputNode(WidgetTester tester) {
 }
 
 void main() {
+  testWidgets('placeholder changes preserve the textbox semantics ancestry', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      shadTestHost(
+        MaterialApp(
+          home: Scaffold(
+            body: ShadInput(
+              controller: controller,
+              placeholder: const Text('기업 검색'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byType(EditableText));
+    await tester.pump();
+    List<int> ancestry() {
+      final ids = <int>[];
+      SemanticsNode? node = inputNode(tester);
+      while (node != null) {
+        ids.add(node.id);
+        node.visitChildren((child) {
+          ids.add(child.id);
+          return true;
+        });
+        node = node.parent;
+      }
+      return ids;
+    }
+
+    final before = ancestry();
+    tester.testTextInput.enterText('삼');
+    await tester.pump();
+    expect(
+      ancestry(),
+      before,
+      reason: 'Removing the placeholder must not reparent the browser input',
+    );
+    tester.testTextInput.enterText('');
+    await tester.pump();
+    expect(ancestry(), before);
+    semantics.dispose();
+    await tester.pumpWidget(const SizedBox());
+  });
   testWidgets('visible field label takes priority over shared placeholder', (
     tester,
   ) async {
