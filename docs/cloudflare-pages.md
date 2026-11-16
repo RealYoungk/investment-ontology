@@ -51,7 +51,7 @@ AdSense에서 alfinder.kr이 실제로 ‘준비됨’으로 바뀌고, 새 호�
 
 2026-10-01 확인: Pages 프로젝트 alfinder-web 생성·64개 파일 배포. 실제 API 공개 overview 200, 비로그인 membership/status 401, ads.txt 200. Cloudflare ExecutionContext가 테스트용 HTTP 클라이언트 인자로 잘못 전달되던 문제를 수정하고 5번째 회귀 검증을 추가했다. AdSense 사이트 승인 상태는 ‘준비 중’, ads.txt는 ‘승인됨’이다. Gabia 원본 DNS 6개를 보존하고 Cloudflare에 모두 복사했다. Cloudflare NS는 johnny.ns.cloudflare.com / meg.ns.cloudflare.com이며 가비아에서 두 NS로 설정 완료를 확인했고 Cloudflare 활성화 및 DNS 전파를 기다린다. 현재 alfinder.kr의 authoritative NS는 아직 Gabia다.
 
-최신 승인 전 검증·활성화·롤백은 [monetization-preapproval-verification.md](monetization-preapproval-verification.md)를 따른다.
+최신 승인 전 검증·활성화·롤백은 수익화 사전 검증 문서(공개 저장소에서는 제외)를 따랐다.
 
 ## 2026-10-03 기본 배포 스크립트
 
